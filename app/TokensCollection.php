@@ -28,14 +28,14 @@
                 $sourceToken = null;
                 foreach ($this->list as $token) {
                     if ( $token->incremental == $target ) {
-                        $file = $sourceToken->getDelta($token);
+                        $delta = $sourceToken->getDelta($token);
                         $ret = array(
-                            'date_created_unix' => '',
-                            'filename' => '',
-                            'download_url' => '',
-                            'api_level' => '',
-                            'md5sum' => '',
-                            'incremental' => ''
+                            'date_created_unix' => $delta['timestamp'],
+                            'filename' => $delta['filename'],
+                            'download_url' => $delta['url'],
+                            'api_level' => $delta['api_level'],
+                            'md5sum' => $delta['md5'],
+                            'incremental' => $delta['incremental']
                         );
                     } else if ( $token->incremental == $source ) {
                         $sourceToken = $token;

@@ -62,21 +62,37 @@
         public function getDelta($targetToken){
             $ret = false;
 
+            $deltaFile = $this->incremental.'-'.$targetToken->incremental.'.zip';
+            $deltaFilePath = dirname( $this->filePath ).'/'.$deltaFile;
+
             if ( $this->commandExists('xdelta3') ) {
 
+                if ( !file_exists($deltaFilePath) ) {
+                    exec( 'xdelta3 -e -s '.$this->filePath.' '.$targetToken->filePath.' '.$deltaFilePath );
+                }
+
+                $ret = array(
+                    'filename' => $deltaFile,
+                    'timestamp' => filemtime( $deltaFilePath ),
+                    'md5' => $this->getMD5( $deltaFilePath ),
+                    'url' => $this->getUrl( $deltaFile ),
+                    'api_level' => $this->api_level,
+                    'incremental' => $targetToken->incremental
+                );
             }
 
             return $ret;
         }
-        public function getMD5(){
+        public function getMD5($file){
             $ret = '';
 
+            if ( empty($file) ) $file = $this->filePath;
             // Pretty much faster if it is available
             if ( $this->commandExists('md5sum') ) {
-                $tmp = explode("  ", exec("md5sum ".$this->filePath));
+                $tmp = explode("  ", exec( 'md5sum '.$file));
                 $ret = $tmp[0];
             } else {
-                $ret = md5_file($this->filePath);
+                $ret = md5_file($file);
             }
 
             return $ret;
@@ -99,8 +115,9 @@
 
             return $ret;
         }
-        private function getUrl(){
-            return 'http://' . $_SERVER['SERVER_NAME'] . $this->baseUrl . '/_builds/' . $this->filename;
+        private function getUrl($file){
+            if ( empty($file) ) $file = $this->filename;
+            return 'http://' . $_SERVER['SERVER_NAME'] . $this->baseUrl . '/_builds/' . $file;
         }
         private function getChangelogUrl(){
             return str_replace('.zip', '.txt', $this->url);

@@ -12,7 +12,11 @@ Just follow the rest of the tutorial on [my personal blog post](http://blog.juli
 ##What about Debug?
 I've implemented a [simple script made for NodeJS](https://github.com/julianxhokaxhiu/CyanogenModOTAUnitTest) that you clone and use it.
 
+##Do you support Delta updates?
+YES! As long as you have <code>xdelta3</code> installed into your system (Windows/Mac/Linux). More info here: [xdelta.org](http://xdelta.org/)
+
 ##Changelog
+- 0.2: Refactored a lot of code + boost MD5 calculation + added support for **Delta Updates** (<code>/api/v1/build/get_delta</code>)
 - 0.1: First implementation of the server. Only the <code>/api</code> call is implemented right now.
 
 Enjoy :)
