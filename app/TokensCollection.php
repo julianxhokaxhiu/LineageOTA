@@ -55,7 +55,7 @@
                     'api_level' => $token->getAPILevel(),
                     'url' => $token->url,
                     'timestamp' => $token->timestamp,
-                    'md5sum' => $token->md5,
+                    'md5sum' => $token->getMD5(),
                     'changes' => $token->changelogUrl,
                     'channel' => $token->channel,
                     'filename' => $token->filename

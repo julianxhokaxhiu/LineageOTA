@@ -7,7 +7,6 @@
         var $filename = '';
         var $url = '';
         var $changelogUrl = '';
-        var $md5 = '';
         var $timestamp = '';
         var $incremental = '';
         var $filePath = '';
@@ -34,7 +33,6 @@
             $this->filename = $fileName;
             $this->url = $this->getUrl();
             $this->changelogUrl = $this->getChangelogUrl();
-            $this->md5 = $this->getMD5();
             $this->timestamp = filemtime($this->filePath);
             $this->incremental = $this->getIncremental();
         }
@@ -64,7 +62,22 @@
         public function getDelta($targetToken){
             $ret = false;
 
-            // TODO...
+            if ( $this->commandExists('xdelta3') ) {
+
+            }
+
+            return $ret;
+        }
+        public function getMD5(){
+            $ret = '';
+
+            // Pretty much faster if it is available
+            if ( $this->commandExists('md5sum') ) {
+                $tmp = explode("  ", exec("md5sum ".$this->filePath));
+                $ret = $tmp[0];
+            } else {
+                $ret = md5_file($this->filePath);
+            }
 
             return $ret;
         }
@@ -92,9 +105,6 @@
         private function getChangelogUrl(){
             return str_replace('.zip', '.txt', $this->url);
         }
-        private function getMD5(){
-            return md5_file($this->filePath);
-        }
         private function getIncremental(){
             $ret = '';
 
@@ -105,9 +115,14 @@
                 if ( strpos($line, 'ro.build.version.incremental') !== false ) {
                     $tmp = explode('=', $line);
                     $ret = $tmp[1];
+                    break;
                 }
             }
 
             return $ret;
+        }
+        private function commandExists($cmd){
+            $returnVal = shell_exec("which $cmd");
+            return (empty($returnVal) ? false : true);
         }
     };
