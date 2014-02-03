@@ -33,20 +33,28 @@
             'error' => null
         );
 
-        // Get all the builds from the folder and return them in a structured way
         $tokens = new TokenCollection(realpath('./_builds/'));
-        $ret['results'] = $tokens->list;
+        $ret['results'] = $tokens->getUpdateList();
 
         Flight::json($ret);
     });
 
     Flight::route('/api/v1/build/get_delta', function(){
         $ret = array(
-            'id' => null,
-            'results' => array(),
-            'error' => null
+            'errors' => null
         );
-        // TODO...
+
+        $tokens = new TokenCollection(realpath('./_builds/'));
+        $delta = $token->getDeltaUpdate();
+
+        if ( $delta === false ) {
+            $ret['errors'] = array(
+                'message' => 'Unable to find delta'
+            );
+        } else {
+            array_merge($ret, $delta);
+        }
+
         Flight::json($ret);
     });
 

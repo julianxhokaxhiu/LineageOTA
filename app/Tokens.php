@@ -29,7 +29,7 @@
             $this->baseUrl = $baseUrl;
             $this->version = $tokens[1];
             $this->date = $tokens[2];
-            $this->channel = ( $tokens[3] > '' ? strtolower( str_replace(range(0,9), '', $tokens[3]) ) : 'stable' ); // Strip numbers
+            $this->channel = $this->getChannel( str_replace(range(0,9), '', $tokens[3]) );
             $this->model = $tokens[4];
             $this->filename = $fileName;
             $this->url = $this->getUrl();
@@ -61,12 +61,30 @@
 
             return $ret;
         }
+        public function getDelta($targetToken){
+            $ret = false;
+
+            // TODO...
+
+            return $ret;
+        }
         /* UTILITY */
         private function removeTrailingDashes($token){
             foreach ( $token as $key => $value ) {
                 $token[$key] = rtrim( $value[0], '-' );
             }
             return $token;
+        }
+        private function getChannel($token){
+            $ret = 'stable';
+
+            $token = strtolower( $token );
+            if ( $token > '' ) {
+                $ret = $token;
+                if ( $token != 'rc' && $token != 'nightly' ) $ret = 'snapshot';
+            }
+
+            return $ret;
         }
         private function getUrl(){
             return 'http://' . $_SERVER['SERVER_NAME'] . $this->baseUrl . '/_builds/' . $this->filename;
