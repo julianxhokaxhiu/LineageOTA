@@ -34,6 +34,7 @@
         var $changelogUrl = '';
         var $md5 = '';
         var $timestamp = '';
+        var $incremental = '';
 
         public function __construct($fileName, $dirPath, $baseUrl){
             /*
@@ -56,6 +57,7 @@
             $this->changelogUrl = $this->getChangelogUrl($this->url);
             $this->md5 = $this->getMD5($fileName,$dirPath);
             $this->timestamp = filemtime($dirPath.$fileName);
+            $this->incremental = $this->getIncremental($fileName,$dirPath);
         }
         public function isValid($params){
             $ret = false;
@@ -94,9 +96,22 @@
             return str_replace('.zip', '.txt', $url);
         }
         private function getMD5($fileName,$dirPath){
-            $file_path = $dirPath.$fileName;
-            $result = explode("  ", exec("md5sum $file_path"));
-            return $result[0];
+            return md5_file($dirPath.$fileName);
+        }
+        private function getIncremental($fileName,$dirPath){
+            $ret = '';
+
+            // Read ZIP file build.prop to get incremental
+            $buildProp = file_get_contents('zip://'.__DIR__.'/'.$dirPath.$fileName.'#system/build.prop');
+            $buildProp = explode("\n", $buildProp);
+            foreach ($buildProp as $line) {
+                if ( strpos($line, 'ro.build.version.incremental') !== false ) {
+                    $tmp = explode('=', $line);
+                    $ret = $tmp[1];
+                }
+            }
+
+            return $ret;
         }
     };
 
@@ -108,7 +123,7 @@
         );
 
         // Get all the builds from the folder and return them in a structured way
-        $dirPath = './_builds/';
+        $dirPath = '_builds/';
         $files = preg_grep('/^([^.])/', scandir($dirPath));
         if ( count( $files ) > 0  ) {
             foreach ( $files as $file ) {
@@ -116,7 +131,7 @@
 
                 if ( $token->isValid( json_decode(Flight::request()->body, true)['params'] ) ) {
                     array_push($ret['results'], array(
-                        'incremental' => '',
+                        'incremental' => $token->incremental,
                         'api_level' => $token->getAPILevel(),
                         'url' => $token->url,
                         'timestamp' => $token->timestamp,
