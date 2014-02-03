@@ -4,14 +4,16 @@
         var $date = '';
         var $channel = '';
         var $model = '';
-        var $file = '';
+        var $filename = '';
         var $url = '';
         var $changelogUrl = '';
         var $md5 = '';
         var $timestamp = '';
         var $incremental = '';
+        var $filePath = '';
+        var $baseUrl = '';
 
-        public function __construct($fileName, $dirPath, $baseUrl){
+        public function __construct($fileName, $physicalPath, $baseUrl){
             /*
                 $tokens = array(
                     1 => [CM VERSION] (ex. 10.1.x, 10.2, 11, etc.)
@@ -23,19 +25,21 @@
             preg_match_all('/cm-([0-9\.]+-)(\d+-)?([a-zA-Z0-9]+-)?([a-zA-Z0-9]+)/', $fileName, $tokens);
             $tokens = $this->removeTrailingDashes($tokens);
 
+            $this->filePath = $physicalPath.'/'.$fileName;
+            $this->baseUrl = $baseUrl;
             $this->version = $tokens[1];
             $this->date = $tokens[2];
             $this->channel = ( $tokens[3] > '' ? strtolower( str_replace(range(0,9), '', $tokens[3]) ) : 'stable' ); // Strip numbers
             $this->model = $tokens[4];
-            $this->file = $fileName;
-            $this->url = $this->getUrl($fileName, $baseUrl);
-            $this->changelogUrl = $this->getChangelogUrl($this->url);
-            $this->md5 = $this->getMD5($fileName,$dirPath);
-            $this->timestamp = filemtime($dirPath.$fileName);
-            $this->incremental = $this->getIncremental($fileName,$dirPath);
+            $this->filename = $fileName;
+            $this->url = $this->getUrl();
+            $this->changelogUrl = $this->getChangelogUrl();
+            $this->md5 = $this->getMD5();
+            $this->timestamp = filemtime($this->filePath);
+            $this->incremental = $this->getIncremental();
         }
         public function isValid($params){
-            $ret = true;
+            $ret = false;
 
             if ( $params['device'] == $this->model ) {
                 if ( count($params['channels']) > 0 ) {
@@ -64,20 +68,20 @@
             }
             return $token;
         }
-        private function getUrl($filename, $baseUrl){
-            return 'http://' . $_SERVER['SERVER_NAME'] . $baseUrl . '/_builds/' . $filename;
+        private function getUrl(){
+            return 'http://' . $_SERVER['SERVER_NAME'] . $this->baseUrl . '/_builds/' . $this->filename;
         }
-        private function getChangelogUrl($url){
-            return str_replace('.zip', '.txt', $url);
+        private function getChangelogUrl(){
+            return str_replace('.zip', '.txt', $this->url);
         }
-        private function getMD5($fileName,$dirPath){
-            return md5_file($dirPath.$fileName);
+        private function getMD5(){
+            return md5_file($this->filePath);
         }
-        private function getIncremental($fileName,$dirPath){
+        private function getIncremental(){
             $ret = '';
 
             // Read ZIP file build.prop to get incremental
-            $buildProp = file_get_contents('zip://'.__DIR__.'/../'.$dirPath.$fileName.'#system/build.prop');
+            $buildProp = file_get_contents('zip://'.$this->filePath.'#system/build.prop');
             $buildProp = explode("\n", $buildProp);
             foreach ($buildProp as $line) {
                 if ( strpos($line, 'ro.build.version.incremental') !== false ) {

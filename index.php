@@ -24,6 +24,7 @@
 
     require 'lib/flight/Flight.php';
     require 'app/Tokens.php';
+    require 'app/TokensCollection.php';
 
     Flight::route('/api', function(){
         $ret = array(
@@ -33,26 +34,8 @@
         );
 
         // Get all the builds from the folder and return them in a structured way
-        $dirPath = '_builds/';
-        $files = preg_grep('/^([^.])/', scandir($dirPath));
-        if ( count( $files ) > 0  ) {
-            foreach ( $files as $file ) {
-                $token = new Token( $file, $dirPath, Flight::request()->base );
-
-                if ( $token->isValid( json_decode(Flight::request()->body, true)['params'] ) ) {
-                    array_push($ret['results'], array(
-                        'incremental' => $token->incremental,
-                        'api_level' => $token->getAPILevel(),
-                        'url' => $token->url,
-                        'timestamp' => $token->timestamp,
-                        'md5sum' => $token->md5,
-                        'changes' => $token->changelogUrl,
-                        'channel' => $token->channel,
-                        'filename' => $token->file
-                    ));
-                }
-            }
-        }
+        $tokens = new TokenCollection(realpath('./_builds/'));
+        $ret['results'] = $tokens->list;
 
         Flight::json($ret);
     });
