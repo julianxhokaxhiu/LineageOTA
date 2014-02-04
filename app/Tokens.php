@@ -124,7 +124,7 @@
             $token = strtolower( $token );
             if ( $token > '' ) {
                 $ret = $token;
-                if ( $token != 'rc' && $token != 'nightly' ) $ret = 'snapshot';
+                if ( $token == 'experimental' ) $ret = 'snapshot';
             }
 
             return $ret;
