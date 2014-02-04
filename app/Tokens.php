@@ -1,7 +1,6 @@
 <?php
     class Token {
-        var $version = '';
-        var $date = '';
+        var $api_level = -1;
         var $channel = '';
         var $model = '';
         var $filename = '';
@@ -26,15 +25,14 @@
 
             $this->filePath = $physicalPath.'/'.$fileName;
             $this->baseUrl = $baseUrl;
-            $this->version = $tokens[1];
-            $this->date = $tokens[2];
             $this->channel = $this->getChannel( str_replace(range(0,9), '', $tokens[3]) );
-            $this->model = $tokens[4];
             $this->filename = $fileName;
             $this->url = $this->getUrl();
             $this->changelogUrl = $this->getChangelogUrl();
             $this->timestamp = filemtime($this->filePath);
-            $this->incremental = $this->getIncremental();
+            $this->incremental = $this->getBuildPropValue('ro.build.version.incremental');
+            $this->api_level = $this->getBuildPropValue('ro.build.version.sdk');
+            $this->model = $this->getBuildPropValue('ro.cm.device');
         }
         public function isValid($params){
             $ret = false;
@@ -47,15 +45,6 @@
                     }
                 }
             }
-
-            return $ret;
-        }
-        public function getAPILevel(){
-            $ret = -1;
-
-            if ( strpos($this->version, '10.1') !== false ) $ret = 17;
-            else if ( strpos($this->version, '10.2') !== false ) $ret = 18;
-            else if ( strpos($this->version, '11') !== false ) $ret = 19;
 
             return $ret;
         }
@@ -122,14 +111,14 @@
         private function getChangelogUrl(){
             return str_replace('.zip', '.txt', $this->url);
         }
-        private function getIncremental(){
+        private function getBuildPropValue($key){
             $ret = '';
 
             // Read ZIP file build.prop to get incremental
             $buildProp = file_get_contents('zip://'.$this->filePath.'#system/build.prop');
             $buildProp = explode("\n", $buildProp);
             foreach ($buildProp as $line) {
-                if ( strpos($line, 'ro.build.version.incremental') !== false ) {
+                if ( strpos($line, $key) !== false ) {
                     $tmp = explode('=', $line);
                     $ret = $tmp[1];
                     break;

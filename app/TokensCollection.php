@@ -52,7 +52,7 @@
             foreach ($this->list as $token) {
                 array_push($ret, array(
                     'incremental' => $token->incremental,
-                    'api_level' => $token->getAPILevel(),
+                    'api_level' => $token->api_level,
                     'url' => $token->url,
                     'timestamp' => $token->timestamp,
                     'md5sum' => $token->getMD5(),
