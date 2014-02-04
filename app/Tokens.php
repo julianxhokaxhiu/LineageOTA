@@ -10,6 +10,7 @@
         var $incremental = '';
         var $filePath = '';
         var $baseUrl = '';
+        var $buildProp = '';
 
         public function __construct($fileName, $physicalPath, $baseUrl){
             /*
@@ -23,6 +24,7 @@
             preg_match_all('/cm-([0-9\.]+-)(\d+-)?([a-zA-Z0-9]+-)?([a-zA-Z0-9]+)/', $fileName, $tokens);
             $tokens = $this->removeTrailingDashes($tokens);
 
+            $this->buildProp = explode("\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
             $this->filePath = $physicalPath.'/'.$fileName;
             $this->baseUrl = $baseUrl;
             $this->channel = $this->getChannel( str_replace(range(0,9), '', $tokens[3]) );
@@ -114,10 +116,7 @@
         private function getBuildPropValue($key){
             $ret = '';
 
-            // Read ZIP file build.prop to get incremental
-            $buildProp = file_get_contents('zip://'.$this->filePath.'#system/build.prop');
-            $buildProp = explode("\n", $buildProp);
-            foreach ($buildProp as $line) {
+            foreach ($this->buildProp as $line) {
                 if ( strpos($line, $key) !== false ) {
                     $tmp = explode('=', $line);
                     $ret = $tmp[1];
