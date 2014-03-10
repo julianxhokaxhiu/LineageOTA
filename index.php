@@ -29,12 +29,12 @@
     Flight::route('/api', function(){
         $ret = array(
             'id' => null,
-            'results' => array(),
+            'result' => array(),
             'error' => null
         );
 
         $tokens = new TokenCollection(realpath('./_builds/'));
-        $ret['results'] = $tokens->getUpdateList();
+        $ret['result'] = $tokens->getUpdateList();
 
         Flight::json($ret);
     });
