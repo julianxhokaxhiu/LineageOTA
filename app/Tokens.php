@@ -45,15 +45,30 @@
                 )
             */
             preg_match_all('/cm-([0-9\.]+-)(\d+-)?([a-zA-Z0-9]+-)?([a-zA-Z0-9]+)/', $fileName, $tokens);
+//          preg_match_all('/cm-([a-zA-Z0-9\.]+[0-9]+)-?([0-9]+-[0-9]+-[0-9]+)-?([a-zA-Z0-9]+)-?([a-zA-Z0-9]+)/', $fileName, $tokens);
             $tokens = $this->removeTrailingDashes($tokens);
-
-            $this->buildProp = explode("\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
             $this->filePath = $physicalPath.'/'.$fileName;
+
+// ANDROIDMEDA (cache build.prop and md5 to eliminate cpu usage)
+            $mc = new Memcached();
+            $mc->addServer('localhost', 11211);
+
+            if (!($mcFile = $mc->get($this->filePath))) {
+                if ($mc->getResultCode() == Memcached::RES_NOTFOUND) {
+                    $mcFile = array( file_get_contents('zip://'.$this->filePath.'#system/build.prop'),
+                                        $this->getMD5($this->filePath)
+                                   );
+                    $mc->set($this->filePath, $mcFile);
+                }
+           }
+// ANDROIDMEDA
+            $this->buildProp = explode("\n", $mcFile[0] ); // ANDROIDMEDA
             $this->baseUrl = $baseUrl;
             $this->channel = $this->getChannel( str_replace(range(0,9), '', $tokens[3]) );
             $this->filename = $fileName;
-            $this->url = $this->getUrl();
+            $this->url = $this->getUrl($this->url);
             $this->changelogUrl = $this->getChangelogUrl();
+            $this->md5file = $mcFile[1]; // ANDROIDMEDA
             $this->timestamp = filemtime($this->filePath);
             $this->incremental = $this->getBuildPropValue('ro.build.version.incremental');
             $this->api_level = $this->getBuildPropValue('ro.build.version.sdk');
@@ -65,7 +80,7 @@
             if ( $params['device'] == $this->model ) {
                 if ( count($params['channels']) > 0 ) {
                     foreach ( $params['channels'] as $channel ) {
-                        var_dump($channel);
+//                        var_dump($channel);
                         if ( strtolower($channel) == $this->channel ) $ret = true;
                     }
                 }
@@ -131,7 +146,8 @@
         }
         private function getUrl($file){
             if ( empty($file) ) $file = $this->filename;
-            return 'http://' . $_SERVER['SERVER_NAME'] . $this->baseUrl . '/_builds/' . $file;
+            //return 'http://' . $_SERVER['SERVER_NAME'] . $this->baseUrl . '/_builds/' . $file;
+            return 'http://' . $_SERVER['SERVER_NAME'] . '/_builds/' . $file;
         }
         private function getChangelogUrl(){
             return str_replace('.zip', '.txt', $this->url);

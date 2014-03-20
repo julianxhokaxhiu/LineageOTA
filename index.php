@@ -44,8 +44,9 @@
             'errors' => null
         );
 
-        $tokens = new TokenCollection(realpath('./_builds/'));
-        $delta = $token->getDeltaUpdate();
+//        $tokens = new TokenCollection(realpath('./_builds/'));
+//        $delta = $tokens->getDeltaUpdate();
+$delta = false;
 
         if ( $delta === false ) {
             $ret['errors'] = array(
@@ -57,7 +58,6 @@
 
         Flight::json($ret);
     });
-
 
     Flight::map('notFound', function(){
         // Display custom 404 page

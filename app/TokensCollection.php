@@ -29,13 +29,12 @@
         public function __construct($physicalPath){
             $req = Flight::request();
             $this->postJson = json_decode($req->body, true);
-
             $files = preg_grep('/^([^.])/', scandir($physicalPath));
             if ( count( $files ) > 0  ) {
                 foreach ( $files as $file ) {
                     $token = new Token( $file, $physicalPath, $req->base );
 
-                    if ( $token->isValid( $this->postJson['params'] ) ) {
+                    if ( $this->postJson != NULL && $token->isValid( $this->postJson['params'] ) ) {
                         array_push($this->list, $token);
                     }
                 }
@@ -74,14 +73,14 @@
 
             foreach ($this->list as $token) {
                 array_push($ret, array(
-                    'incremental' => $token->incremental,
-                    'api_level' => $token->api_level,
                     'url' => $token->url,
                     'timestamp' => $token->timestamp,
-                    'md5sum' => $token->getMD5(),
-                    'changes' => $token->changelogUrl,
+                    'md5sum' => $token->md5file,
+                    'filename' => $token->filename,
+                    'incremental' => $token->incremental,
                     'channel' => $token->channel,
-                    'filename' => $token->filename
+                    'changes' => $token->changelogUrl,
+                    'api_level' => $token->api_level
                 ));
             }
 
