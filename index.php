@@ -33,8 +33,18 @@
             'error' => null
         );
 
-        $tokens = new TokenCollection(realpath('./_builds/'));
-        $ret['result'] = $tokens->getUpdateList();
+        $req = Flight::request();
+        $postJson = json_decode($req->body, true);
+        if ($postJson != NULL &&
+           array_key_exists('params', $postJson) &&
+           array_key_exists('device', $postJson['params'])) {
+           $device = $postJson['params']['device'];
+           $devicePath = realpath('./_builds/'.$device);
+           if (file_exists($devicePath)) {
+               $tokens = new TokenCollection($devicePath, $postJson, $req->base, $device);
+               $ret['result'] = $tokens->getUpdateList();
+           }
+        }
 
         Flight::json($ret);
     });

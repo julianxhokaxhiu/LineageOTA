@@ -26,15 +26,14 @@
         var $postJson = array();
         var $list = array();
 
-        public function __construct($physicalPath){
-            $req = Flight::request();
-            $this->postJson = json_decode($req->body, true);
+        public function __construct($physicalPath, $postJson, $baseUrl, $device) {
+            $this->postJson = $postJson;
             $files = preg_grep('/^([^.])/', scandir($physicalPath));
             if ( count( $files ) > 0  ) {
                 foreach ( $files as $file ) {
-                    $token = new Token( $file, $physicalPath, $req->base );
+                    $token = new Token($file, $physicalPath, $baseUrl, $device);
 
-                    if ( $this->postJson != NULL && $token->isValid( $this->postJson['params'] ) ) {
+                    if ($token->isValid( $this->postJson['params'] ) ) {
                         array_push($this->list, $token);
                     }
                 }

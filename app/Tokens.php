@@ -25,7 +25,7 @@
     class Token {
         var $api_level = -1;
         var $channel = '';
-        var $model = '';
+        var $device = '';
         var $filename = '';
         var $url = '';
         var $changelogUrl = '';
@@ -35,13 +35,13 @@
         var $baseUrl = '';
         var $buildProp = '';
 
-        public function __construct($fileName, $physicalPath, $baseUrl){
+        public function __construct($fileName, $physicalPath, $baseUrl, $device) {
             /*
                 $tokens = array(
                     1 => [CM VERSION] (ex. 10.1.x, 10.2, 11, etc.)
                     2 => [DATE OF BUILD] (ex. 20140130)
                     3 => [CHANNEL OF THE BUILD] (ex. RC, RC2, NIGHTLY, etc.)
-                    4 => [MODEL] (ex. i9100, i9300, etc.)
+                    4 => [DEVICE] (ex. i9100, i9300, etc.)
                 )
             */
             preg_match_all('/cm-([0-9\.]+-)(\d+-)?([a-zA-Z0-9]+-)?([a-zA-Z0-9]+)/', $fileName, $tokens);
@@ -62,6 +62,7 @@
                 }
            }
 // ANDROIDMEDA
+            $this->device = $device; 
             $this->buildProp = explode("\n", $mcFile[0] ); // ANDROIDMEDA
             $this->baseUrl = $baseUrl;
             $this->channel = $this->getChannel( str_replace(range(0,9), '', $tokens[3]) );
@@ -72,19 +73,19 @@
             $this->timestamp = filemtime($this->filePath);
             $this->incremental = $this->getBuildPropValue('ro.build.version.incremental');
             $this->api_level = $this->getBuildPropValue('ro.build.version.sdk');
-            $this->model = $this->getBuildPropValue('ro.cm.device');
+            //$this->device = $this->getBuildPropValue('ro.cm.device');
         }
         public function isValid($params){
             $ret = false;
 
-            if ( $params['device'] == $this->model ) {
+//            if ( $params['device'] == $this->device ) {
                 if ( count($params['channels']) > 0 ) {
                     foreach ( $params['channels'] as $channel ) {
 //                        var_dump($channel);
                         if ( strtolower($channel) == $this->channel ) $ret = true;
                     }
                 }
-            }
+//            }
 
             return $ret;
         }
@@ -147,7 +148,7 @@
         private function getUrl($file){
             if ( empty($file) ) $file = $this->filename;
             //return 'http://' . $_SERVER['SERVER_NAME'] . $this->baseUrl . '/_builds/' . $file;
-            return 'http://' . $_SERVER['SERVER_NAME'] . '/_builds/' . $file;
+            return 'http://' . $_SERVER['SERVER_NAME'] . '/_builds/' . $this->device . '/' . $file;
         }
         private function getChangelogUrl(){
             return str_replace('.zip', '.txt', $this->url);
