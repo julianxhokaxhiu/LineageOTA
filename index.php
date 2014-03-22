@@ -78,5 +78,10 @@ $delta = false;
         echo 'Sorry, 404!';
     });
 
+    // Shared memcached
+    Flight::register('mc', 'Memcached', array(), function($mc) {
+        $mc->addServer('localhost', 11211);
+    });
+
     Flight::start();
 ?>

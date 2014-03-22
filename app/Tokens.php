@@ -48,32 +48,19 @@
 //          preg_match_all('/cm-([a-zA-Z0-9\.]+[0-9]+)-?([0-9]+-[0-9]+-[0-9]+)-?([a-zA-Z0-9]+)-?([a-zA-Z0-9]+)/', $fileName, $tokens);
             $tokens = $this->removeTrailingDashes($tokens);
             $this->filePath = $physicalPath.'/'.$fileName;
-
-// ANDROIDMEDA (cache build.prop and md5 to eliminate cpu usage)
-            $mc = new Memcached();
-            $mc->addServer('localhost', 11211);
-
-            if (!($mcFile = $mc->get($this->filePath))) {
-                if ($mc->getResultCode() == Memcached::RES_NOTFOUND) {
-                    $mcFile = array( file_get_contents('zip://'.$this->filePath.'#system/build.prop'),
-                                        $this->getMD5($this->filePath)
-                                   );
-                    $mc->set($this->filePath, $mcFile);
-                }
-           }
-// ANDROIDMEDA
-            $this->device = $device; 
-            $this->buildProp = explode("\n", $mcFile[0] ); // ANDROIDMEDA
+            $this->device = $device;
             $this->baseUrl = $baseUrl;
+
+            $mcFile = $this->mcCacheProps($this->filePath); // ANDROIDMEDA
+            $this->buildProp = explode("\n", $mcFile[0] ); // ANDROIDMEDA
+            $this->md5file = $mcFile[1]; // ANDROIDMEDA
+            $this->incremental = $this->getBuildPropValue('ro.build.version.incremental');
+            $this->api_level = $this->getBuildPropValue('ro.build.version.sdk');
             $this->channel = $this->getChannel( str_replace(range(0,9), '', $tokens[3]) );
             $this->filename = $fileName;
             $this->url = $this->getUrl($this->url);
             $this->changelogUrl = $this->getChangelogUrl();
-            $this->md5file = $mcFile[1]; // ANDROIDMEDA
             $this->timestamp = filemtime($this->filePath);
-            $this->incremental = $this->getBuildPropValue('ro.build.version.incremental');
-            $this->api_level = $this->getBuildPropValue('ro.build.version.sdk');
-            //$this->device = $this->getBuildPropValue('ro.cm.device');
         }
         public function isValid($params){
             $ret = false;
@@ -170,4 +157,22 @@
             $returnVal = shell_exec("which $cmd");
             return (empty($returnVal) ? false : true);
         }
+
+
+        private function mcCacheProps($filePath) {
+            $mc = Flight::mc();
+            $ret = $mc->get($filePath);
+            if (!$ret) {
+                if ($mc->getResultCode() == Memcached::RES_NOTFOUND) {
+                    $ret = array( file_get_contents('zip://'.$filePath.'#system/build.prop'),
+                                  $this->getMD5($filePath)
+                                );
+                    $mc->set($filePath, $ret);
+                }
+           }
+           return $ret;
+        }
+
+
+
     };
