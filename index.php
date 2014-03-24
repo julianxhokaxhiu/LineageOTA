@@ -23,13 +23,22 @@
     */
 
     require 'lib/flight/Flight.php';
+
     require 'app/Tokens.php';
     require 'app/TokensCollection.php';
+    require 'app/Utils.php';
 
+    // Shared memcached
+    Flight::register('mc', 'Memcached', array(), function($mc) {
+        $mc->addServer('localhost', 11211);
+    });
+
+    // Root dir
     Flight::route('/', function(){
         Flight::redirect('/_builds');
     });
 
+    // All builds
     Flight::route('/api', function(){
         $ret = array(
             'id' => null,
@@ -45,7 +54,7 @@
            $device = $postJson['params']['device'];
            $devicePath = realpath('./_builds/'.$device);
            if (file_exists($devicePath)) {
-               $tokens = new TokenCollection($devicePath, $postJson, $req->base, $device);
+               $tokens = new TokenCollection($postJson, $devicePath, $req->base, $device);
                $ret['result'] = $tokens->getUpdateList();
            }
         }
@@ -53,16 +62,50 @@
         Flight::json($ret);
     });
 
+    // Deltas
     Flight::route('/api/v1/build/get_delta', function(){
         $ret = array(
             'errors' => null
         );
 
-//        $tokens = new TokenCollection(realpath('./_builds/'));
-//        $delta = $tokens->getDeltaUpdate();
-$delta = false;
+        $delta = false;	
+        $req = Flight::request();
+        $postJson = json_decode($req->body, true);
+        if ($postJson != NULL &&
+            array_key_exists('source_incremental', $postJson) &&
+            array_key_exists('target_incremental', $postJson)) {
+            $source_incremental = $postJson['source_incremental'];
+            $target_incremental = $postJson['target_incremental'];
+            if (!empty($source_incremental) && !empty($target_incremental) &&
+                $source_incremental != $target_incremental) {
+                $mc = Flight::mc();
+                $source_zip = $mc->get($source_incremental);
+                $target_zip = $mc->get($target_incremental);
+                $found = true;
+                if ($source_zip && !file_exists($source_zip)) {
+                    $mc->delete($source_zip);
+                    $found = false;
+                }
+                if ($target_zip && !file_exists($target_zip)) {
+                    $mc->delete($target_zip);
+                    $found = false;
+                }
+                if ($found && $source_zip && $target_zip) {
+                    $sourceBuildProp = $mc->get($source_zip);
+                    $targetBuildProp = $mc->get($target_zip);
+                    if ($sourceBuildProp && $targetBuildProp) {
+                        $sourceDevice = Utils::getBuildPropValue(explode("\n", $sourceBuildProp[0]), 'ro.cm.device');
+                        $targetDevice = Utils::getBuildPropValue(explode("\n", $targetBuildProp[0]), 'ro.cm.device');
+                        $targetApi = Utils::getBuildPropValue(explode("\n", $targetBuildProp[0]), 'ro.build.version.sdk');
+                        if ($sourceDevice == $targetDevice) {
+                            $delta = Utils::getDeltaIncremental($targetDevice, $source_incremental, $target_incremental, $targetApi);
+                        }
+                    }
+                }
+            }
+        }
 
-        if ( $delta === false ) {
+        if ($delta === false) {
             $ret['errors'] = array(
                 'message' => 'Unable to find delta'
             );
@@ -76,11 +119,6 @@ $delta = false;
     Flight::map('notFound', function(){
         // Display custom 404 page
         echo 'Sorry, 404!';
-    });
-
-    // Shared memcached
-    Flight::register('mc', 'Memcached', array(), function($mc) {
-        $mc->addServer('localhost', 11211);
     });
 
     Flight::start();

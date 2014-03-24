@@ -23,53 +23,22 @@
     */
 
     class TokenCollection {
-        var $postJson = array();
         var $list = array();
 
-        public function __construct($physicalPath, $postJson, $baseUrl, $device) {
-            $this->postJson = $postJson;
+        public function __construct($postJson, $physicalPath, $baseUrl, $device) {
             $files = preg_grep('/^([^.])/', scandir($physicalPath));
-            if ( count( $files ) > 0  ) {
-                foreach ( $files as $file ) {
+            if (count($files) > 0) {
+                foreach ($files as $file) {
                     $token = new Token($file, $physicalPath, $baseUrl, $device);
-
-                    if ($token->isValid( $this->postJson['params'] ) ) {
+                    if ($token->isValid($postJson['params'])) {
                         array_push($this->list, $token);
                     }
                 }
             }
         }
 
-        public function getDeltaUpdate(){
-            $ret = false;
-
-            $source = $this->postJson['source_incremental'];
-            $target = $this->postJson['target_incremental'];
-            if ( $source != $target ) {
-                $sourceToken = null;
-                foreach ($this->list as $token) {
-                    if ( $token->incremental == $target ) {
-                        $delta = $sourceToken->getDelta($token);
-                        $ret = array(
-                            'date_created_unix' => $delta['timestamp'],
-                            'filename' => $delta['filename'],
-                            'download_url' => $delta['url'],
-                            'api_level' => $delta['api_level'],
-                            'md5sum' => $delta['md5'],
-                            'incremental' => $delta['incremental']
-                        );
-                    } else if ( $token->incremental == $source ) {
-                        $sourceToken = $token;
-                    }
-                }
-            }
-
-            return $ret;
-        }
-
         public function getUpdateList(){
             $ret = array();
-
             foreach ($this->list as $token) {
                 array_push($ret, array(
                     'url' => $token->url,
@@ -82,7 +51,6 @@
                     'api_level' => $token->api_level
                 ));
             }
-
             return $ret;
         }
     };
