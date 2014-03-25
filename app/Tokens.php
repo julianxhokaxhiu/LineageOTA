@@ -66,16 +66,14 @@
         }
 
         public function isValid($params) {
-            $ret = false;
             if (array_key_exists('channels', $params)) {
                 foreach ($params['channels'] as $channel) {
                     if (strtolower($channel) == $this->channel) {
-                        $ret = true;
-                        break;
+                        return true;
                     }
                 }
             }
-            return $ret;
+            return false;
         }
 
         private function removeTrailingDashes($token){

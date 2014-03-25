@@ -53,11 +53,11 @@
 
         public static function getDeltaIncremental($device, $source_incremental, $target_incremental, $api_level) {
             $ret = false;
+            $mc = Flight::mc();
             $deltaPath = realpath('./_deltas/'.$device);
             $deltaFile = 'incremental-'.$source_incremental.'-'.$target_incremental.'.zip';
             $deltaFullPath = $deltaPath . '/' . $deltaFile;
             if (file_exists($deltaFullPath)) {
-                $mc = Flight::mc();
                 $ret = $mc->get($deltaFullPath);
                 if (!$ret) {
                     if ($mc->getResultCode() == Memcached::RES_NOTFOUND) {
@@ -72,6 +72,9 @@
                          $mc->set($deltaFullPath, $ret);
                     }
                }
+           }
+           else {
+               $mc->delete($deltaFullPath);
            }
            return $ret;
         }

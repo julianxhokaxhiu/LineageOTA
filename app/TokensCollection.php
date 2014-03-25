@@ -25,11 +25,15 @@
     class TokenCollection {
         var $list = array();
 
-        public function __construct($postJson, $physicalPath, $baseUrl, $device) {
-            $files = preg_grep('/^([^.])/', scandir($physicalPath));
-            if (count($files) > 0) {
-                foreach ($files as $file) {
-                    $token = new Token($file, $physicalPath, $baseUrl, $device);
+        public function __construct($postJson, $physicalPath, $baseUrl, $device, $after) {
+
+            $dirIterator = new DirectoryIterator($physicalPath);
+            foreach ($dirIterator as $fileinfo) {
+                if ($fileinfo->isFile() && $fileinfo->getExtension() == 'zip') {
+                    if ($after > 0 && $fileinfo->getMTime() < $after) {
+                        continue;
+                    }
+                    $token = new Token($fileinfo->getFilename(), $physicalPath, $baseUrl, $device);
                     if ($token->isValid($postJson['params'])) {
                         array_push($this->list, $token);
                     }
