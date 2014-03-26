@@ -73,8 +73,11 @@
                        }
                    }
                }
-
-               $tokens = new TokenCollection($postJson, $devicePath, $req->base, $device, $after);
+               $channels = array('stable');
+               if (array_key_exists('channels', $postJson['params'])) {
+                   $channels = $postJson['params']['channels'];
+               }
+               $tokens = new TokenCollection($channels, $devicePath, $req->base, $device, $after);
                $ret['result'] = $tokens->getUpdateList();
            }
         }

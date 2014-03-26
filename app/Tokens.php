@@ -37,19 +37,8 @@
         var $changelogUrl = '';
         var $timestamp = '';
 
-        public function __construct($fileName, $physicalPath, $baseUrl, $device) {
-            /*
-                $tokens = array(
-                    1 => [CM VERSION] (ex. 10.1.x, 10.2, 11, etc.)
-                    2 => [DATE OF BUILD] (ex. 20140130)
-                    3 => [CHANNEL OF THE BUILD] (ex. RC, RC2, NIGHTLY, etc.)
-                    4 => [DEVICE] (ex. i9100, i9300, etc.)
-                )
-            */
-            preg_match_all('/cm-([0-9\.]+-)(\d+-)?([a-zA-Z0-9]+-)?([a-zA-Z0-9]+)/', $fileName, $tokens);
-//          preg_match_all('/cm-([a-zA-Z0-9\.]+[0-9]+)-?([0-9]+-[0-9]+-[0-9]+)-?([a-zA-Z0-9]+)-?([a-zA-Z0-9]+)/', $fileName, $tokens);
-            $tokens = $this->removeTrailingDashes($tokens);
-            $this->channel = $this->getChannel( str_replace(range(0,9), '', $tokens[3]) );
+        public function __construct($fileName, $physicalPath, $baseUrl, $device, $channel) {
+            $this->channel = $channel;
             $this->filename = $fileName;
             $this->filePath = $physicalPath.'/'.$fileName;
             $this->device = $device;
@@ -60,38 +49,9 @@
             $this->md5file = $mcFile[1]; // ANDROIDMEDA
             $this->incremental = Utils::getBuildPropValue($this->buildProp, 'ro.build.version.incremental');
             $this->api_level = Utils::getBuildPropValue($this->buildProp, 'ro.build.version.sdk');
-            $this->url = Utils::getUrl($fileName, $device, false);
+            $this->url = Utils::getUrl($fileName, $device, false, $channel);
             $this->changelogUrl = $this->getChangelogUrl();
             $this->timestamp = filemtime($this->filePath);
-        }
-
-        public function isValid($params) {
-            if (array_key_exists('channels', $params)) {
-                foreach ($params['channels'] as $channel) {
-                    if (strtolower($channel) == $this->channel) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        private function removeTrailingDashes($token){
-            foreach ($token as $key => $value) {
-                $token[$key] = rtrim($value[0], '-');
-            }
-            return $token;
-        }
-
-        private function getChannel($token) {
-            $ret = 'stable';
-            $token = strtolower($token);
-            if ( $token > '' ) {
-                $ret = $token;
-                if ($token == 'experimental')
-                    $ret = 'snapshot';
-            }
-            return $ret;
         }
 
         private function getChangelogUrl() {

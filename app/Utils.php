@@ -64,7 +64,7 @@
                         $ret = array(
                             'date_created_unix' => filemtime($deltaFullPath),
                             'filename' => $deltaFile,
-                            'download_url' => Utils::getUrl($deltaFile, $device, true),
+                            'download_url' => Utils::getUrl($deltaFile, $device, true, ''),
                             'api_level' => $api_level,
                             'md5sum' => Utils::getMD5($deltaFullPath),
                             'incremental' => $target_incremental
@@ -79,9 +79,10 @@
            return $ret;
         }
 
-        public static function getUrl($fileName, $device, $isDelta) {
+        public static function getUrl($fileName, $device, $isDelta, $channel) {
             $dldir = $isDelta ? '_deltas' : '_builds';
-            return 'http://' . $_SERVER['SERVER_NAME'] . '/' . $dldir . '/' . $device . '/' . $fileName;
+            $channelDir = ($channel == 'stable') ? 'stable/' : '';
+            return 'http://' . $_SERVER['SERVER_NAME'] . '/' . $dldir . '/' . $device . '/' . $channelDir . $fileName;
         }
 
         public static function getMD5($file) {
