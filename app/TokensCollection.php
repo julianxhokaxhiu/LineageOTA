@@ -36,6 +36,9 @@
         }
 
         private function add($dir, $baseUrl, $device, $after, $channel) {
+            if (!file_exists($dir))
+                return;
+
             $dirIterator = new DirectoryIterator($dir);
             foreach ($dirIterator as $fileinfo) {
                 if ($fileinfo->isFile() && $fileinfo->getExtension() == 'zip') {
