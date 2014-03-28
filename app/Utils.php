@@ -39,44 +39,16 @@
         public static function mcCacheProps($filePath) {
             $mc = Flight::mc();
             $ret = $mc->get($filePath);
-            if (!$ret) {
-                if ($mc->getResultCode() == Memcached::RES_NOTFOUND) {
-                    $buildprop = file_get_contents('zip://'.$filePath.'#system/build.prop');
-                    $incremental = Utils::getBuildPropValue(explode("\n", $buildprop), 'ro.build.version.incremental');
-                    $ret = array($buildprop, Utils::getMD5($filePath));
-                    $mc->set($filePath, $ret);
-                    $mc->set($incremental, $filePath);
-                }
-           }
-           return $ret;
-        }
-
-        public static function getDeltaIncremental($device, $source_incremental, $target_incremental, $api_level) {
-            $ret = false;
-            $mc = Flight::mc();
-            $deltaPath = realpath('./_deltas/'.$device);
-            $deltaFile = 'incremental-'.$source_incremental.'-'.$target_incremental.'.zip';
-            $deltaFullPath = $deltaPath . '/' . $deltaFile;
-            if (file_exists($deltaFullPath)) {
-                $ret = $mc->get($deltaFullPath);
-                if (!$ret) {
-                    if ($mc->getResultCode() == Memcached::RES_NOTFOUND) {
-                        $ret = array(
-                            'date_created_unix' => filemtime($deltaFullPath),
-                            'filename' => $deltaFile,
-                            'download_url' => Utils::getUrl($deltaFile, $device, true, ''),
-                            'api_level' => $api_level,
-                            'md5sum' => Utils::getMD5($deltaFullPath),
-                            'incremental' => $target_incremental
-                         );
-                         $mc->set($deltaFullPath, $ret);
-                    }
-               }
-           }
-           else {
-               $mc->delete($deltaFullPath);
-           }
-           return $ret;
+            if (!$ret && Memcached::RES_NOTFOUND == $mc->getResultCode()) {
+                $buildpropArray = explode("\n", file_get_contents('zip://'.$filePath.'#system/build.prop'));
+                $device = Utils::getBuildPropValue($buildpropArray, 'ro.cm.device');
+                $api_level = Utils::getBuildPropValue($buildpropArray, 'ro.build.version.sdk');
+                $incremental = Utils::getBuildPropValue($buildpropArray, 'ro.build.version.incremental');
+                $ret = array($device, $api_level, $incremental, Utils::getMD5($filePath));
+                $mc->set($filePath, $ret);
+                $mc->set($incremental, $filePath);
+            }
+            return $ret;
         }
 
         public static function getUrl($fileName, $device, $isDelta, $channel) {

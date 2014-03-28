@@ -29,10 +29,9 @@
         var $filePath = '';
         var $device = '';
         var $baseUrl = '';
-        var $buildProp = '';
-        var $md5file = '';
-        var $incremental = '';
         var $api_level = -1;
+        var $incremental = '';
+        var $md5file = '';
         var $url = '';
         var $changelogUrl = '';
         var $timestamp = '';
@@ -44,11 +43,11 @@
             $this->device = $device;
             $this->baseUrl = $baseUrl;
 
-            $mcFile = Utils::mcCacheProps($this->filePath); // ANDROIDMEDA
-            $this->buildProp = explode("\n", $mcFile[0] ); // ANDROIDMEDA
-            $this->md5file = $mcFile[1]; // ANDROIDMEDA
-            $this->incremental = Utils::getBuildPropValue($this->buildProp, 'ro.build.version.incremental');
-            $this->api_level = Utils::getBuildPropValue($this->buildProp, 'ro.build.version.sdk');
+            $mcFile = Utils::mcCacheProps($this->filePath);
+            assert($mcFile[0] == $device);
+            $this->api_level = $mcFile[1];
+            $this->incremental = $mcFile[2];
+            $this->md5file = $mcFile[3];
             $this->url = Utils::getUrl($fileName, $device, false, $channel);
             $this->changelogUrl = $this->getChangelogUrl();
             $this->timestamp = filemtime($this->filePath);
