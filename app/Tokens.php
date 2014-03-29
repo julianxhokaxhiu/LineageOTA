@@ -25,32 +25,43 @@
     class Token {
 
         var $channel = '';
+        var $device = '';
         var $filename = '';
         var $filePath = '';
-        var $device = '';
-        var $baseUrl = '';
-        var $api_level = -1;
-        var $incremental = '';
-        var $md5file = '';
         var $url = '';
         var $changelogUrl = '';
         var $timestamp = '';
+        var $api_level = -1;
+        var $incremental = '';
+        var $md5file = '';
 
-        public function __construct($fileName, $physicalPath, $baseUrl, $device, $channel) {
+        public function __construct($fileName, $physicalPath, $device, $channel) {
             $this->channel = $channel;
+            $this->device = $device;
             $this->filename = $fileName;
             $this->filePath = $physicalPath.'/'.$fileName;
-            $this->device = $device;
-            $this->baseUrl = $baseUrl;
-
-            $mcFile = Utils::mcCacheProps($this->filePath);
-            assert($mcFile[0] == $device);
-            $this->api_level = $mcFile[1];
-            $this->incremental = $mcFile[2];
-            $this->md5file = $mcFile[3];
             $this->url = Utils::getUrl($fileName, $device, false, $channel);
             $this->changelogUrl = $this->getChangelogUrl();
             $this->timestamp = filemtime($this->filePath);
+            $this->mcCacheProps();
+        }
+
+        private function mcCacheProps() {
+            $mc = Flight::mc();
+            $cache = $mc->get($this->filePath);
+            if (!$cache && Memcached::RES_NOTFOUND == $mc->getResultCode()) {
+                $buildpropArray = explode("\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop'));
+                $device = Utils::getBuildPropValue($buildpropArray, 'ro.cm.device');
+                $api_level = Utils::getBuildPropValue($buildpropArray, 'ro.build.version.sdk');
+                $incremental = Utils::getBuildPropValue($buildpropArray, 'ro.build.version.incremental');
+                $cache = array($device, $api_level, $incremental, Utils::getMD5($this->filePath));
+                $mc->set($this->filePath, $cache);
+                $mc->set($incremental, array($device, $this->filePath));
+            }
+            assert($cache[0] == $this->device);
+            $this->api_level = $cache[1];
+            $this->incremental = $cache[2];
+            $this->md5file = $cache[3];
         }
 
         private function getChangelogUrl() {

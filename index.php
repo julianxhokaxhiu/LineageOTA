@@ -30,7 +30,7 @@
     require 'app/Delta.php';
 
     // Map for shared memcached:
-    // 1) [incrementalno] = string(fullpathnameofota.zip)
+    // 1) [incrementalno] = array(device, fullpathnameofota.zip)
     // 2) [fullpathnameofota.zip] = array(device, api_level, incremental, md5sum)
     // 3) [incremental-A-B.zip] = array(deltainfo + md5sum)
     Flight::register('mc', 'Memcached', array(), function($mc) {
@@ -62,7 +62,7 @@
                    $source_incremental = $postJson['params']['source_incremental'];
                    if (!empty($source_incremental)) {
                        $mc = Flight::mc();
-                       $source_zip = $mc->get($source_incremental);
+                       list($source_device, $source_zip) = $mc->get($source_incremental);
                        if ($source_zip && !file_exists($source_zip)) {
                            $mc->delete($source_zip);
                            $mc->delete($source_incremental);
@@ -74,7 +74,7 @@
                if (array_key_exists('channels', $postJson['params'])) {
                    $channels = $postJson['params']['channels'];
                }
-               $tokens = new TokenCollection($channels, $devicePath, $req->base, $device);
+               $tokens = new TokenCollection($channels, $devicePath, $device);
                $ret['result'] = $tokens->getUpdateList();
            }
         }

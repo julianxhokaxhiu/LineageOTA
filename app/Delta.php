@@ -27,8 +27,8 @@
         public static function find($source_incremental, $target_incremental) {
             $ret = array();
             $mc = Flight::mc();
-            $source_zip = $mc->get($source_incremental);
-            $target_zip = $mc->get($target_incremental);
+            list($source_device, $source_zip) = $mc->get($source_incremental);
+            list($target_device, $target_zip) = $mc->get($target_incremental);
             if ($source_zip && !file_exists($source_zip)) {
                 $mc->delete($source_zip);
                 $mc->delete($source_incremental);
@@ -39,21 +39,12 @@
                 $mc->delete($target_incremental);
                 $target_zip = FALSE;
             }
-            if (empty($source_zip) || empty($target_zip)) {
+            if (empty($source_zip) || empty($target_zip) ||
+               ($source_device != $target_device)) {
                return $ret;
             }
-            $sourceArray = $mc->get($source_zip);
-            $targetArray = $mc->get($target_zip);
-            if (empty($sourceArray) || empty($targetArray)) {
-                return $ret;
-            }
-            $sourceDevice = $sourceArray[0];
-            $targetDevice = $targetArray[0];
-            if ($sourceDevice != $targetDevice) {
-                return $ret;
-            }
             $deltaFile = 'incremental-'.$source_incremental.'-'.$target_incremental.'.zip';
-            $deltaFullPath = realpath('./_deltas/'.$targetDevice) . '/' . $deltaFile;
+            $deltaFullPath = realpath('./_deltas/'.$target_device) . '/' . $deltaFile;
             if (!file_exists($deltaFullPath)) {
                 $mc->delete($deltaFullPath);
                 return $ret;
@@ -63,7 +54,7 @@
                 $ret = array(
                    'date_created_unix' => filemtime($deltaFullPath),
                    'filename' => $deltaFile,
-                   'download_url' => Utils::getUrl($deltaFile, $targetDevice, true, ''),
+                   'download_url' => Utils::getUrl($deltaFile, $target_device, true, ''),
                    'md5sum' => Utils::getMD5($deltaFullPath),
                    'incremental' => $target_incremental
                 );

@@ -25,24 +25,24 @@
     class TokenCollection {
         var $list = array();
 
-        public function __construct($channels, $physicalPath, $baseUrl, $device) {
+        public function __construct($channels, $physicalPath, $device) {
             if (in_array('stable', $channels)) {
                 $stableDir = $physicalPath . '/stable';
-                $this->add($stableDir, $baseUrl, $device, 'stable');
+                $this->add($stableDir, $device, 'stable');
             }
             if (in_array('nightly', $channels)) {
-                $this->add($physicalPath, $baseUrl, $device, 'nightly');
+                $this->add($physicalPath, $device, 'nightly');
             }
         }
 
-        private function add($dir, $baseUrl, $device, $channel) {
+        private function add($dir, $device, $channel) {
             if (!file_exists($dir))
                 return;
 
             $dirIterator = new DirectoryIterator($dir);
             foreach ($dirIterator as $fileinfo) {
                 if ($fileinfo->isFile() && $fileinfo->getExtension() == 'zip') {
-                    $token = new Token($fileinfo->getFilename(), $dir, $baseUrl, $device, $channel);
+                    $token = new Token($fileinfo->getFilename(), $dir, $device, $channel);
                     array_push($this->list, $token);
                 }
             }

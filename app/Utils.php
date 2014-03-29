@@ -36,21 +36,6 @@
             return $ret;
         }
 
-        public static function mcCacheProps($filePath) {
-            $mc = Flight::mc();
-            $ret = $mc->get($filePath);
-            if (!$ret && Memcached::RES_NOTFOUND == $mc->getResultCode()) {
-                $buildpropArray = explode("\n", file_get_contents('zip://'.$filePath.'#system/build.prop'));
-                $device = Utils::getBuildPropValue($buildpropArray, 'ro.cm.device');
-                $api_level = Utils::getBuildPropValue($buildpropArray, 'ro.build.version.sdk');
-                $incremental = Utils::getBuildPropValue($buildpropArray, 'ro.build.version.incremental');
-                $ret = array($device, $api_level, $incremental, Utils::getMD5($filePath));
-                $mc->set($filePath, $ret);
-                $mc->set($incremental, $filePath);
-            }
-            return $ret;
-        }
-
         public static function getUrl($fileName, $device, $isDelta, $channel) {
             $dldir = $isDelta ? '_deltas' : '_builds';
             $channelDir = ($channel == 'stable') ? 'stable/' : '';
