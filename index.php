@@ -51,28 +51,24 @@
         );
 
         $req = Flight::request();
-        $postJson = json_decode($req->body, true);
-        if ($postJson != NULL &&
-           array_key_exists('params', $postJson) &&
-           array_key_exists('device', $postJson['params'])) {
-           $device = $postJson['params']['device'];
+        $postJson = json_decode($req->body);
+        if ($postJson != NULL && !empty($postJson->params) && !empty($postJson->params->device)) {
+           $device = $postJson->params->device;
            $devicePath = realpath('./_builds/'.$device);
            if (file_exists($devicePath)) {
-               if (array_key_exists('source_incremental', $postJson['params'])) {
-                   $source_incremental = $postJson['params']['source_incremental'];
-                   if (!empty($source_incremental)) {
-                       $mc = Flight::mc();
-                       list($source_device, $source_zip) = $mc->get($source_incremental);
-                       if ($source_zip && !file_exists($source_zip)) {
-                           $mc->delete($source_zip);
-                           $mc->delete($source_incremental);
-                           $source_zip = NULL;
-                       }
+               if (!empty($postJson->params->source_incremental)) {
+                   $source_incremental = $postJson->params->source_incremental;
+                   $mc = Flight::mc();
+                   list($source_device, $source_zip) = $mc->get($source_incremental);
+                   if ($source_zip && !file_exists($source_zip)) {
+                       $mc->delete($source_zip);
+                       $mc->delete($source_incremental);
+                       $source_zip = NULL;
                    }
                }
                $channels = array('stable');
-               if (array_key_exists('channels', $postJson['params'])) {
-                   $channels = $postJson['params']['channels'];
+               if (!empty($postJson->params->channels)) {
+                   $channels = $postJson->params->channels;
                }
                $tokens = new TokenCollection($channels, $devicePath, $device);
                $ret['result'] = $tokens->getUpdateList();
@@ -86,14 +82,11 @@
     Flight::route('/api/v1/build/get_delta', function(){
         $ret = array();
         $req = Flight::request();
-        $postJson = json_decode($req->body, true);
-        if ($postJson != NULL &&
-            array_key_exists('source_incremental', $postJson) &&
-            array_key_exists('target_incremental', $postJson)) {
-            $source_incremental = $postJson['source_incremental'];
-            $target_incremental = $postJson['target_incremental'];
-            if (!empty($source_incremental) && !empty($target_incremental) &&
-                $source_incremental != $target_incremental) {
+        $postJson = json_decode($req->body);
+        if ($postJson != NULL && !empty($postJson->source_incremental) && !empty($postJson->target_incremental)) {
+            $source_incremental = $postJson->source_incremental;
+            $target_incremental = $postJson->target_incremental;
+            if ($source_incremental != $target_incremental) {
                 $ret = Delta::find($source_incremental, $target_incremental);
             }
         }
