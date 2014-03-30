@@ -44,6 +44,13 @@
 
         public static function getMD5($file) {
             $ret = '';
+            $md5sumFile = $file . '.md5sum';
+            if (file_exists($md5sumFile)) {
+                list($ret, $filename) = explode("  ", file_get_contents($md5sumFile));
+                if (!empty($ret)) {
+                    return $ret;
+                }
+            }
             if (Utils::commandExists('md5sum')) {
                 $tmp = explode("  ", exec('md5sum '.$file));
                 $ret = $tmp[0];
