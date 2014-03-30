@@ -25,15 +25,15 @@
     class Utils {
 
         public static function getBuildPropValue($buildProp, $key) {
-            $ret = '';
             foreach ($buildProp as $line) {
-                if (strpos($line, $key) !== false) {
-                    $tmp = explode('=', $line);
-                    $ret = $tmp[1];
-                    break;
+                if (!empty($line) && strncmp($line, '#', 1) != 0) {
+                    list($k, $v) = explode('=', $line, 2);
+                    if ($k == $key) {
+                        return $v;
+                    }
                 }
             }
-            return $ret;
+            return '';
         }
 
         public static function getUrl($fileName, $device, $isDelta, $channel) {
