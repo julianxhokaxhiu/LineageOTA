@@ -33,6 +33,7 @@
             if (in_array('nightly', $channels)) {
                 $this->add($physicalPath, $device, 'nightly');
             }
+            usort($this->list, function($a,$b){ /*Reverse order (b-a)*/ return $b->timestamp - $a->timestamp; });
         }
 
         private function add($dir, $device, $channel) {
@@ -48,10 +49,12 @@
             }
         }
 
-        public function getUpdateList(){
+        public function getUpdateList($limit) {
             $ret = array();
-            foreach ($this->list as $token) {
-                array_push($ret, array(
+            $count = count($this->list);
+            for ($i = 0; $i < $count && $i < $limit; $i++) {
+                 $token = $this->list[$i];
+                 array_push($ret, array(
                     'url' => $token->url,
                     'timestamp' => $token->timestamp,
                     'md5sum' => $token->md5file,
