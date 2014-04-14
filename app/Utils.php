@@ -24,16 +24,16 @@
 
     class Utils {
 
-        public static function getBuildPropValue($buildProp, $key) {
-            foreach ($buildProp as $line) {
-                if (!empty($line) && strncmp($line, '#', 1) != 0) {
-                    list($k, $v) = explode('=', $line, 2);
-                    if ($k == $key) {
-                        return $v;
-                    }
-                }
+        public static function mcFind($incremental) {
+            $mc = Flight::mc();
+            list($device, $zip) = $mc->get($incremental);
+            if ($zip && !file_exists($zip)) {
+                $mc->delete($zip);
+                $mc->delete($incremental);
+                $zip = NULL;
+                $device = NULL;
             }
-            return '';
+            return array($device, $zip);
         }
 
         public static function getUrl($fileName, $device, $isDelta, $channel) {

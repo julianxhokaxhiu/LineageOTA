@@ -26,23 +26,12 @@
 
         public static function find($source_incremental, $target_incremental) {
             $ret = array();
+            list($source_device, $source_zip) = Utils::mcFind($source_incremental);
+            list($target_device, $target_zip) = Utils::mcFind($target_incremental);
+            if (empty($source_zip) || empty($target_zip) || ($source_device != $target_device)) {
+                return $ret;
+            }
             $mc = Flight::mc();
-            list($source_device, $source_zip) = $mc->get($source_incremental);
-            list($target_device, $target_zip) = $mc->get($target_incremental);
-            if ($source_zip && !file_exists($source_zip)) {
-                $mc->delete($source_zip);
-                $mc->delete($source_incremental);
-                $source_zip = FALSE;
-            }
-            if ($target_zip && !file_exists($target_zip)) {
-                $mc->delete($target_zip);
-                $mc->delete($target_incremental);
-                $target_zip = FALSE;
-            }
-            if (empty($source_zip) || empty($target_zip) ||
-               ($source_device != $target_device)) {
-               return $ret;
-            }
             $deltaFile = 'incremental-'.$source_incremental.'-'.$target_incremental.'.zip';
             $deltaFullPath = realpath('./_deltas/'.$target_device) . '/' . $deltaFile;
             if (!file_exists($deltaFullPath)) {

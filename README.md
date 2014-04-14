@@ -20,6 +20,7 @@ I've implemented a [simple script made for NodeJS](https://github.com/julianxhok
 - For more information: build/target/product/security/README
 
 ##Changelog
+- 1.1: Add support for incremental changelog (limit param)
 - 1.0: The first stable version
 - 0.3: Enabled support for delta updates
 - 0.2: Refactored a lot of code + boost MD5 calculation + added support for **Delta Updates** (<code>/api/v1/build/get_delta</code>)

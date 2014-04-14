@@ -57,17 +57,11 @@
             $devicePath = realpath('./_builds/'.$device);
             if (file_exists($devicePath)) {
                 if (!empty($postJson->params->source_incremental)) {
-                    $source_incremental = $postJson->params->source_incremental;
-                    $mc = Flight::mc();
-                    list($source_device, $source_zip) = $mc->get($source_incremental);
-                    if ($source_zip && !file_exists($source_zip)) {
-                        $mc->delete($source_zip);
-                        $mc->delete($source_incremental);
-                        $source_zip = NULL;
-                    }
+                    // Delete from cache unless found
+                    Utils::mcFind($postJson->params->source_incremental);
                 }
                 $channels = empty($postJson->params->channels) ? array('stable') : $postJson->params->channels;
-                $limit = empty($postJson->params->limit) ? 100 : intval($postJson->params->limit);
+                $limit = empty($postJson->params->limit) ? 25 : intval($postJson->params->limit);
                 $tokens = new TokenCollection($channels, $devicePath, $device);
                 $ret['result'] = $tokens->getUpdateList($limit);
             }

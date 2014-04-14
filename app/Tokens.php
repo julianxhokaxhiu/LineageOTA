@@ -41,9 +41,13 @@
             $this->filename = $fileName;
             $this->filePath = $physicalPath.'/'.$fileName;
             $this->url = Utils::getUrl($fileName, $device, false, $channel);
-            $this->changelogUrl = $this->getChangelogUrl();
+            $this->changelogUrl = $this->getChangelogUrl($this->url);
             $this->timestamp = filemtime($this->filePath);
             $this->mcCacheProps();
+        }
+
+        private function getChangelogUrl($url) {
+            return str_replace('.zip', '.txt', $url);
         }
 
         private function mcCacheProps() {
@@ -51,9 +55,9 @@
             $cache = $mc->get($this->filePath);
             if (!$cache && Memcached::RES_NOTFOUND == $mc->getResultCode()) {
                 $buildpropArray = explode("\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop'));
-                $device = Utils::getBuildPropValue($buildpropArray, 'ro.cm.device');
-                $api_level = Utils::getBuildPropValue($buildpropArray, 'ro.build.version.sdk');
-                $incremental = Utils::getBuildPropValue($buildpropArray, 'ro.build.version.incremental');
+                $device = $this->getBuildPropValue($buildpropArray, 'ro.cm.device');
+                $api_level = $this->getBuildPropValue($buildpropArray, 'ro.build.version.sdk');
+                $incremental = $this->getBuildPropValue($buildpropArray, 'ro.build.version.incremental');
                 $cache = array($device, $api_level, $incremental, Utils::getMD5($this->filePath));
                 $mc->set($this->filePath, $cache);
                 $mc->set($incremental, array($device, $this->filePath));
@@ -64,7 +68,15 @@
             $this->md5file = $cache[3];
         }
 
-        private function getChangelogUrl() {
-            return str_replace('.zip', '.txt', $this->url);
+        private function getBuildPropValue($buildProp, $key) {
+            foreach ($buildProp as $line) {
+                if (!empty($line) && strncmp($line, '#', 1) != 0) {
+                    list($k, $v) = explode('=', $line, 2);
+                    if ($k == $key) {
+                        return $v;
+                    }
+                }
+            }
+            return '';
         }
     };
