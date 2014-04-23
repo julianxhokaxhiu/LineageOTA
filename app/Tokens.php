@@ -25,9 +25,7 @@
     class Token {
 
         var $channel = '';
-        var $device = '';
         var $filename = '';
-        var $filePath = '';
         var $url = '';
         var $changes = '';
         var $timestamp = '';
@@ -37,32 +35,34 @@
 
         public function __construct($fileName, $physicalPath, $device, $channel) {
             $this->channel = $channel;
-            $this->device = $device;
             $this->filename = $fileName;
-            $this->filePath = $physicalPath.'/'.$fileName;
             $this->url = Utils::getUrl($fileName, $device, false, $channel);
             $this->changes = $this->getChangelogUrl($this->url);
-            $this->timestamp = filemtime($this->filePath);
-            $this->mcCacheProps();
+            $filePath = $physicalPath.'/'.$fileName;
+            $this->timestamp = filemtime($filePath);
+            $this->mcCacheProps($filePath, $device);
         }
 
         private function getChangelogUrl($url) {
             return str_replace('.zip', '.txt', $url);
         }
 
-        private function mcCacheProps() {
+        private function mcCacheProps($filePath, $device) {
             $mc = Flight::mc();
-            $cache = $mc->get($this->filePath);
+            $cache = $mc->get($filePath);
             if (!$cache && Memcached::RES_NOTFOUND == $mc->getResultCode()) {
-                $buildpropArray = explode("\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop'));
-                $device = $this->getBuildPropValue($buildpropArray, 'ro.cm.device');
-                $api_level = $this->getBuildPropValue($buildpropArray, 'ro.build.version.sdk');
-                $incremental = $this->getBuildPropValue($buildpropArray, 'ro.build.version.incremental');
-                $cache = array($device, $api_level, $incremental, Utils::getMD5($this->filePath));
-                $mc->set($this->filePath, $cache);
-                $mc->set($incremental, array($device, $this->filePath));
+                $buildpropArray = explode("\n", file_get_contents('zip://'.$filePath.'#system/build.prop'));
+                if ($device == $this->getBuildPropValue($buildpropArray, 'ro.cm.device')) {
+                    $api_level = $this->getBuildPropValue($buildpropArray, 'ro.build.version.sdk');
+                    $incremental = $this->getBuildPropValue($buildpropArray, 'ro.build.version.incremental');
+                    $cache = array($device, $api_level, $incremental, Utils::getMD5($filePath));
+                    $mc->set($filePath, $cache);
+                    $mc->set($incremental, array($device, $filePath));
+                } else {
+                    throw new Exception("$device: $filePath is in invalid path");
+                }
             }
-            assert($cache[0] == $this->device);
+            assert($cache[0] == $device);
             $this->api_level = $cache[1];
             $this->incremental = $cache[2];
             $this->md5sum = $cache[3];
