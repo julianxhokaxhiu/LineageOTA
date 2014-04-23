@@ -29,11 +29,11 @@
         var $filename = '';
         var $filePath = '';
         var $url = '';
-        var $changelogUrl = '';
+        var $changes = '';
         var $timestamp = '';
         var $api_level = -1;
         var $incremental = '';
-        var $md5file = '';
+        var $md5sum = '';
 
         public function __construct($fileName, $physicalPath, $device, $channel) {
             $this->channel = $channel;
@@ -41,7 +41,7 @@
             $this->filename = $fileName;
             $this->filePath = $physicalPath.'/'.$fileName;
             $this->url = Utils::getUrl($fileName, $device, false, $channel);
-            $this->changelogUrl = $this->getChangelogUrl($this->url);
+            $this->changes = $this->getChangelogUrl($this->url);
             $this->timestamp = filemtime($this->filePath);
             $this->mcCacheProps();
         }
@@ -65,7 +65,7 @@
             assert($cache[0] == $this->device);
             $this->api_level = $cache[1];
             $this->incremental = $cache[2];
-            $this->md5file = $cache[3];
+            $this->md5sum = $cache[3];
         }
 
         private function getBuildPropValue($buildProp, $key) {

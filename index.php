@@ -32,7 +32,6 @@
     // Map for shared memcached:
     // 1) [incrementalno] = array(device, fullpathnameofota.zip)
     // 2) [fullpathnameofota.zip] = array(device, api_level, incremental, md5sum)
-    // 3) [incremental-A-B.zip] = array(deltainfo + md5sum)
     Flight::register('mc', 'Memcached', array(), function($mc) {
         $mc->addServer('localhost', 11211);
     });

@@ -42,7 +42,8 @@
 
             $dirIterator = new DirectoryIterator($dir);
             foreach ($dirIterator as $fileinfo) {
-                if ($fileinfo->isFile() && $fileinfo->getExtension() == 'zip') {
+                if ($fileinfo->isFile() && $fileinfo->getExtension() == 'zip' &&
+                    file_exists($dir.'/'.$fileinfo->getFilename().'.md5sum')) {
                     $token = new Token($fileinfo->getFilename(), $dir, $device, $channel);
                     array_push($this->list, $token);
                 }
@@ -57,11 +58,11 @@
                  array_push($ret, array(
                     'url' => $token->url,
                     'timestamp' => $token->timestamp,
-                    'md5sum' => $token->md5file,
+                    'md5sum' => $token->md5sum,
                     'filename' => $token->filename,
                     'incremental' => $token->incremental,
                     'channel' => $token->channel,
-                    'changes' => $token->changelogUrl,
+                    'changes' => $token->changes,
                     'api_level' => $token->api_level
                 ));
             }

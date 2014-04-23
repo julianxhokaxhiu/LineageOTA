@@ -31,15 +31,9 @@
             if (empty($source_zip) || empty($target_zip) || ($source_device != $target_device)) {
                 return $ret;
             }
-            $mc = Flight::mc();
             $deltaFile = 'incremental-'.$source_incremental.'-'.$target_incremental.'.zip';
             $deltaFullPath = realpath('./_deltas/'.$target_device) . '/' . $deltaFile;
-            if (!file_exists($deltaFullPath)) {
-                $mc->delete($deltaFullPath);
-                return $ret;
-            }
-            $ret = $mc->get($deltaFullPath);
-            if (!$ret && Memcached::RES_NOTFOUND == $mc->getResultCode()) {
+            if (file_exists($deltaFullPath) && file_exists($deltaFullPath.'.md5sum')) {
                 $ret = array(
                    'date_created_unix' => filemtime($deltaFullPath),
                    'filename' => $deltaFile,
@@ -47,7 +41,6 @@
                    'md5sum' => Utils::getMD5($deltaFullPath),
                    'incremental' => $target_incremental
                 );
-                $mc->set($deltaFullPath, $ret);
             }
             return $ret;
         }
