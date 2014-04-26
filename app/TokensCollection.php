@@ -23,7 +23,7 @@
     */
 
     class TokenCollection {
-        var $list = array();
+        private $list = array();
 
         public function __construct($channels, $physicalPath, $device) {
             if (in_array('stable', $channels)) {
@@ -45,7 +45,7 @@
                 if ($fileinfo->isFile() && $fileinfo->getExtension() == 'zip' &&
                     file_exists($dir.'/'.$fileinfo->getFilename().'.md5sum')) {
                     $token = new Token($fileinfo->getFilename(), $dir, $device, $channel);
-                    array_push($this->list, $token);
+                    $this->list[] = $token;
                 }
             }
         }
@@ -55,7 +55,7 @@
             $count = count($this->list);
             for ($i = 0; $i < $count && $i < $limit; $i++) {
                  $token = $this->list[$i];
-                 array_push($ret, array(
+                 $ret[] = array(
                     'url' => $token->url,
                     'timestamp' => $token->timestamp,
                     'md5sum' => $token->md5sum,
@@ -64,7 +64,7 @@
                     'channel' => $token->channel,
                     'changes' => $token->changes,
                     'api_level' => $token->api_level
-                ));
+                );
             }
             return $ret;
         }

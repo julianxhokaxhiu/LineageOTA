@@ -24,14 +24,14 @@
 
     class Token {
 
-        var $channel = '';
-        var $filename = '';
-        var $url = '';
-        var $changes = '';
-        var $timestamp = '';
-        var $api_level = -1;
-        var $incremental = '';
-        var $md5sum = '';
+        public $channel = '';
+        public $filename = '';
+        public $url = '';
+        public $changes = '';
+        public $timestamp = '';
+        public $api_level = -1;
+        public $incremental = '';
+        public $md5sum = '';
 
         public function __construct($fileName, $physicalPath, $device, $channel) {
             $this->channel = $channel;

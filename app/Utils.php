@@ -46,10 +46,7 @@
             $ret = '';
             $md5sumFile = $file . '.md5sum';
             if (file_exists($md5sumFile)) {
-                list($ret, $filename) = explode("  ", file_get_contents($md5sumFile));
-                if (!empty($ret)) {
-                    return $ret;
-                }
+                list($ret,) = explode("  ", file_get_contents($md5sumFile));
             }
             return $ret;
         }
