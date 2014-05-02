@@ -51,17 +51,8 @@
                     return $ret;
                 }
             }
-            if (Utils::commandExists('md5sum')) {
-                $tmp = explode("  ", exec('md5sum '.$file));
-                $ret = $tmp[0];
-            } else {
-                $ret = md5_file($file);
-            }
-            return $ret;
-        }
 
-        private static function commandExists($cmd) {
-            $returnVal = shell_exec("which $cmd");
-            return (empty($returnVal) ? false : true);
+            $ret = md5_file($file);
+            return $ret;
         }
     };
