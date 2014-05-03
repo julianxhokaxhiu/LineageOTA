@@ -36,13 +36,14 @@
         var $md5file = '';
 
         public function __construct($fileName, $physicalPath, $device, $channel) {
+            $this->filePath = $physicalPath.'/'.$fileName;
+            $this->buildpropArray = explode("\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop'));
             $this->channel = $channel;
             $this->device = $device;
             $this->filename = $fileName;
-            $this->filePath = $physicalPath.'/'.$fileName;
             $this->url = Utils::getUrl($fileName, $device, false, $channel);
             $this->changelogUrl = $this->getChangelogUrl($this->url);
-            $this->timestamp = filemtime($this->filePath);
+            $this->timestamp = $this->getBuildPropValue($this->buildpropArray, 'ro.build.date.utc');
             $this->mcCacheProps();
         }
 
@@ -54,10 +55,9 @@
             $mc = Flight::mc();
             $cache = $mc->get($this->filePath);
             if (!$cache && Memcached::RES_NOTFOUND == $mc->getResultCode()) {
-                $buildpropArray = explode("\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop'));
-                $device = $this->getBuildPropValue($buildpropArray, 'ro.cm.device');
-                $api_level = $this->getBuildPropValue($buildpropArray, 'ro.build.version.sdk');
-                $incremental = $this->getBuildPropValue($buildpropArray, 'ro.build.version.incremental');
+                $device = $this->getBuildPropValue($this->buildpropArray, 'ro.cm.device');
+                $api_level = $this->getBuildPropValue($this->buildpropArray, 'ro.build.version.sdk');
+                $incremental = $this->getBuildPropValue($this->buildpropArray, 'ro.build.version.incremental');
                 $cache = array($device, $api_level, $incremental, Utils::getMD5($this->filePath));
                 $mc->set($this->filePath, $cache);
                 $mc->set($incremental, array($device, $this->filePath));
@@ -80,3 +80,4 @@
             return '';
         }
     };
+
