@@ -39,7 +39,6 @@
             $this->url = Utils::getUrl($fileName, $device, false, $channel);
             $this->changes = $this->getChangelogUrl($this->url);
             $filePath = $physicalPath.'/'.$fileName;
-            $this->timestamp = filemtime($filePath);
             $this->mcCacheProps($filePath, $device);
         }
 
@@ -55,7 +54,8 @@
                 if ($device == $this->getBuildPropValue($buildpropArray, 'ro.cm.device')) {
                     $api_level = $this->getBuildPropValue($buildpropArray, 'ro.build.version.sdk');
                     $incremental = $this->getBuildPropValue($buildpropArray, 'ro.build.version.incremental');
-                    $cache = array($device, $api_level, $incremental, Utils::getMD5($filePath));
+                    $timestamp = $this->getBuildPropValue($buildpropArray, 'ro.build.date.utc');
+                    $cache = array($device, $api_level, $incremental, $timestamp, Utils::getMD5($filePath));
                     $mc->set($filePath, $cache);
                     $mc->set($incremental, array($device, $filePath));
                 } else {
@@ -65,7 +65,8 @@
             assert($cache[0] == $device);
             $this->api_level = $cache[1];
             $this->incremental = $cache[2];
-            $this->md5sum = $cache[3];
+            $this->timestamp = $cache[3];
+            $this->md5sum = $cache[4];
         }
 
         private function getBuildPropValue($buildProp, $key) {
