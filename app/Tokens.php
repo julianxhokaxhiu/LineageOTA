@@ -28,9 +28,9 @@
         public $filename = '';
         public $url = '';
         public $changes = '';
-        public $timestamp = '';
         public $api_level = -1;
         public $incremental = '';
+        public $timestamp = 0;
         public $md5sum = '';
 
         public function __construct($fileName, $physicalPath, $device, $channel) {
