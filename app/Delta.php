@@ -26,18 +26,20 @@
 
         public static function find($source_incremental, $target_incremental) {
             $ret = array();
-            list($source_device, $source_zip) = Utils::mcFind($source_incremental);
-            list($target_device, $target_zip) = Utils::mcFind($target_incremental);
-            if (empty($source_zip) || empty($target_zip) || ($source_device != $target_device)) {
+            list($source_device, $source_channel, $source_zip) = Utils::mcFind($source_incremental);
+            list($target_device, $target_channel, $target_zip) = Utils::mcFind($target_incremental);
+            if (empty($source_zip) || empty($target_zip) ||
+                ($source_channel != $target_channel) || ($source_device != $target_device)) {
                 return $ret;
             }
+            $channelDir = ($target_channel == 'stable') ? 'stable' : '';
             $deltaFile = 'incremental-'.$source_incremental.'-'.$target_incremental.'.zip';
-            $deltaFullPath = realpath('./_deltas/'.$target_device) . '/' . $deltaFile;
+            $deltaFullPath = realpath('./_deltas/'. $target_device . '/' . $channelDir) . '/' . $deltaFile;
             if (file_exists($deltaFullPath) && file_exists($deltaFullPath.'.md5sum')) {
                 $ret = array(
                    'date_created_unix' => filemtime($deltaFullPath),
                    'filename' => $deltaFile,
-                   'download_url' => Utils::getUrl($deltaFile, $target_device, true, ''),
+                   'download_url' => Utils::getUrl($deltaFile, $target_device, true, $target_channel),
                    'md5sum' => Utils::getMD5($deltaFullPath),
                    'incremental' => $target_incremental
                 );

@@ -30,7 +30,7 @@
     require 'app/Delta.php';
 
     // Map for shared memcached:
-    // 1) [incrementalno] = array(device, fullpathnameofota.zip)
+    // 1) [incrementalno] = array(device, channel, fullpathnameofota.zip)
     // 2) [fullpathnameofota.zip] = array(device, api_level, incremental, timestamp, md5sum)
     Flight::register('mc', 'Memcached', array(), function($mc) {
         $mc->addServer('localhost', 11211);

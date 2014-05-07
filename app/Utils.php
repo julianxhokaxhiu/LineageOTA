@@ -26,14 +26,15 @@
 
         public static function mcFind($incremental) {
             $mc = Flight::mc();
-            list($device, $zip) = $mc->get($incremental);
+            list($device, $channel, $zip) = $mc->get($incremental);
             if ($zip && !file_exists($zip)) {
                 $mc->delete($zip);
                 $mc->delete($incremental);
                 $zip = NULL;
+                $channel = NULL;
                 $device = NULL;
             }
-            return array($device, $zip);
+            return array($device, $channel, $zip);
         }
 
         public static function getUrl($fileName, $device, $isDelta, $channel) {

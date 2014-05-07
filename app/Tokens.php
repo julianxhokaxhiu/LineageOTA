@@ -28,7 +28,7 @@
         public $filename = '';
         public $url = '';
         public $changes = '';
-        public $api_level = -1;
+        public $api_level = 0;
         public $incremental = '';
         public $timestamp = 0;
         public $md5sum = '';
@@ -39,25 +39,25 @@
             $this->url = Utils::getUrl($fileName, $device, false, $channel);
             $this->changes = $this->getChangelogUrl($this->url);
             $filePath = $physicalPath.'/'.$fileName;
-            $this->mcCacheProps($filePath, $device);
+            $this->mcCacheProps($filePath, $device, $channel);
         }
 
         private function getChangelogUrl($url) {
             return str_replace('.zip', '.txt', $url);
         }
 
-        private function mcCacheProps($filePath, $device) {
+        private function mcCacheProps($filePath, $device, $channel) {
             $mc = Flight::mc();
             $cache = $mc->get($filePath);
             if (!$cache && Memcached::RES_NOTFOUND == $mc->getResultCode()) {
                 $buildpropArray = explode("\n", file_get_contents('zip://'.$filePath.'#system/build.prop'));
                 if ($device == $this->getBuildPropValue($buildpropArray, 'ro.cm.device')) {
-                    $api_level = $this->getBuildPropValue($buildpropArray, 'ro.build.version.sdk');
+                    $api_level = intval($this->getBuildPropValue($buildpropArray, 'ro.build.version.sdk'));
                     $incremental = $this->getBuildPropValue($buildpropArray, 'ro.build.version.incremental');
-                    $timestamp = $this->getBuildPropValue($buildpropArray, 'ro.build.date.utc');
+                    $timestamp = intval($this->getBuildPropValue($buildpropArray, 'ro.build.date.utc'));
                     $cache = array($device, $api_level, $incremental, $timestamp, Utils::getMD5($filePath));
                     $mc->set($filePath, $cache);
-                    $mc->set($incremental, array($device, $filePath));
+                    $mc->set($incremental, array($device, $channel, $filePath));
                 } else {
                     throw new Exception("$device: $filePath is in invalid path");
                 }
