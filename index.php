@@ -55,11 +55,16 @@
             $device = $postJson->params->device;
             $devicePath = realpath('./_builds/'.$device);
             if (file_exists($devicePath)) {
-                if (!empty($postJson->params->source_incremental)) {
-                    // Delete from cache unless found
-                    Utils::mcFind($postJson->params->source_incremental);
-                }
                 $channels = empty($postJson->params->channels) ? array() : $postJson->params->channels;
+                $source_incremental = $postJson->params->source_incremental;
+                if (!empty($source_incremental)) {
+                    // Delete from cache unless found
+                    Utils::mcFind($source_incremental);
+                    // From CMUpdater if source_incremental provided
+                    if (!in_array('stable', $channels)) {
+                        $channels[] = 'stable';
+                    }
+                }
                 $limit = empty($postJson->params->limit) ? 25 : intval($postJson->params->limit);
                 $tokens = new TokenCollection($channels, $devicePath, $device);
                 $ret['result'] = $tokens->getUpdateList($limit);

@@ -26,7 +26,9 @@
         private $list = array();
 
         public function __construct($channels, $physicalPath, $device) {
-            $this->add($physicalPath.'/stable', $device, 'stable');
+            if (in_array('stable', $channels)) {
+                $this->add($physicalPath.'/stable', $device, 'stable');
+            }
             if (in_array('nightly', $channels)) {
                 $this->add($physicalPath, $device, 'nightly');
             }
