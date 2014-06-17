@@ -20,6 +20,7 @@ I've implemented a [simple script made for NodeJS](https://github.com/julianxhok
 - For more information: build/target/product/security/README
 
 ##Changelog
+- 1.2: Allow incremental updates only for the same channel, Always include stable(release) channel
 - 1.1.1.1: Final version, get timestamp from ro.build.date.utc
 - 1.1.1: Performance improvements for md5sum
 - 1.1: Add support for incremental changelog (limit param)
