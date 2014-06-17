@@ -57,7 +57,7 @@
                     $timestamp = intval($this->getBuildPropValue($buildpropArray, 'ro.build.date.utc'));
                     $cache = array($device, $api_level, $incremental, $timestamp, Utils::getMD5($filePath));
                     $mc->set($filePath, $cache);
-                    $mc->set($incremental, array($device, $channel, $filePath));
+                    $mc->set($incremental, array($device, $channel, $timestamp, $filePath));
                 } else {
                     throw new Exception("$device: $filePath is in invalid path");
                 }

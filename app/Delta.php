@@ -26,10 +26,21 @@
 
         public static function find($source_incremental, $target_incremental) {
             $ret = array();
-            list($source_device, $source_channel, $source_zip) = Utils::mcFind($source_incremental);
-            list($target_device, $target_channel, $target_zip) = Utils::mcFind($target_incremental);
-            if (empty($source_zip) || empty($target_zip) ||
-                ($source_channel != $target_channel) || ($source_device != $target_device)) {
+            if (empty($source_incremental) || empty($target_incremental) ||
+                $source_incremental == $target_incremental) {
+                return $ret;
+            }
+            list($source_device, $source_channel, $source_timestamp, $source_zip) = Utils::mcFind($source_incremental);
+            if (empty($source_zip)) {
+                return $ret;
+            }
+            list($target_device, $target_channel, $target_timestamp, $target_zip) = Utils::mcFind($target_incremental);
+            if (empty($target_zip)) {
+                return $ret;
+            }
+            if (($source_timestamp > $target_timestamp) ||
+                ($source_channel != $target_channel) ||
+                ($source_device != $target_device)) {
                 return $ret;
             }
             $channelDir = ($target_channel == 'stable') ? 'stable' : '';

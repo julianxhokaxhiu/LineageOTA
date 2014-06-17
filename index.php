@@ -30,7 +30,7 @@
     require 'app/Delta.php';
 
     // Map for shared memcached:
-    // 1) [incrementalno] = array(device, channel, fullpathnameofota.zip)
+    // 1) [incrementalno] = array(device, channel, timestamp, fullpathnameofota.zip)
     // 2) [fullpathnameofota.zip] = array(device, api_level, incremental, timestamp, md5sum)
     Flight::register('mc', 'Memcached', array(), function($mc) {
         $mc->addServer('localhost', 11211);
@@ -55,18 +55,27 @@
             $device = $postJson->params->device;
             $devicePath = realpath('./_builds/'.$device);
             if (file_exists($devicePath)) {
+                $after = 0;
                 $channels = empty($postJson->params->channels) ? array() : $postJson->params->channels;
-                $source_incremental = $postJson->params->source_incremental;
-                if (!empty($source_incremental)) {
+                // From CMUpdater if source_incremental provided
+                if (!empty($postJson->params->source_incremental)) {
                     // Delete from cache unless found
-                    Utils::mcFind($source_incremental);
-                    // From CMUpdater if source_incremental provided
+                    list(,,$after,) = Utils::mcFind($postJson->params->source_incremental);
                     if (!in_array('stable', $channels)) {
                         $channels[] = 'stable';
                     }
+                    // Include all
+                    if (in_array('stable', $channels) &&
+                        in_array('snapshot', $channels) &&
+                        in_array('nightly', $channels)) {
+                        $after = 0;
+                    }
+                    else {
+                        $after = intval($after);
+                    }
                 }
                 $limit = empty($postJson->params->limit) ? 25 : intval($postJson->params->limit);
-                $tokens = new TokenCollection($channels, $devicePath, $device);
+                $tokens = new TokenCollection($channels, $devicePath, $device, $after);
                 $ret['result'] = $tokens->getUpdateList($limit);
             }
         }
@@ -80,13 +89,8 @@
         $req = Flight::request();
         $postJson = json_decode($req->body);
         if ($postJson != NULL && !empty($postJson->source_incremental) && !empty($postJson->target_incremental)) {
-            $source_incremental = $postJson->source_incremental;
-            $target_incremental = $postJson->target_incremental;
-            if ($source_incremental != $target_incremental) {
-                $ret = Delta::find($source_incremental, $target_incremental);
-            }
+            $ret = Delta::find($postJson->source_incremental, $postJson->target_incremental);
         }
-
         if (empty($ret)) {
             $ret['errors'] = array('message' => 'Unable to find delta');
         }

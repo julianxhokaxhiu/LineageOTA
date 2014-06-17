@@ -25,16 +25,16 @@
     class TokenCollection {
         private $list = array();
 
-        public function __construct($channels, $physicalPath, $device) {
+        public function __construct($channels, $physicalPath, $device, $after) {
             if (in_array('stable', $channels)) {
-                $this->add($physicalPath.'/stable', $device, 'stable');
+                $this->add($physicalPath.'/stable', $device, $after, 'stable');
             }
             if (in_array('nightly', $channels)) {
-                $this->add($physicalPath, $device, 'nightly');
+                $this->add($physicalPath, $device, $after, 'nightly');
             }
         }
 
-        private function add($dir, $device, $channel) {
+        private function add($dir, $device, $after, $channel) {
             if (!file_exists($dir))
                 return;
 
@@ -43,6 +43,9 @@
                 if ($fileinfo->isFile() && $fileinfo->getExtension() == 'zip' &&
                     file_exists($dir.'/'.$fileinfo->getFilename().'.md5sum')) {
                     $token = new Token($fileinfo->getFilename(), $dir, $device, $channel);
+                    if ($after > 0 && $token->timestamp < $after) {
+                        continue;
+                    }
                     $this->list[] = $token;
                 }
             }
