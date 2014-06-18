@@ -43,10 +43,9 @@
                 if ($fileinfo->isFile() && $fileinfo->getExtension() == 'zip' &&
                     file_exists($dir.'/'.$fileinfo->getFilename().'.md5sum')) {
                     $token = new Token($fileinfo->getFilename(), $dir, $device, $channel);
-                    if ($after > 0 && $token->timestamp < $after) {
-                        continue;
+                    if ($token->timestamp > $after) {
+                        $this->list[] = $token;
                     }
-                    $this->list[] = $token;
                 }
             }
         }

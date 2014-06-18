@@ -32,9 +32,11 @@
     // Map for shared memcached:
     // 1) [incrementalno] = array(device, channel, timestamp, fullpathnameofota.zip)
     // 2) [fullpathnameofota.zip] = array(device, api_level, incremental, timestamp, md5sum)
-    Flight::register('mc', 'Memcached', array(), function($mc) {
-        $mc->addServer('localhost', 11211);
-    });
+    function registerMemcached() {
+        Flight::register('mc', 'Memcached', array(), function($mc) {
+            $mc->addServer('localhost', 11211);
+        });
+    }
 
     // Root dir
     Flight::route('/', function(){
@@ -56,25 +58,20 @@
             $devicePath = realpath('./_builds/'.$device);
             if (file_exists($devicePath)) {
                 $after = 0;
+                $limit = empty($postJson->params->limit) ? 25 : intval($postJson->params->limit);
                 $channels = empty($postJson->params->channels) ? array() : $postJson->params->channels;
-                // From CMUpdater if source_incremental provided
+                registerMemcached();
+                // Source_incremental is provided by CMUpdater
                 if (!empty($postJson->params->source_incremental)) {
-                    // Delete from cache unless found
+                    // Offer only new builds after source rom.
                     list(,,$after,) = Utils::mcFind($postJson->params->source_incremental);
+                    if (in_array('snapshot', $channels) && in_array('nightly', $channels)) {
+                        $after = 0; // 'All versions' is selected, disable time check and offer older builds.
+                    }
                     if (!in_array('stable', $channels)) {
-                        $channels[] = 'stable';
-                    }
-                    // Include all
-                    if (in_array('stable', $channels) &&
-                        in_array('snapshot', $channels) &&
-                        in_array('nightly', $channels)) {
-                        $after = 0;
-                    }
-                    else {
-                        $after = intval($after);
+                        $channels[] = 'stable'; // We offer stable releases by default for CMUpdater
                     }
                 }
-                $limit = empty($postJson->params->limit) ? 25 : intval($postJson->params->limit);
                 $tokens = new TokenCollection($channels, $devicePath, $device, $after);
                 $ret['result'] = $tokens->getUpdateList($limit);
             }
@@ -89,6 +86,7 @@
         $req = Flight::request();
         $postJson = json_decode($req->body);
         if ($postJson != NULL && !empty($postJson->source_incremental) && !empty($postJson->target_incremental)) {
+            registerMemcached();
             $ret = Delta::find($postJson->source_incremental, $postJson->target_incremental);
         }
         if (empty($ret)) {
