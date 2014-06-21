@@ -1,0 +1,20 @@
+server {
+    server_name download.YOURHOST.com;
+    root /var/lib/jenkins/CyanogenModOTA;
+    index index.html index.php;
+    location / {
+        try_files $uri /index.php;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass unix:/var/run/php5-fpm.sock;
+        fastcgi_index index.php;
+        include fastcgi_params;
+    }
+
+    location /_builds {
+        autoindex on;
+    }
+
+    location /_deltas {
+        autoindex off;
+    }
+}
