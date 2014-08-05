@@ -23,3 +23,8 @@
     */
 
     require 'vendor/autoload.php';
+
+    use \JX\CmOta\CmOta;
+
+    $app = new CmOta();
+    $app->run();
