@@ -1,11 +1,31 @@
-#CyanogenModOTA
+# CyanogenModOTA
 A simple OTA REST Server for CyanogenMod OTA Updater System Application
 
-## WIP
-This is a branch created to refactor the whole code focusing on new aspects of PHP like:
-- PSR4
-- Composer
-- ...
+## How to use
+1. `git clone --branch 2.0 https://github.com/julianxhokaxhiu/CyanogenModOTA.git /var/www/CyanogenModOTA`
+2. `cd /var/www/CyanogenModOTA && composer install`
+3. Follow the rest of the tutorial on [my personal blog post](http://blog.julianxhokaxhiu.com/entry/how-the-cm-ota-server-works-and-how-to-implement-and-use-ours) where I explain how to override the build server on your ROM.
+4. Optional. If just want to test if the REST Server is working, if you go to http://localhost/CyanogenModOTA/ you'll be redirected to the builds directory listing.
 
-## Version
-Since it's a refactor of the whole application logic, this is will be the 2.0.
+## Where do I have to upload by ZIPs that I obtain after the compilation?
+- Full builds should be uploaded to `builds/full` directory.
+- Delta builds will be automatically built on the `builds/delta` directory.
+
+## Can I Debug my REST Server somehow?
+Yes, you can! I've implemented a [simple script](https://github.com/julianxhokaxhiu/CyanogenModOTAUnitTest) made for NodeJS that you clone and use it.
+
+## Changelog
+### v2.0
+- Refactored the whole code.
+- Now everything is PSR4 compliant.
+- Introduced composer.json to make easier the installation of the project.
+
+## Drawbacks
+- Actually there's a barebone implementation of Memcached BUT is not working. Will be implemented later with more accurate logic.
+- Delta updates may or may not work. It's using Deltax3 to create them but it's just experimental. Use it at your own risk.
+
+
+## License
+See [LICENSE](https://github.com/julianxhokaxhiu/CyanogenModOTA/blob/2.0/LICENSE).
+
+Enjoy :)
