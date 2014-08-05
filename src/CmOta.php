@@ -36,6 +36,7 @@
             // Internal Initialization routines
             $this->initConfig();
             $this->initRouting();
+            $this->initBuilds();
         }
 
         /**
@@ -92,7 +93,7 @@
             Flight::route('/api', function(){
                 $ret = array(
                     'id' => null,
-                    'result' => array(),
+                    'result' => Flight::builds()->get(),
                     'error' => null
                 );
 
@@ -103,18 +104,35 @@
             Flight::route('/api/v1/build/get_delta', function(){
                 $ret = array();
 
+                $delta = Flight::builds()->getDelta();
+                if ( $delta === false ) {
+                    $ret['errors'] = array(
+                        'message' => 'Unable to find delta'
+                    );
+                } else {
+                    array_merge($ret, $delta);
+                }
+
                 Flight::json($ret);
             });
         }
 
         /**
-         * Init the default options
-         * @param array $options Various options that can be configured
-         * @return array The user options merged with default ones
+         * Register the config array within Flight
          */
         private function initConfig() {
             Flight::register( 'cfg', '\DotNotation', array(), function( $cfg ) {
                 $cfg->set( 'basePath', '' );
+                $cfg->set( 'realBasePath', realpath( __DIR__ . '/..' ) );
+            });
+        }
+
+        /**
+         * Register the build class within Flight
+         */
+        private function initBuilds() {
+            Flight::register( 'builds', '\JX\CmOta\Helpers\Builds', array(), function( $builds ) {
+                // Do nothing for now
             });
         }
     }
