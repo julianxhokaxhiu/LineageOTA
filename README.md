@@ -7,7 +7,7 @@ A simple OTA REST Server for CyanogenMod OTA Updater System Application
 3. Follow the rest of the tutorial on [my personal blog post](http://blog.julianxhokaxhiu.com/entry/how-the-cm-ota-server-works-and-how-to-implement-and-use-ours) where I explain how to override the build server on your ROM.
 4. Optional. If just want to test if the REST Server is working, if you go to http://localhost/CyanogenModOTA/ you'll be redirected to the builds directory listing.
 
-## Where do I have to upload by ZIPs that I obtain after the compilation?
+## Where do I have to upload the ZIPs that I obtain after the compilation?
 - Full builds should be uploaded to `builds/full` directory.
 - Delta builds will be automatically built on the `builds/delta` directory.
 
