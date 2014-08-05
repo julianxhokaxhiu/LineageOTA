@@ -1,0 +1,29 @@
+{
+    "name": "julianxhokaxhiu/CyanogenModOTA",
+    "description": "A simple OTA REST Server for CyanogenMod OTA Updater System Application",
+    "keywords": [
+    	"android",
+    	"cyanogenmod",
+    	"ota",
+    	"rest",
+    	"php"
+    ],
+    "homepage": "https://github.com/julianxhokaxhiu/CyanogenModOTA",
+    "license": "MIT",
+    "authors": [
+        {
+            "name":         "Julian Xhokaxhiu",
+            "email":        "info@julianxhokaxhiu.com",
+            "homepage":     "http://julianxhokaxhiu.com",
+            "role":         "Creator/Lead Developer"
+        }
+    ],
+    "require": {
+    	"mikecao/flight": 	"*"
+    },
+    "autoload": {
+    	"psr-4": {
+    		"JX\\CMOTA\\": "src/"
+    	}
+    }
+}
