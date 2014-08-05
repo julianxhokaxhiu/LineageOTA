@@ -66,7 +66,7 @@
             $this->baseUrl = $baseUrl;
             $this->channel = $this->getChannel( str_replace( range( 0 , 9 ), '', $tokens[3] ) );
             $this->filename = $fileName;
-            $this->url = $this->_getUrl();
+            $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
             $this->changelogUrl = $this->_getChangelogUrl();
             $this->timestamp = filemtime( $this->filePath );
             $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
@@ -103,7 +103,7 @@
             $ret = false;
 
             $deltaFile = $this->incremental . '-' . $targetToken->incremental . '.zip';
-            $deltaFilePath = dirname( $this->filePath ) . '/' . $deltaFile;
+            $deltaFilePath = Flight::cfg()->get('realBasePath') . '/builds/delta/' . $deltaFile;
 
             if ( $this->commandExists('xdelta3') ) {
 
@@ -115,7 +115,7 @@
                     'filename' => $deltaFile,
                     'timestamp' => filemtime( $deltaFilePath ),
                     'md5' => $this->getMD5( $deltaFilePath ),
-                    'url' => $this->_getUrl( $deltaFile ),
+                    'url' => $this->_getUrl( $deltaFile, Flight::cfg()->get('deltasPath') ),
                     'api_level' => $this->apiLevel,
                     'incremental' => $targetToken->incremental
                 );
@@ -238,9 +238,9 @@
          * @param string $fileName The name of the file
          * @return string The absolute URL for the file to be downloaded
          */
-        private function _getUrl($fileName){
+        private function _getUrl($fileName = '', $basePath){
             if ( empty($fileName) ) $fileName = $this->filename;
-            return Flight::cfg()->get('buildsPath') . '/' . $fileName;
+            return $basePath . '/' . $fileName;
         }
 
         /**
