@@ -29,19 +29,34 @@
 
     class Builds {
 
-    	private $fullBuilds;
+        // This will contain the build list based on the current request
+    	private $builds = array();
 
+        private $postData = array();
+
+        /**
+         * Constructor of the Builds class.
+         */
     	public function __construct() {
-            $this->fullBuilds = array();
+            // Set required paths for properly builds Urls later
+            Flight::cfg()->set( 'buildsPath', Flight::cfg()->get('basePath') . '/builds/full' );
+            Flight::cfg()->set( 'deltasPath', Flight::cfg()->get('basePath') . '/builds/deltas' );
+
+            // Get the current POST request data
+            $this->postData = json_decode( Flight::request()->body, true);
 
             // Internal Initialization routines
     		$this->getBuilds();
     	}
 
+        /**
+         * Return a valid response list of builds available based on the current request
+         * @return array An array preformatted with builds
+         */
     	public function get() {
     		$ret = array();
 
-            foreach ( $this->fullBuilds as $build ) {
+            foreach ( $this->builds as $build ) {
                 array_push( $ret, array(
                     'incremental' => $build->getIncremental(),
                     'api_level' => $build->getApiLevel(),
@@ -57,26 +72,50 @@
             return $ret;
     	}
 
+        /**
+         * Return a valid response of the delta build (if available) based on the current request
+         * @return array An array preformatted with the delta build
+         */
     	public function getDelta() {
-    		return false;
+            $ret = false;
+
+            $source = $this->postData['source_incremental'];
+            $target = $this->postData['target_incremental'];
+            if ( $source != $target ) {
+                $sourceToken = null;
+                foreach ($this->builds as $build) {
+                    if ( $build->getIncremental() == $target ) {
+                        $delta = $sourceToken->getDelta($build);
+                        $ret = array(
+                            'date_created_unix' => $delta['timestamp'],
+                            'filename' => $delta['filename'],
+                            'download_url' => $delta['url'],
+                            'api_level' => $delta['api_level'],
+                            'md5sum' => $delta['md5'],
+                            'incremental' => $delta['incremental']
+                        );
+                    } else if ( $build->getIncremental() == $source ) {
+                        $sourceToken = $build;
+                    }
+                }
+            }
+
+    		return $ret;
     	}
+
+        /* Utility / Internal */
 
     	private function getBuilds() {
             // Get physical paths of where the files resides
             $path = Flight::cfg()->get('realBasePath') . '/builds/full';
-            // Get the POST data
-            $postData = json_decode( Flight::request()->body, true);
             // Get the file list and parse it
     		$files = array_diff( scandir( $path ) , array( '..', '.' ) );
             if ( count( $files ) > 0  ) {
                 foreach ( $files as $file ) {
-                    $build = new Build();
-                    $build
-                    ->setFilename( $file )
-                    ->setPath( $path );
+                    $build = new Build( $file, $path);
 
-                    if ( $build->isValid( $postData['params'] ) ) {
-                        array_push( $this->fullBuilds , $build );
+                    if ( $build->isValid( $this->postData['params'] ) ) {
+                        array_push( $this->builds , $build );
                     }
                 }
             }
