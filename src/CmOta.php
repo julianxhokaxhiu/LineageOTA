@@ -24,18 +24,70 @@
 
     namespace JX\CmOta;
 
+    use \DotNotation;
     use \Flight;
 
     class CmOta {
+        /**
+         * Constructor of this class
+         * @param array $options Various options that can be configured
+         */
         public function __construct() {
+            // Internal Initialization routines
+            $this->initConfig();
             $this->initRouting();
         }
 
-        public function run() {
-            Flight::start();
+        /**
+         * Enable memcached feature
+         * @return class Return always itself, so it can be chained within calls
+         */
+        public function enableMemcached() {
+            Flight::register( 'mc', 'Memcached', array(), function( $mc ) {
+                $mc->addServer( Flight::cfg()->get( 'memcached.host' ) , Flight::cfg()->get( 'memcached.port' ) );
+                Flight::cfg()->set( 'memcached.enabled', true );
+            });
+
+            return $this;
         }
 
+        /**
+         * Get the global configuration
+         * @return array The whole configuration until this moment
+         */
+        public function getConfig() {
+            return Flight::cfg()->get();
+        }
+
+        /**
+         * Set a configuration option based on a key
+         * @param type $key The key of your configuration
+         * @param type $value The value that you want to set
+         * @return class Return always itself, so it can be chained within calls
+         */
+        public function setConfig( $key, $value ) {
+            Flight::cfg()->set( $key, $value );
+
+            return $this;
+        }
+
+        /**
+         * This initialize the REST API Server
+         * @return class Return always itself, so it can be chained within calls
+         */
+        public function run() {
+            Flight::start();
+
+            return $this;
+        }
+
+        // Utility / Internal
         private function initRouting() {
+            // Just list the builds folder for now
+            Flight::route('/', function() {
+                Flight::redirect( Flight::cfg()->get( 'basePath' ) . '/builds');
+            });
+
             // Main call
             Flight::route('/api', function(){
                 $ret = array(
@@ -52,6 +104,17 @@
                 $ret = array();
 
                 Flight::json($ret);
+            });
+        }
+
+        /**
+         * Init the default options
+         * @param array $options Various options that can be configured
+         * @return array The user options merged with default ones
+         */
+        private function initConfig() {
+            Flight::register( 'cfg', '\DotNotation', array(), function( $cfg ) {
+                $cfg->set( 'basePath', '' );
             });
         }
     }
