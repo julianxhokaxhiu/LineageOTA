@@ -28,4 +28,256 @@
 
     class Build {
 
+    	private $apiLevel = -1;
+        private $channel = '';
+        private $model = '';
+        private $filename = '';
+        private $url = '';
+        private $changelogUrl = '';
+        private $timestamp = '';
+        private $incremental = '';
+        private $filePath = '';
+        private $baseUrl = '';
+        private $buildProp = '';
+
+        /**
+         * Constructor of the Build class.
+         * Here all the information about the current build will be collected
+         * and make them available for the next time.
+         * @param type $fileName The current filename of the build
+         * @param type $physicalPath The current path where the build lives
+         */
+    	public function __construct($fileName, $physicalPath) {
+    		/*
+				$tokens Schema:
+
+                array(
+                    1 => [CM VERSION] (ex. 10.1.x, 10.2, 11, etc.)
+                    2 => [DATE OF BUILD] (ex. 20140130)
+                    3 => [CHANNEL OF THE BUILD] (ex. RC, RC2, NIGHTLY, etc.)
+                    4 => [MODEL] (ex. i9100, i9300, etc.)
+                )
+            */
+            preg_match_all( '/cm-([0-9\.]+-)(\d+-)?([a-zA-Z0-9]+-)?([a-zA-Z0-9]+)/', $fileName, $tokens );
+            $tokens = $this->removeTrailingDashes( $tokens );
+
+            $this->buildProp = explode( "\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
+            $this->filePath = $physicalPath . '/' . $fileName;
+            $this->baseUrl = $baseUrl;
+            $this->channel = $this->getChannel( str_replace( range( 0 , 9 ), '', $tokens[3] ) );
+            $this->filename = $fileName;
+            $this->url = $this->_getUrl();
+            $this->changelogUrl = $this->_getChangelogUrl();
+            $this->timestamp = filemtime( $this->filePath );
+            $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
+            $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' );
+            $this->model = $this->getBuildPropValue( 'ro.cm.device' );
+    	}
+
+        /**
+         * Check if the current build is valid within the current request
+         * @param type $params The params dictionary inside the current POST request
+         * @return boolean True if valid, False if not.
+         */
+    	public function isValid($params){
+            $ret = false;
+
+            if ( $params['device'] == $this->model ) {
+                if ( count($params['channels']) > 0 ) {
+                    foreach ( $params['channels'] as $channel ) {
+                        var_dump($channel);
+                        if ( strtolower($channel) == $this->channel ) $ret = true;
+                    }
+                }
+            }
+
+            return $ret;
+        }
+
+        /**
+         * Create a delta build based from the current build to the target build.
+         * @param type $targetToken The target build from where to build the Delta
+         * @return array/boolean Return an array performatted with the correct data inside, otherwise false if not possible to be created
+         */
+        public function getDelta($targetToken){
+            $ret = false;
+
+            $deltaFile = $this->incremental . '-' . $targetToken->incremental . '.zip';
+            $deltaFilePath = dirname( $this->filePath ) . '/' . $deltaFile;
+
+            if ( $this->commandExists('xdelta3') ) {
+
+                if ( !file_exists( $deltaFilePath ) ) {
+                    exec( 'xdelta3 -e -s ' . $this->filePath . ' ' . $targetToken->filePath . ' ' . $deltaFilePath );
+                }
+
+                $ret = array(
+                    'filename' => $deltaFile,
+                    'timestamp' => filemtime( $deltaFilePath ),
+                    'md5' => $this->getMD5( $deltaFilePath ),
+                    'url' => $this->_getUrl( $deltaFile ),
+                    'api_level' => $this->apiLevel,
+                    'incremental' => $targetToken->incremental
+                );
+            }
+
+            return $ret;
+        }
+
+        /**
+         * Return the MD5 value of the current build
+         * @param string $path The path of the file
+         * @return string The MD5 hash
+         */
+        public function getMD5($path){
+            $ret = '';
+
+            if ( empty($path) ) $path = $this->filePath;
+            // Pretty much faster if it is available
+            if ( $this->commandExists( 'md5sum' ) ) {
+                $tmp = explode("  ", exec( 'md5sum ' . $path));
+                $ret = $tmp[0];
+            } else {
+                $ret = md5_file($path);
+            }
+
+            return $ret;
+        }
+
+        /* Getters */
+
+        /**
+         * Get the Incremental value of the current build
+         * @return string The incremental value
+         */
+        public function getIncremental() {
+        	return $this->incremental;
+        }
+
+        /**
+         * Get the API Level of the current build.
+         * @return string The API Level value
+         */
+        public function getApiLevel() {
+        	return $this->apiLevel;
+        }
+
+        /**
+         * Get the Url of the current build
+         * @return string The Url value
+         */
+        public function getUrl() {
+        	return $this->url;
+        }
+
+        /**
+         * Get the timestamp of the current build
+         * @return string The timestamp value
+         */
+        public function getTimestamp() {
+        	return $this->timestamp;
+        }
+
+        /**
+         * Get the changelog Url of the current build
+         * @return string The changelog Url value
+         */
+        public function getChangelogUrl() {
+        	return $this->changelogUrl;
+        }
+
+        /**
+         * Get the channel of the current build
+         * @return string The channel value
+         */
+        public function getChannel() {
+        	return $this->channel;
+        }
+
+        /**
+         * Get the filename of the current build
+         * @return string The filename value
+         */
+        public function getFilename() {
+        	return $this->filename;
+        }
+
+    	/* Utility / Internal */
+
+        /**
+         * Remove trailing dashes
+         * @param type $token The string where to do the operation
+         * @return string The string without trailing dashes
+         */
+        private function removeTrailingDashes($token){
+            foreach ( $token as $key => $value ) {
+                $token[$key] = rtrim( $value[0], '-' );
+            }
+            return $token;
+        }
+
+        /**
+         * Get the current channel of the build based on the current token
+         * @param string $token The channel obtained from build.prop
+         * @return string The correct channel to be returned
+         */
+        private function getChannel($token){
+            $ret = 'stable';
+
+            $token = strtolower( $token );
+            if ( $token > '' ) {
+                $ret = $token;
+                if ( $token == 'experimental' ) $ret = 'snapshot';
+            }
+
+            return $ret;
+        }
+
+        /**
+         * Get the correct URL for the build
+         * @param string $fileName The name of the file
+         * @return string The absolute URL for the file to be downloaded
+         */
+        private function _getUrl($fileName){
+            if ( empty($fileName) ) $fileName = $this->filename;
+            return Flight::cfg()->get('buildsPath') . '/' . $fileName;
+        }
+
+        /**
+         * Get the changelog URL for the current build
+         * @return string The changelog URL
+         */
+        private function _getChangelogUrl(){
+            return str_replace('.zip', '.txt', $this->url);
+        }
+
+        /**
+         * Get a property value based on the $key value.
+         * It does it by searching inside the file build.prop of the current build.
+         * @param string $key The key for the wanted value
+         * @return string The value for the specified key
+         */
+        private function getBuildPropValue($key){
+            $ret = '';
+
+            foreach ($this->buildProp as $line) {
+                if ( strpos($line, $key) !== false ) {
+                    $tmp = explode('=', $line);
+                    $ret = $tmp[1];
+                    break;
+                }
+            }
+
+            return $ret;
+        }
+
+        /**
+         * Checks if a command is available on the current server
+         * @param string $cmd The current command to execute
+         * @return boolean Return True if available, False if not
+         */
+        private function commandExists($cmd){
+            $returnVal = shell_exec("which $cmd");
+            return (empty($returnVal) ? false : true);
+        }
     }
