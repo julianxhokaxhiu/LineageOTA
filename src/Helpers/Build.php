@@ -22,8 +22,10 @@
         CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     */
 
-    namespace JX\CmOta\Helper;
+    namespace JX\CmOta;
 
-    class Builds {
+    use \Flight;
+
+    class Build {
 
     }
