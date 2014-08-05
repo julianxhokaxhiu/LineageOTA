@@ -27,4 +27,9 @@
     use \JX\CmOta\CmOta;
 
     $app = new CmOta();
-    $app->run();
+    $app
+    ->setConfig( 'basePath', '/CyanogenModOTA' )
+    ->setConfig( 'memcached.host', 'localhost' )
+    ->setConfig( 'memcached.port', 11211 )
+    ->enableMemcached()
+    ->run();
