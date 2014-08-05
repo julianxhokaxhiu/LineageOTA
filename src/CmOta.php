@@ -29,7 +29,7 @@
 
     class CmOta {
         /**
-         * Constructor of this class
+         * Constructor of the CmOta class.
          * @param array $options Various options that can be configured
          */
         public function __construct() {
@@ -82,7 +82,8 @@
             return $this;
         }
 
-        // Utility / Internal
+        /* Utility / Internal */
+
         private function initRouting() {
             // Just list the builds folder for now
             Flight::route('/', function() {
