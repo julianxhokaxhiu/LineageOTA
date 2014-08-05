@@ -24,6 +24,34 @@
 
     namespace JX\CmOta;
 
-    class CmOta {
+    use \Flight;
 
+    class CmOta {
+        public function __construct() {
+            $this->initRouting();
+        }
+
+        public function run() {
+            Flight::start();
+        }
+
+        private function initRouting() {
+            // Main call
+            Flight::route('/api', function(){
+                $ret = array(
+                    'id' => null,
+                    'result' => array(),
+                    'error' => null
+                );
+
+                Flight::json($ret);
+            });
+
+            // Delta updates call
+            Flight::route('/api/v1/build/get_delta', function(){
+                $ret = array();
+
+                Flight::json($ret);
+            });
+        }
     }
