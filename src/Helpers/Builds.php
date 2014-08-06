@@ -109,7 +109,7 @@
             // Get physical paths of where the files resides
             $path = Flight::cfg()->get('realBasePath') . '/builds/full';
             // Get the file list and parse it
-    		$files = array_diff( scandir( $path ) , array( '..', '.' ) );
+    		$files = preg_grep( '/^([^.Thumbs])/', scandir( $path ) );
             if ( count( $files ) > 0  ) {
                 foreach ( $files as $file ) {
                     $build = new Build( $file, $path);
