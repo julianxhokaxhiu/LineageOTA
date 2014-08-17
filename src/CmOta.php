@@ -87,7 +87,7 @@
         private function initRouting() {
             // Just list the builds folder for now
             Flight::route('/', function() {
-                Flight::redirect( Flight::cfg()->get( 'basePath' ) . '/builds');
+                Flight::redirect( '/builds');
             });
 
             // Main call
