@@ -14,7 +14,10 @@ A simple OTA REST Server for CyanogenMod OTA Updater System Application
 Yes, you can! I've implemented a [simple script](https://github.com/julianxhokaxhiu/CyanogenModOTAUnitTest) made for NodeJS that you clone and use it.
 
 ## Changelog
-### v.2.0.2
+### v2.0.x
+- First implementation of Memcached. Still have to try if it works.
+
+### v2.0.2
 - Fix some breaking changes that will not enable the REST server to work correctly.
 
 ### v2.0.1
@@ -26,7 +29,6 @@ Yes, you can! I've implemented a [simple script](https://github.com/julianxhokax
 - Introduced composer.json to make easier the installation of the project.
 
 ## Drawbacks
-- Actually there's a barebone implementation of Memcached BUT is not working. Will be implemented later with more accurate logic.
 - Delta updates may or may not work. It's using Deltax3 to create them but it's just experimental. Use it at your own risk.
 
 
