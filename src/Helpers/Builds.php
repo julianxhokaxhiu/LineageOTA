@@ -25,7 +25,7 @@
     namespace JX\CmOta\Helpers;
 
     use \Flight;
-    use Build;
+    use \JX\CmOta\Helpers\Build;
 
     class Builds {
 
@@ -43,7 +43,7 @@
             Flight::cfg()->set( 'deltasPath', Flight::cfg()->get('basePath') . '/builds/deltas' );
 
             // Get the current POST request data
-            $this->postData = json_decode( Flight::request()->body, true);
+            $this->postData = Flight::request()->data;
 
             // Internal Initialization routines
     		$this->getBuilds();
