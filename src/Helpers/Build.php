@@ -22,7 +22,7 @@
         CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     */
 
-    namespace JX\CmOta;
+    namespace JX\CmOta\Helpers;
 
     use \Flight;
 
@@ -37,7 +37,6 @@
         private $timestamp = '';
         private $incremental = '';
         private $filePath = '';
-        private $baseUrl = '';
         private $buildProp = '';
 
         /**
@@ -61,10 +60,9 @@
             preg_match_all( '/cm-([0-9\.]+-)(\d+-)?([a-zA-Z0-9]+-)?([a-zA-Z0-9]+)/', $fileName, $tokens );
             $tokens = $this->removeTrailingDashes( $tokens );
 
-            $this->buildProp = explode( "\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
             $this->filePath = $physicalPath . '/' . $fileName;
-            $this->baseUrl = $baseUrl;
-            $this->channel = $this->getChannel( str_replace( range( 0 , 9 ), '', $tokens[3] ) );
+            $this->buildProp = explode( "\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
+            $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[3] ) );
             $this->filename = $fileName;
             $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
             $this->changelogUrl = $this->_getChangelogUrl();
@@ -129,7 +127,7 @@
          * @param string $path The path of the file
          * @return string The MD5 hash
          */
-        public function getMD5($path){
+        public function getMD5($path = ''){
             $ret = '';
 
             if ( empty($path) ) $path = $this->filePath;
@@ -221,7 +219,7 @@
          * @param string $token The channel obtained from build.prop
          * @return string The correct channel to be returned
          */
-        private function getChannel($token){
+        private function _getChannel($token){
             $ret = 'stable';
 
             $token = strtolower( $token );
