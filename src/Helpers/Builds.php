@@ -112,7 +112,22 @@
     		$files = preg_grep( '/^([^.Thumbs])/', scandir( $path ) );
             if ( count( $files ) > 0  ) {
                 foreach ( $files as $file ) {
-                    $build = new Build( $file, $path);
+
+                    // Try to find the build using memcached
+                    if ( Flight::cfg()->get( 'memcached.enabled') ) {
+                        $build = Flight::mc()->get( $file );
+
+                        // If not found there, we have to find it with the old fashion method...
+                        if ( !$build && Flight::mc()->getResultCode() == Memcached::RES_NOTFOUND ) {
+                            $build = new Build( $file, $path);
+                            // ...and then save it for the next lookup
+                            Flight::mc()->set( $file, serialize($build), MEMCACHE_COMPRESSED );
+                        // If we have found it, just unserialize it and continue
+                        } else {
+                            $build = unserialize( $build );
+                        }
+                    } else
+                        $build = new Build( $file, $path);
 
                     if ( $build->isValid( $this->postData['params'] ) ) {
                         array_push( $this->builds , $build );
