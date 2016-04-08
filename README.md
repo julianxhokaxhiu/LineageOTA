@@ -14,8 +14,11 @@ A simple OTA REST Server for CyanogenMod OTA Updater System Application
 Yes, you can! I've implemented a [simple script](https://github.com/julianxhokaxhiu/CyanogenModOTAUnitTest) made for NodeJS that you clone and use it.
 
 ## Changelog
-### v2.0.x
-- First implementation of Memcached. Still have to try if it works.
+### v2.0.3
+- Memcached support
+- UNOFFICIAL builds support ( they will be set as channel = NIGHTLY )
+- Fix Delta Builds path
+- Fix internal crash when *.txt files were present inside /builds/full path
 
 ### v2.0.2
 - Fix some breaking changes that will not enable the REST server to work correctly.
