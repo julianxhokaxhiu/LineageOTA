@@ -66,7 +66,7 @@
             $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[3] ) );
             $this->filename = $fileName;
             $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
-            $this->changelogUrl = $this->_getChangelogUrl();
+            $this->changelogUrl = str_replace('/full', '/changelog', $this->_getChangelogUrl());
             $this->timestamp = filemtime( $this->filePath );
             $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
             $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' );

@@ -111,7 +111,7 @@
                         'message' => 'Unable to find delta'
                     );
                 } else {
-                    array_merge($ret, $delta);
+                    $ret = array_merge($ret, $delta);
                 }
 
                 Flight::json($ret);
