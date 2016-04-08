@@ -55,13 +55,14 @@
                     2 => [DATE OF BUILD] (ex. 20140130)
                     3 => [CHANNEL OF THE BUILD] (ex. RC, RC2, NIGHTLY, etc.)
                     4 => [MODEL] (ex. i9100, i9300, etc.)
+                    5 => [EXTENSION] (ex. zip, txt, etc.)
                 )
             */
-            preg_match_all( '/cm-([0-9\.]+-)(\d+-)?([a-zA-Z0-9]+-)?([a-zA-Z0-9]+)/', $fileName, $tokens );
+            preg_match_all( '/cm-([0-9\.]+)-(\d+)?-([\w+]+)?-([\w+]+)\.([\w+]+)/', $fileName, $tokens );
             $tokens = $this->removeTrailingDashes( $tokens );
 
             $this->filePath = $physicalPath . '/' . $fileName;
-            $this->buildProp = explode( "\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
+            if ( $tokens[5] == 'zip' ) $this->buildProp = explode( "\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
             $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[3] ) );
             $this->filename = $fileName;
             $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
