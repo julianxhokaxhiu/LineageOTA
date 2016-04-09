@@ -62,15 +62,17 @@
             $tokens = $this->removeTrailingDashes( $tokens );
 
             $this->filePath = $physicalPath . '/' . $fileName;
-            if ( $tokens[5] == 'zip' ) $this->buildProp = explode( "\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
             $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[3] ) );
             $this->filename = $fileName;
             $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
             $this->changelogUrl = $this->_getChangelogUrl();
             $this->timestamp = filemtime( $this->filePath );
-            $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
-            $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' );
-            $this->model = $this->getBuildPropValue( 'ro.cm.device' );
+            if ( $tokens[5] == 'zip' ) {
+                $this->buildProp = explode( "\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
+                $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
+                $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' );
+                $this->model = $this->getBuildPropValue( 'ro.cm.device' );
+            }
     	}
 
         /**
