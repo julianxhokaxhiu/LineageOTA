@@ -1,7 +1,7 @@
 {
     "name": "julianxhokaxhiu/cyanogenmod-ota",
     "description": "A simple OTA REST Server for CyanogenMod OTA Updater System Application",
-    "version": "2.0.4",
+    "version": "2.0.5",
     "type": "project",
     "keywords": [
     	"android",
