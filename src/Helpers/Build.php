@@ -248,7 +248,12 @@
          * @return string The changelog URL
          */
         private function _getChangelogUrl(){
-            return str_replace('.zip', '.txt', $this->url);
+            $ret = str_replace('.zip', '.txt', $this->url);
+
+            if ( file_exists( str_replace('.zip', '.html', $this->filePath) ) )
+              $ret = str_replace('.zip', '.html', $this->url);
+
+            return $ret;
         }
 
         /**
