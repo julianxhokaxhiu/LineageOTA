@@ -14,6 +14,10 @@ A simple OTA REST Server for CyanogenMod OTA Updater System Application
 Yes, you can! I've implemented a [simple script](https://github.com/julianxhokaxhiu/CyanogenModOTAUnitTest) made for NodeJS that you clone and use it.
 
 ## Changelog
+### v2.0.6
+- Loop only between .ZIP files! Before even .TXT files were "parsed" which wasted some memory. Avoid this and make the REST server memory friendly :)
+- HTML Changelogs! If you will now create a changelog file next to your ZIP file with an HTML extension ( eg. `cm-13.0-20160611-NIGHTLY-hammerhead.html` ) this will be preferred over .TXT ones! Otherwise fallback to the classic TXT extension ( eg. `cm-13.0-20160611-NIGHTLY-hammerhead.txt` )
+
 ### v2.0.5
 - Fix the parsing of SNAPSHOT builds
 
