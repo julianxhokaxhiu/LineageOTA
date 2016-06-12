@@ -56,10 +56,9 @@
                     3 => [CHANNEL OF THE BUILD] (ex. RC, RC2, NIGHTLY, etc.)
                     4 => [SNAPSHOT CODE] ( ex. ZNH0EAO2O0, etc. )
                     5 => [MODEL] (ex. i9100, i9300, etc.)
-                    6 => [EXTENSION] (ex. zip, txt, etc.)
                 )
             */
-            preg_match_all( '/cm-([0-9\.]+)-(\d+)?-([\w+]+)?([-A-Za-z0-9]+)?-([\w+]+)\.([\w+]+)/', $fileName, $tokens );
+            preg_match_all( '/cm-([0-9\.]+)-(\d+)?-([\w+]+)?([-A-Za-z0-9]+)?-([\w+]+)/', $fileName, $tokens );
             $tokens = $this->removeTrailingDashes( $tokens );
 
             $this->filePath = $physicalPath . '/' . $fileName;
@@ -68,12 +67,10 @@
             $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
             $this->changelogUrl = $this->_getChangelogUrl();
             $this->timestamp = filemtime( $this->filePath );
-            if ( $tokens[6] == 'zip' ) {
-                $this->buildProp = explode( "\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
-                $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
-                $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' );
-                $this->model = $this->getBuildPropValue( 'ro.cm.device' );
-            }
+            $this->buildProp = explode( "\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
+            $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
+            $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' );
+            $this->model = $this->getBuildPropValue( 'ro.cm.device' );
     	}
 
         /**
