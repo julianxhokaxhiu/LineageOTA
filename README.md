@@ -14,6 +14,10 @@ A simple OTA REST Server for LineageOS OTA Updater System Application
 Yes, you can! I've implemented a [simple script](https://github.com/julianxhokaxhiu/LineageOTAUnitTest) made for NodeJS that you clone and use it.
 
 ## Changelog
+### v2.0.7
+- Renamed the whole project from CyanogenMod to LineageOS
+- Added support for LineageOS ( and kept support for current CyanogenMod ROMs, until they will transition to LineageOS)
+
 ### v2.0.6
 - Loop only between .ZIP files! Before even .TXT files were "parsed" which wasted some memory. Avoid this and make the REST server memory friendly :)
 - HTML Changelogs! If you will now create a changelog file next to your ZIP file with an HTML extension ( eg. `lineage-14.0-20161230-NIGHTLY-hammerhead.html` ) this will be preferred over .TXT ones! Otherwise fallback to the classic TXT extension ( eg. `lineage-14.0-20161230-NIGHTLY-hammerhead.txt` )
