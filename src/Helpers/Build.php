@@ -51,14 +51,14 @@
 				$tokens Schema:
 
                 array(
-                    1 => [CM VERSION] (ex. 10.1.x, 10.2, 11, etc.)
+                    1 => [VERSION] (ex. 10.1.x, 10.2, 11, etc.)
                     2 => [DATE OF BUILD] (ex. 20140130)
                     3 => [CHANNEL OF THE BUILD] (ex. RC, RC2, NIGHTLY, etc.)
                     4 => [SNAPSHOT CODE] ( ex. ZNH0EAO2O0, etc. )
                     5 => [MODEL] (ex. i9100, i9300, etc.)
                 )
             */
-            preg_match_all( '/cm-([0-9\.]+)-(\d+)?-([\w+]+)?([-A-Za-z0-9]+)?-([\w+]+)/', $fileName, $tokens );
+            preg_match_all( '/(?:cm|lineage)-([0-9\.]+)-(\d+)?-([\w+]+)?([-A-Za-z0-9]+)?-([\w+]+)/', $fileName, $tokens );
             $tokens = $this->removeTrailingDashes( $tokens );
 
             $this->filePath = $physicalPath . '/' . $fileName;

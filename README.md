@@ -1,22 +1,22 @@
-# CyanogenModOTA
-A simple OTA REST Server for CyanogenMod OTA Updater System Application
+# LineageOTA
+A simple OTA REST Server for LineageOS OTA Updater System Application
 
 ## How to use
-1. `cd /var/www/ && composer create-project julianxhokaxhiu/cyanogenmod-ota CyanogenModOTA`
+1. `cd /var/www/ && composer create-project julianxhokaxhiu/lineage-ota LineageOTA`
 3. Follow the rest of the tutorial on [my personal blog post](http://blog.julianxhokaxhiu.com/entry/how-the-cm-ota-server-works-and-how-to-implement-and-use-ours) where I explain how to override the build server on your ROM.
-4. Optional. If just want to test if the REST Server is working, if you go to [http://localhost/CyanogenModOTA](http://localhost/CyanogenModOTA/) you'll be redirected to the builds directory listing.
+4. Optional. If just want to test if the REST Server is working, if you go to [http://localhost/LineageOTA](http://localhost/LineageOTA/) you'll be redirected to the builds directory listing.
 
 ## Where do I have to upload the ZIPs that I obtain after the compilation?
 - Full builds should be uploaded to `builds/full` directory.
 - Delta builds will be automatically built on the `builds/delta` directory.
 
 ## Can I Debug my REST Server somehow?
-Yes, you can! I've implemented a [simple script](https://github.com/julianxhokaxhiu/CyanogenModOTAUnitTest) made for NodeJS that you clone and use it.
+Yes, you can! I've implemented a [simple script](https://github.com/julianxhokaxhiu/LineageOTAUnitTest) made for NodeJS that you clone and use it.
 
 ## Changelog
 ### v2.0.6
 - Loop only between .ZIP files! Before even .TXT files were "parsed" which wasted some memory. Avoid this and make the REST server memory friendly :)
-- HTML Changelogs! If you will now create a changelog file next to your ZIP file with an HTML extension ( eg. `cm-13.0-20160611-NIGHTLY-hammerhead.html` ) this will be preferred over .TXT ones! Otherwise fallback to the classic TXT extension ( eg. `cm-13.0-20160611-NIGHTLY-hammerhead.txt` )
+- HTML Changelogs! If you will now create a changelog file next to your ZIP file with an HTML extension ( eg. `lineage-14.0-20161230-NIGHTLY-hammerhead.html` ) this will be preferred over .TXT ones! Otherwise fallback to the classic TXT extension ( eg. `lineage-14.0-20161230-NIGHTLY-hammerhead.txt` )
 
 ### v2.0.5
 - Fix the parsing of SNAPSHOT builds
@@ -48,6 +48,6 @@ Yes, you can! I've implemented a [simple script](https://github.com/julianxhokax
 
 
 ## License
-See [LICENSE](https://github.com/julianxhokaxhiu/CyanogenModOTA/blob/2.0/LICENSE).
+See [LICENSE](https://github.com/julianxhokaxhiu/LineageOTA/blob/2.0/LICENSE).
 
 Enjoy :)
