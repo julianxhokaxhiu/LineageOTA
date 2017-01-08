@@ -23,7 +23,7 @@ RUN chmod 0755 /usr/local/bin/composer
 COPY . $HTML_DIR
 
 # enable indexing for Apache
-RUN sed -i "1s;^;Options Indexes\n\n;" .htaccess
+RUN sed -i "1s;^;Options +Indexes\n\n;" .htaccess
 
 # install dependencies
 RUN composer install --no-plugins --no-scripts
