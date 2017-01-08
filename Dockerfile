@@ -3,7 +3,7 @@ MAINTAINER Julian Xhokaxhiu <info at julianxhokaxhiu dot com>
 
 # internal variables
 ENV HTML_DIR /var/www/html
-ENV BUILDS_DIR $HTML_DIR/builds
+ENV FULL_BUILDS_DIR $HTML_DIR/builds/full
 
 # set the working directory
 WORKDIR $HTML_DIR
@@ -33,4 +33,4 @@ USER www-data
 RUN composer install
 
 # create volumes
-VOLUME $BUILDS_DIR
+VOLUME $FULL_BUILDS_DIR
