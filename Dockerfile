@@ -18,12 +18,13 @@ RUN chmod 0755 /usr/local/bin/composer
 # add all the project files
 COPY . $HTML_DIR
 
-# fix permissions
-RUN chmod -R 0775 /var/www/html
-
 # lower down user
 RUN useradd -ms /bin/false ota
 USER ota
+
+# fix permissions
+RUN chmod -R 0775 /var/www/html/* \
+    && chown -R ota:ota /var/www/html/*
 
 # install dependencies
 RUN composer install
