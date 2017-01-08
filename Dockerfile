@@ -11,6 +11,10 @@ WORKDIR $HTML_DIR
 # enable mod_rewrite
 RUN a2enmod rewrite
 
+# install git
+RUN apt-get update \
+  && apt-get install -y git
+
 # install latest version of composer
 ADD https://getcomposer.org/composer.phar /usr/local/bin/composer
 RUN chmod 0755 /usr/local/bin/composer
