@@ -22,15 +22,12 @@ RUN chmod 0755 /usr/local/bin/composer
 # add all the project files
 COPY . $HTML_DIR
 
+# install dependencies
+RUN composer install --no-plugins --no-scripts
+
 # fix permissions
 RUN chmod -R 0775 /var/www/html \
     && chown -R www-data:www-data /var/www/html
-
-# lower down privileges to ota user
-USER www-data
-
-# install dependencies
-RUN composer install
 
 # create volumes
 VOLUME $FULL_BUILDS_DIR
