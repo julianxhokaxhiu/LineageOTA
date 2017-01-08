@@ -22,6 +22,7 @@ COPY . $HTML_DIR
 RUN chmod -R 0775 /var/www/html
 
 # lower down user
+RUN useradd -ms /bin/false ota
 USER ota
 
 # install dependencies
