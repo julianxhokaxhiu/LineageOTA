@@ -12,6 +12,7 @@ or
 docker run \
     --restart=always \
     -d \
+    -p 80:80 \
     -v "/home/user/builds:/var/www/html/builds" \
     julianxhokaxhiu/lineageota
 ```
