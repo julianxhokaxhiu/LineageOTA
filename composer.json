@@ -1,7 +1,7 @@
 {
     "name": "julianxhokaxhiu/lineage-ota",
     "description": "A simple OTA REST Server for LineageOS OTA Updater System Application",
-    "version": "2.0.7",
+    "version": "2.0.8",
     "type": "project",
     "keywords": [
     	"android",

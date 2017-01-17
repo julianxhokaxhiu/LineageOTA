@@ -25,6 +25,9 @@ docker run \
 Yes, you can! I've implemented a [simple script](https://github.com/julianxhokaxhiu/LineageOTAUnitTest) made for NodeJS that you clone and use it.
 
 ## Changelog
+### v2.0.8
+- Adding support for LineageOS CMUpdater ( this should not break current CM ROMs support, if yes please create an issue! )
+
 ### v2.0.7
 - Renamed the whole project from CyanogenMod to LineageOS
 - Added support for LineageOS ( and kept support for current CyanogenMod ROMs, until they will transition to LineageOS)
