@@ -14,16 +14,14 @@ RUN a2enmod rewrite
 # install the PHP extensions we need
 RUN apt-get update \
         && buildDeps=" \
-                git \
                 libmemcached-dev \
                 zlib1g-dev \
         " \
         && doNotUninstall=" \
-                git \
                 libmemcached11 \
                 libmemcachedutil2 \
         " \
-        && apt-get install -y $buildDeps --no-install-recommends \
+        && apt-get install -y git $buildDeps --no-install-recommends \
         && rm -r /var/lib/apt/lists/* \
         \
         && docker-php-source extract \
