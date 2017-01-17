@@ -37,13 +37,17 @@
         /**
          * Constructor of the Builds class.
          */
-    	public function __construct() {
+    	public function __construct( $customData ) {
             // Set required paths for properly builds Urls later
             Flight::cfg()->set( 'buildsPath', Flight::cfg()->get('basePath') . '/builds/full' );
             Flight::cfg()->set( 'deltasPath', Flight::cfg()->get('basePath') . '/builds/delta' );
 
             // Get the current POST request data
             $this->postData = Flight::request()->data;
+
+            // Remap postData only for LineageOS
+            if ( empty( $this->postData ) )
+                $this->postData = $customData;
 
             // Internal Initialization routines
     		$this->getBuilds();
@@ -58,6 +62,7 @@
 
             foreach ( $this->builds as $build ) {
                 array_push( $ret, array(
+                    // CyanogenMod
                     'incremental' => $build->getIncremental(),
                     'api_level' => $build->getApiLevel(),
                     'url' => $build->getUrl(),
@@ -65,7 +70,10 @@
                     'md5sum' => $build->getMD5(),
                     'changes' => $build->getChangelogUrl(),
                     'channel' => $build->getChannel(),
-                    'filename' => $build->getFilename()
+                    'filename' => $build->getFilename(),
+                    // LineageOS
+                    'romtype' => $build->getChannel(),
+                    'datetime' => $build->getTimestamp(),
                 ));
             }
 

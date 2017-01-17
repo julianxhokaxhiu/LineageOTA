@@ -116,6 +116,25 @@
 
                 Flight::json($ret);
             });
+
+            // LineageOS new API
+            Flight::route('/api/v1/@deviceType(/@romType(/@incrementalVersion))', function ( $deviceType, $romType, $incrementalVersion ){
+              $customData = array(
+                'device' => $deviceType,
+                'channels' => array(
+                  $romType
+                ),
+                'source_incremental' => $incrementalVersion
+              );
+
+              $ret = array(
+                  'id' => null,
+                  'response' => Flight::builds( $customData )->get(),
+                  'error' => null
+              );
+
+              Flight::json($ret);
+            })
         }
 
         /**
