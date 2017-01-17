@@ -11,10 +11,6 @@ WORKDIR $HTML_DIR
 # enable mod_rewrite
 RUN a2enmod rewrite
 
-# install git
-RUN apt-get update \
-  && apt-get install -y git
-
 # install the PHP extensions we need
 RUN apt-get update \
         && buildDeps=" \
@@ -23,6 +19,7 @@ RUN apt-get update \
                 zlib1g-dev \
         " \
         && doNotUninstall=" \
+                git \
                 libmemcached11 \
                 libmemcachedutil2 \
         " \
