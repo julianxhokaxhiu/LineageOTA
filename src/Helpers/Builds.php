@@ -37,17 +37,13 @@
         /**
          * Constructor of the Builds class.
          */
-    	public function __construct( $customData ) {
+    	public function __construct() {
             // Set required paths for properly builds Urls later
             Flight::cfg()->set( 'buildsPath', Flight::cfg()->get('basePath') . '/builds/full' );
             Flight::cfg()->set( 'deltasPath', Flight::cfg()->get('basePath') . '/builds/delta' );
 
             // Get the current POST request data
             $this->postData = Flight::request()->data;
-
-            // Remap postData only for LineageOS
-            if ( empty( $this->postData ) )
-                $this->postData = $customData;
 
             // Internal Initialization routines
     		$this->getBuilds();
@@ -79,6 +75,17 @@
 
             return $ret;
     	}
+
+        /**
+         * Set a custom set of POST data. Useful to hack the flow in case the data doesn't come within the body of the HTTP request
+         * @param array An array structured as POST data
+         * @return void
+         */
+        public function setPostData( $customData ){
+            $this->postData = $customData;
+            $this->builds = array();
+            $this->getBuilds();
+        }
 
         /**
          * Return a valid response of the delta build (if available) based on the current request
@@ -146,5 +153,4 @@
                 }
             }
     	}
-
     }

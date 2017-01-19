@@ -28,6 +28,8 @@
     use \Flight;
 
     class CmOta {
+        private $builds = NULL;
+
         /**
          * Constructor of the CmOta class.
          * @param array $options Various options that can be configured
@@ -119,17 +121,21 @@
 
             // LineageOS new API
             Flight::route('/api/v1/@deviceType(/@romType(/@incrementalVersion))', function ( $deviceType, $romType, $incrementalVersion ){
-              $customData = array(
-                'device' => $deviceType,
-                'channels' => array(
-                  $romType
-                ),
-                'source_incremental' => $incrementalVersion
+              Flight::builds()->setPostData(
+                array(
+                  'params' => array(
+                    'device' => $deviceType,
+                    'channels' => array(
+                      $romType,
+                    ),
+                    'source_incremental' => $incrementalVersion,
+                  ),
+                )
               );
 
               $ret = array(
                   'id' => null,
-                  'response' => Flight::builds( $customData )->get(),
+                  'response' => Flight::builds()->get(),
                   'error' => null
               );
 

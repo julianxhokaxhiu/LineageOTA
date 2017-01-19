@@ -84,7 +84,6 @@
             if ( $params['device'] == $this->model ) {
                 if ( count($params['channels']) > 0 ) {
                     foreach ( $params['channels'] as $channel ) {
-                        var_dump($channel);
                         if ( strtolower($channel) == $this->channel ) $ret = true;
                     }
                 }
