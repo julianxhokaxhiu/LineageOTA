@@ -103,21 +103,15 @@
             $deltaFile = $this->incremental . '-' . $targetToken->incremental . '.zip';
             $deltaFilePath = Flight::cfg()->get('realBasePath') . '/builds/delta/' . $deltaFile;
 
-            if ( $this->commandExists('xdelta3') ) {
-
-                if ( !file_exists( $deltaFilePath ) ) {
-                    exec( 'xdelta3 -e -s ' . $this->filePath . ' ' . $targetToken->filePath . ' ' . $deltaFilePath );
-                }
-
-                $ret = array(
-                    'filename' => $deltaFile,
-                    'timestamp' => filemtime( $deltaFilePath ),
-                    'md5' => $this->getMD5( $deltaFilePath ),
-                    'url' => $this->_getUrl( $deltaFile, Flight::cfg()->get('deltasPath') ),
-                    'api_level' => $this->apiLevel,
-                    'incremental' => $targetToken->incremental
-                );
-            }
+            if ( file_exists( $deltaFilePath ) )
+              $ret = array(
+                'filename' => $deltaFile,
+                'timestamp' => filemtime( $deltaFilePath ),
+                'md5' => $this->getMD5( $deltaFilePath ),
+                'url' => $this->_getUrl( $deltaFile, Flight::cfg()->get('deltasPath') ),
+                'api_level' => $this->apiLevel,
+                'incremental' => $targetToken->incremental
+              );
 
             return $ret;
         }
