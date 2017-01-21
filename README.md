@@ -25,6 +25,10 @@ docker run \
 Yes, you can! I've implemented a [simple script](https://github.com/julianxhokaxhiu/LineageOTAUnitTest) made for NodeJS that you clone and use it.
 
 ## Changelog
+### v2.0.9
+- Removing XDelta3 logic for Delta creation ( see https://forum.xda-developers.com/showthread.php?p=69760632#post69760632 for a described correct process )
+- Prevent crash of the OTA system if a file is being accessed meanwhile it is being uploaded
+
 ### v2.0.8
 - Adding support for LineageOS CMUpdater ( this should not break current CM ROMs support, if yes please create an issue! )
 
