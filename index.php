@@ -28,7 +28,7 @@
 
     $app = new CmOta();
     $app
-    ->setConfig( 'basePath', 'http://'.$_SERVER['HTTP_HOST'] )
+    ->setConfig( 'basePath', 'http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']) )
     ->setConfig( 'memcached.host', 'localhost' )
     ->setConfig( 'memcached.port', 11211 )
     ->enableMemcached()
