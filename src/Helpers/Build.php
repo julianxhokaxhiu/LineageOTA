@@ -126,6 +126,17 @@
             $ret = '';
 
             if ( empty($path) ) $path = $this->filePath;
+
+            // Use a cached MD5 sum if we have one
+            $md5sum_path = dirname(dirname($this->filePath)) . "/md5sums/" . basename($this->filePath);
+	    if ( file_exists($md5sum_path) and
+                 filemtime($md5sum_path) > filemtime($this->filePath) ) {
+                $f = fopen($md5sum_path, "r") or die("Unable to open MD5 Sum cache file for read!");
+                $ret = fread($f, filesize($md5sum_path));
+                fclose($f);
+                return $ret;
+            }
+	  
             // Pretty much faster if it is available
             if ( $this->commandExists( 'md5sum' ) ) {
                 $tmp = explode("  ", exec( 'md5sum ' . $path));
@@ -133,6 +144,11 @@
             } else {
                 $ret = md5_file($path);
             }
+
+            // Cache the MD5 sum
+            $f = fopen($md5sum_path, "w") or die("Unable to open MD5 Sum cache file for write!");
+            fwrite($f, $ret);
+            fclose($f);
 
             return $ret;
         }
