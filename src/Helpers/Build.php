@@ -51,18 +51,19 @@
 				$tokens Schema:
 
                 array(
-                    1 => [VERSION] (ex. 10.1.x, 10.2, 11, etc.)
-                    2 => [DATE OF BUILD] (ex. 20140130)
-                    3 => [CHANNEL OF THE BUILD] (ex. RC, RC2, NIGHTLY, etc.)
-                    4 => [SNAPSHOT CODE] ( ex. ZNH0EAO2O0, etc. )
-                    5 => [MODEL] (ex. i9100, i9300, etc.)
+                    1 => [TYPE] (ex. cm, lineage, etc.)
+                    2 => [VERSION] (ex. 10.1.x, 10.2, 11, etc.)
+                    3 => [DATE OF BUILD] (ex. 20140130)
+                    4 => [CHANNEL OF THE BUILD] (ex. RC, RC2, NIGHTLY, etc.)
+                    5 => [SNAPSHOT CODE] ( ex. ZNH0EAO2O0, etc. )
+                    6 => [MODEL] (ex. i9100, i9300, etc.)
                 )
             */
-            preg_match_all( '/(?:cm|lineage)-([0-9\.]+)-(\d+)?-([\w+]+)?([-A-Za-z0-9]+)?-([\w+]+)/', $fileName, $tokens );
+            preg_match_all( '/(cm|lineage)-([0-9\.]+)-(\d+)?-([\w+]+)?([-A-Za-z0-9]+)?-([\w+]+)/', $fileName, $tokens );
             $tokens = $this->removeTrailingDashes( $tokens );
 
             $this->filePath = $physicalPath . '/' . $fileName;
-            $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[3] ) );
+            $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1] );
             $this->filename = $fileName;
             $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
             $this->changelogUrl = $this->_getChangelogUrl();
@@ -211,16 +212,17 @@
         /**
          * Get the current channel of the build based on the current token
          * @param string $token The channel obtained from build.prop
+         * @param string $type The ROM type from filename
          * @return string The correct channel to be returned
          */
-        private function _getChannel($token){
+        private function _getChannel($token, $type){
             $ret = 'stable';
 
             $token = strtolower( $token );
             if ( $token > '' ) {
                 $ret = $token;
                 if ( $token == 'experimental' ) $ret = 'snapshot';
-                if ( $token == 'unofficial' ) $ret = 'nightly';
+                if ( $token == 'unofficial' && $type == 'cm' ) $ret = 'nightly';
             }
 
             return $ret;
