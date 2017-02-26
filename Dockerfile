@@ -16,7 +16,7 @@ RUN apt-get update \
         && buildDeps=" \
                 zlib1g-dev \
         " \
-        && apt-get install -y $buildDeps --no-install-recommends \
+        && apt-get install -y git $buildDeps --no-install-recommends \
         && rm -r /var/lib/apt/lists/* \
         \
         && docker-php-ext-install zip \
