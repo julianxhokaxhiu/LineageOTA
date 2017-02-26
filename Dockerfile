@@ -14,22 +14,17 @@ RUN a2enmod rewrite
 # install the PHP extensions we need
 RUN apt-get update \
         && buildDeps=" \
-                libmemcached-dev \
                 zlib1g-dev \
         " \
-        && doNotUninstall=" \
-                libmemcached11 \
-                libmemcachedutil2 \
-        " \
-        && apt-get install -y git $buildDeps --no-install-recommends \
+        && apt-get install -y $buildDeps --no-install-recommends \
         && rm -r /var/lib/apt/lists/* \
         \
-        && docker-php-source extract \
-        && git clone --branch php7 https://github.com/php-memcached-dev/php-memcached /usr/src/php/ext/memcached/ \
-        && docker-php-ext-install memcached zip \
+        && docker-php-ext-install zip \
+        \
+        && pecl install apcu \
+        && docker-php-ext-enable apcu \
         \
         && docker-php-source delete \
-        && apt-mark manual $doNotUninstall \
         && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false $buildDeps
 
 # install latest version of composer
