@@ -133,7 +133,7 @@
                         $build = null;
 
                         // If APC is enabled
-                        if( extension_loaded('apc') && ini_get('apc.enabled') ) {
+                        if( extension_loaded('apcu') && ini_get('apc.enabled') ) {
                             $build = apcu_fetch( $file );
 
                             // If not found there, we have to find it with the old fashion method...
