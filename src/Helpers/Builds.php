@@ -130,18 +130,17 @@
                     $extension = pathinfo($file, PATHINFO_EXTENSION);
 
                     if ( $extension == 'zip' ) {
-                        // Try to find the build using memcached
-                        if ( Flight::cfg()->get( 'memcached.enabled') ) {
-                            $build = Flight::mc()->get( $file );
+                        $build = null;
+
+                        // If APC is enabled
+                        if( extension_loaded('apc') && ini_get('apc.enabled') ) {
+                            $build = apcu_fetch( $file );
 
                             // If not found there, we have to find it with the old fashion method...
-                            if ( !$build && Flight::mc()->getResultCode() == Memcached::RES_NOTFOUND ) {
+                            if ( $build === FALSE ) {
                                 $build = new Build( $file, $path);
-                                // ...and then save it for the next lookup
-                                Flight::mc()->set( $file, serialize($build), MEMCACHE_COMPRESSED );
-                            // If we have found it, just unserialize it and continue
-                            } else {
-                                $build = unserialize( $build );
+                                // ...and then save it for 72h until it expires again
+                                apcu_store( $file, $build, 72*60*60 );
                             }
                         } else
                             $build = new Build( $file, $path);
