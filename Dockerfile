@@ -27,6 +27,12 @@ RUN apt-get update \
         && docker-php-source delete \
         && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false $buildDeps
 
+# set recommended settings for APCu
+# see http://php.net/manual/en/apcu.configuration.php
+RUN { \
+    echo 'apc.ttl=7200'; \
+  } > /usr/local/etc/php/conf.d/opcache-recommended.ini
+
 # install latest version of composer
 ADD https://getcomposer.org/composer.phar /usr/local/bin/composer
 RUN chmod 0755 /usr/local/bin/composer
