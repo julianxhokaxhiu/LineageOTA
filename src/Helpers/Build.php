@@ -63,7 +63,7 @@
             $tokens = $this->removeTrailingDashes( $tokens );
 
             $this->filePath = $physicalPath . '/' . $fileName;
-            $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1] );
+            $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1], $tokens[2] );
             $this->filename = $fileName;
             $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
             $this->changelogUrl = $this->_getChangelogUrl();
@@ -213,16 +213,17 @@
          * Get the current channel of the build based on the current token
          * @param string $token The channel obtained from build.prop
          * @param string $type The ROM type from filename
+         * @param string $version The ROM version from filename
          * @return string The correct channel to be returned
          */
-        private function _getChannel($token, $type){
+        private function _getChannel($token, $type, $version){
             $ret = 'stable';
 
             $token = strtolower( $token );
             if ( $token > '' ) {
                 $ret = $token;
-                if ( $token == 'experimental' ) $ret = 'snapshot';
-                if ( $token == 'unofficial' && $type == 'cm' ) $ret = 'nightly';
+                if ( $token == 'experimental' && ( $type == 'cm' || version_compare ( $version, '14.1', '<' ) ) ) $ret = 'snapshot';
+                if ( $token == 'unofficial' && ( $type == 'cm' || version_compare ( $version, '14.1', '<' ) ) ) $ret = 'nightly';
             }
 
             return $ret;
