@@ -65,13 +65,13 @@
             $this->filePath = $physicalPath . '/' . $fileName;
             $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1], $tokens[2] );
             $this->filename = $fileName;
-            $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
             $this->changelogUrl = $this->_getChangelogUrl();
             $this->timestamp = filemtime( $this->filePath );
             $this->buildProp = explode( "\n", @file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
             $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
             $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' );
             $this->model = $this->getBuildPropValue( 'ro.cm.device' );
+            $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
     	}
 
         /**
@@ -235,6 +235,10 @@
          * @return string The absolute URL for the file to be downloaded
          */
         private function _getUrl($fileName = '', $basePath){
+            $prop = $this->getBuildPropValue( 'ro.build.ota.url' );
+            if ( !empty($prop) )
+                return $prop;
+
             if ( empty($fileName) ) $fileName = $this->filename;
             return $basePath . '/' . $fileName;
         }
