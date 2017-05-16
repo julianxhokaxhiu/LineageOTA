@@ -123,30 +123,35 @@
     	private function getBuilds() {
             // Get physical paths of where the files resides
             $path = Flight::cfg()->get('realBasePath') . '/builds/full';
-            // Get the file list and parse it
-    		$files = preg_grep( '/^([^.Thumbs])/', scandir( $path ) );
-            if ( count( $files ) > 0  ) {
-                foreach ( $files as $file ) {
-                    $extension = pathinfo($file, PATHINFO_EXTENSION);
+            // Get subdirs
+            $dirs = glob( $path . '/*' , GLOB_ONLYDIR );
+            array_push( $dirs, $path );
+            foreach ( $dirs as $dir )  {
+                // Get the file list and parse it
+                $files = preg_grep( '/^([^.Thumbs])/', scandir( $dir ) );
+                if ( count( $files ) > 0  ) {
+                    foreach ( $files as $file ) {
+                        $extension = pathinfo($file, PATHINFO_EXTENSION);
 
-                    if ( $extension == 'zip' ) {
-                        $build = null;
+                        if ( $extension == 'zip' ) {
+                            $build = null;
 
-                        // If APC is enabled
-                        if( extension_loaded('apcu') && ini_get('apc.enabled') ) {
-                            $build = apcu_fetch( $file );
+                            // If APC is enabled
+                            if( extension_loaded('apcu') && ini_get('apc.enabled') ) {
+                                $build = apcu_fetch( $file );
 
-                            // If not found there, we have to find it with the old fashion method...
-                            if ( $build === FALSE ) {
-                                $build = new Build( $file, $path);
-                                // ...and then save it for 72h until it expires again
-                                apcu_store( $file, $build, 72*60*60 );
+                                // If not found there, we have to find it with the old fashion method...
+                                if ( $build === FALSE ) {
+                                    $build = new Build( $file, $dir );
+                                    // ...and then save it for 72h until it expires again
+                                    apcu_store( $file, $build, 72*60*60 );
+                                }
+                            } else
+                                $build = new Build( $file, $dir );
+
+                            if ( $build->isValid( $this->postData['params'] ) ) {
+                                array_push( $this->builds , $build );
                             }
-                        } else
-                            $build = new Build( $file, $path);
-
-                        if ( $build->isValid( $this->postData['params'] ) ) {
-                            array_push( $this->builds , $build );
                         }
                     }
                 }

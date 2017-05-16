@@ -71,8 +71,13 @@
             $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
             $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' );
             $this->model = $this->getBuildPropValue( 'ro.cm.device' );
-            $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
-    	}
+
+            $position = strrpos( $physicalPath, '/builds/full' );
+            if ( $position === FALSE )
+                $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
+            else
+                $this->url = $this->_getUrl( '', Flight::cfg()->get('basePath') . substr( $physicalPath, $position ) );
+        }
 
         /**
          * Check if the current build is valid within the current request
