@@ -3,7 +3,7 @@ A simple OTA REST Server for LineageOS OTA Updater System Application
 
 ## How to use
 1. `cd /var/www/ && composer create-project julianxhokaxhiu/lineage-ota LineageOTA`
-3. Follow the rest of the tutorial on [my personal blog post](http://blog.julianxhokaxhiu.com/entry/how-the-cm-ota-server-works-and-how-to-implement-and-use-ours) where I explain how to override the build server on your ROM.
+3. Follow the rest of the tutorial on [my personal blog post](http://blog.julianxhokaxhiu.com/how-the-cm-ota-server-works-and-how-to-implement-and-use-ours) where I explain how to override the build server on your ROM.
 4. Optional. If just want to test if the REST Server is working, if you go to [http://localhost/LineageOTA](http://localhost/LineageOTA/) you'll be redirected to the builds directory listing.
 
 or
