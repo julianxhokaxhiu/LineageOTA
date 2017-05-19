@@ -65,7 +65,6 @@
             $this->filePath = $physicalPath . '/' . $fileName;
             $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1], $tokens[2] );
             $this->filename = $fileName;
-            $this->changelogUrl = $this->_getChangelogUrl();
             $this->timestamp = filemtime( $this->filePath );
             $this->buildProp = explode( "\n", @file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
             $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
@@ -77,6 +76,8 @@
                 $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
             else
                 $this->url = $this->_getUrl( '', Flight::cfg()->get('basePath') . substr( $physicalPath, $position ) );
+
+            $this->changelogUrl = $this->_getChangelogUrl();
         }
 
         /**
@@ -253,10 +254,12 @@
          * @return string The changelog URL
          */
         private function _getChangelogUrl(){
-            $ret = str_replace('.zip', '.txt', $this->url);
-
-            if ( file_exists( str_replace('.zip', '.html', $this->filePath) ) )
-              $ret = str_replace('.zip', '.html', $this->url);
+            if ( file_exists( str_replace('.zip', '.txt', $this->filePath) ) )
+                $ret = str_replace('.zip', '.txt', $this->url);
+            elseif ( file_exists( str_replace('.zip', '.html', $this->filePath) ) )
+                $ret = str_replace('.zip', '.html', $this->url);
+            else
+                $ret = '';
 
             return $ret;
         }
