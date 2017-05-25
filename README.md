@@ -25,6 +25,13 @@ docker run \
 Yes, you can! I've implemented a [simple script](https://github.com/julianxhokaxhiu/LineageOTAUnitTest) made for NodeJS that you clone and use it.
 
 ## Changelog
+### v2.2.0
+- Honor ro.build.ota.url if present ( thanks to @ontherunvaro )
+- Add support for recursive subdirectories for full builds ( thanks to @corna )
+- Fix changelog URL generation ( thanks to @corna )
+- Add support for HTTPS OTA Url ( thanks to @corna )
+- Fix tutorial URL inside the README.md ( thanks to @visi0nary )
+
 ### v2.1.1
 - Extend the legacy updater channel support to any Lineage ROM < 14.1
 
