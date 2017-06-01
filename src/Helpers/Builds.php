@@ -44,7 +44,12 @@
 
             // Get the current POST request data
             $this->postData = Flight::request()->data;
-
+			
+			// CMUpdater 2.0 from CM10 uses raw JSON POST query. Make him happy too.
+            if(count($this->postData) == 0) {
+                $this->postData = json_decode(file_get_contents("php://input"), true);
+            }
+			
             // Internal Initialization routines
     		$this->getBuilds();
     	}
