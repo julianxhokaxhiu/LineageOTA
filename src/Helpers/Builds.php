@@ -45,6 +45,11 @@
             // Get the current POST request data
             $this->postData = Flight::request()->data;
 
+            // CMUpdater 2.0 from CM10 uses raw JSON POST query. Make him happy too.
+            if(count($this->postData) == 0) {
+                $this->postData = json_decode(file_get_contents("php://input"), true);
+            }
+
             // Internal Initialization routines
     		$this->getBuilds();
     	}
@@ -99,6 +104,16 @@
             if ( $source != $target ) {
                 $sourceToken = null;
                 foreach ($this->builds as $build) {
+                    if ( $build->getIncremental() == $source ) {
+                        $sourceToken = $build;
+                    }
+                }
+                // No source available
+                if($sourceToken == null) {
+                    exit();
+		}
+				
+                foreach ($this->builds as $build) {
                     if ( $build->getIncremental() == $target ) {
                         $delta = $sourceToken->getDelta($build);
                         $ret = array(
@@ -109,8 +124,6 @@
                             'md5sum' => $delta['md5'],
                             'incremental' => $delta['incremental']
                         );
-                    } else if ( $build->getIncremental() == $source ) {
-                        $sourceToken = $build;
                     }
                 }
             }
