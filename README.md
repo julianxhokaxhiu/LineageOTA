@@ -25,6 +25,9 @@ docker run \
 Yes, you can! I've implemented a [simple script](https://github.com/julianxhokaxhiu/LineageOTAUnitTest) made for NodeJS that you clone and use it.
 
 ## Changelog
+### v2.3.1
+- Fix for "Fix for the timestamp value. Now it inherits the one from the ROM". The order to read this value was before the OTA server was aware of the content of the build.prop. ( thanks to @syphyr )
+
 ### v2.3.0
 - Added support for latest LineageOS ROMs that are using the version field ( see #29 )
 - Fix for the timestamp value. Now it inherits the one from the ROM ( see #30 )
