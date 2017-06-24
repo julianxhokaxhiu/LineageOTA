@@ -70,6 +70,7 @@
             $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
             $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' );
             $this->model = $this->getBuildPropValue( 'ro.cm.device' );
+            $this->version = $tokens[2];
 
             $position = strrpos( $physicalPath, '/builds/full' );
             if ( $position === FALSE )
@@ -199,6 +200,14 @@
          */
         public function getFilename() {
         	return $this->filename;
+        }
+
+        /**
+         * Get the version of the current build
+         * @return string the version value
+         */
+        public function getVersion() {
+            return $this->version;
         }
 
     	/* Utility / Internal */

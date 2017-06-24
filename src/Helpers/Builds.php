@@ -70,6 +70,7 @@
                     // LineageOS
                     'romtype' => $build->getChannel(),
                     'datetime' => $build->getTimestamp(),
+                    'version' => $build->getVersion(),
                 ));
             }
 
