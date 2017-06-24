@@ -65,7 +65,7 @@
             $this->filePath = $physicalPath . '/' . $fileName;
             $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1], $tokens[2] );
             $this->filename = $fileName;
-            $this->timestamp = filemtime( $this->filePath );
+            $this->timestamp = $this->getBuildPropValue( 'ro.build.date.utc' );
             $this->buildProp = explode( "\n", @file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
             $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
             $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' );
