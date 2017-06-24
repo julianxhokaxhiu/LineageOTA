@@ -40,7 +40,8 @@
     ],
     "require": {
     	"mikecao/flight": "1.*",
-        "julianxhokaxhiu/DotNotation": "dev-master"
+        "julianxhokaxhiu/DotNotation": "dev-master",
+        "ext-zip": "*"
     },
     "autoload": {
     	"psr-4": {
@@ -49,5 +50,8 @@
     },
     "replace": {
         "julianxhokaxhiu/cyanogenmod-ota":"2.*"
+    },
+    "suggest": {
+        "ext-zip": "This extension is usually enabled, if not make sure it is. LineageOTA requires it to run."
     }
 }
