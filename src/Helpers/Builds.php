@@ -71,6 +71,7 @@
                     'romtype' => $build->getChannel(),
                     'datetime' => $build->getTimestamp(),
                     'version' => $build->getVersion(),
+                    'id' => $build->getUid(),
                 ));
             }
 

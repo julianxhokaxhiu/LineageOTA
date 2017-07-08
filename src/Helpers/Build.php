@@ -38,6 +38,7 @@
         private $incremental = '';
         private $filePath = '';
         private $buildProp = '';
+        private $uid = null;
 
         /**
          * Constructor of the Build class.
@@ -71,6 +72,7 @@
             $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' );
             $this->model = $this->getBuildPropValue( 'ro.cm.device' );
             $this->version = $tokens[2];
+            $this->uid = hash( 'sha256', $this->timestamp.$this->model.$this->apiLevel, false );
 
             $position = strrpos( $physicalPath, '/builds/full' );
             if ( $position === FALSE )
@@ -145,6 +147,14 @@
         }
 
         /* Getters */
+
+        /**
+         * Get a unique id of the current build
+         * @return string A unique id
+         */
+        public function getUid() {
+          return $this->uid;
+        }
 
         /**
          * Get the Incremental value of the current build
