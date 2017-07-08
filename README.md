@@ -25,8 +25,8 @@ docker run \
 
 ## Where do I have to upload the ZIPs that I obtain after the compilation?
 
-- Full builds should be uploaded to `builds/full` directory.
-- Delta builds will be automatically built on the `builds/delta` directory.
+- Full builds should be uploaded into `builds/full` directory.
+- Delta builds should be uploaded into `builds/delta` directory.
 
 ## Can I Debug my REST Server somehow?
 Yes, you can! I've implemented a [simple script](https://github.com/julianxhokaxhiu/LineageOTAUnitTest) made for NodeJS that you clone and use it.
@@ -96,10 +96,6 @@ Yes, you can! I've implemented a [simple script](https://github.com/julianxhokax
 - Refactored the whole code.
 - Now everything is PSR4 compliant.
 - Introduced composer.json to make easier the installation of the project.
-
-## Drawbacks
-- Delta updates may or may not work. It's using Deltax3 to create them but it's just experimental. Use it at your own risk.
-
 
 ## License
 See [LICENSE](https://github.com/julianxhokaxhiu/LineageOTA/blob/2.0/LICENSE).
