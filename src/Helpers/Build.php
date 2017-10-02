@@ -67,10 +67,10 @@
             $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1], $tokens[2] );
             $this->filename = $fileName;
             $this->buildProp = explode( "\n", @file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
-            $this->timestamp = $this->getBuildPropValue( 'ro.build.date.utc' );
-            $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
-            $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' );
-            $this->model = $this->getBuildPropValue( 'ro.cm.device' );
+            $this->timestamp = $this->getBuildPropValue( 'ro.build.date.utc' ) ?? '';
+            $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' ) ?? '';
+            $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' ) ?? '';
+            $this->model = $this->getBuildPropValue( 'ro.lineage.device' ) ?? $this->getBuildPropValue( 'ro.cm.device' );
             $this->version = $tokens[2];
             $this->uid = hash( 'sha256', $this->timestamp.$this->model.$this->apiLevel, false );
 
@@ -290,7 +290,7 @@
          * @return string The value for the specified key
          */
         private function getBuildPropValue($key){
-            $ret = '';
+            $ret = null;
 
             foreach ($this->buildProp as $line) {
                 if ( strpos($line, $key) !== false ) {
