@@ -1,15 +1,30 @@
 # LineageOTA
 A simple OTA REST Server for LineageOS OTA Updater System Application
 
+## Requirements
+
+- Apache mod_rewrite enabled
+- PHP >= 5.3.0
+- PHP ZIP Extension
+- Composer ( if installing via CLI )
+
 ## How to use
-1. `cd /var/www/ && composer create-project julianxhokaxhiu/lineage-ota LineageOTA`
-2. Follow the rest of the tutorial on [my personal blog post](http://blog.julianxhokaxhiu.com/how-the-cm-ota-server-works-and-how-to-implement-and-use-ours) where I explain how to override the build server on your ROM.
-3. Optional. If just want to test if the REST Server is working, if you go to [http://localhost/LineageOTA](http://localhost/LineageOTA/) you'll be redirected to the builds directory listing.
 
-or
+### Composer
 
+```shell
+$ cd /var/www/html # Default Apache WWW directory, feel free to choose your own
+$ composer create-project julianxhokaxhiu/lineage-ota LineageOTA
 ```
-docker run \
+
+then finally visit http://localhost/LineageOTA to see the REST Server up and running.
+
+> If you get anything else then a list of files, contained inside the `builds` directory, this means something is wrong in your environment. Double check it, before creating an issue report here.
+
+### Docker
+
+```shell
+$ docker run \
     --restart=always \
     -d \
     -p 80:80 \
@@ -17,21 +32,62 @@ docker run \
     julianxhokaxhiu/lineageota
 ```
 
-## Requirements
+then finally visit http://localhost/ to see the REST Server up and running.
 
-- PHP >= 5.3.0
-- PHP ZIP Extension
-- Composer ( if installing via CLI )
-
-## Where do I have to upload the ZIPs that I obtain after the compilation?
+## Where to move built ROM ZIPs
 
 - Full builds should be uploaded into `builds/full` directory.
 - Delta builds should be uploaded into `builds/delta` directory.
 
-## Can I Debug my REST Server somehow?
-Yes, you can! I've implemented a [simple script](https://github.com/julianxhokaxhiu/LineageOTAUnitTest) made for NodeJS that you clone and use it.
+## REST Server Unit Testing
+Feel free to use this [simple script](https://github.com/julianxhokaxhiu/LineageOTAUnitTest) made with NodeJS. Instructions are included.
+
+## How to integrate within your ROM
+
+In order to integrate this REST Server within your ROM you have two possibilities: you can make use of the `build.prop` ( highly suggested ), or you can patch directly the `android_packages_apps_CMUpdater` package ( not suggested ).
+
+> Before integrating, make sure your OTA Server answers from a public URL. Also, make sure to know which is your path.
+>
+> For eg. if your URL is http://my.ota.uri/LineageOTA, then your API URL will be http://my.ota.uri/LineageOTA/api
+
+### Build.prop
+
+#### CyanogenMod / LineageOS ( <= 14.x )
+
+In order to integrate this in your CyanogenMod based ROM, you need to add the [`cm.updater.uri`](https://github.com/LineageOS/android_packages_apps_CMUpdater/blob/cm-14.1/src/com/cyanogenmod/updater/service/UpdateCheckService.java#L203) property in your `build.prop` file. See this example:
+
+```properties
+# ...
+cm.updater.uri=http://my.ota.uri/api
+# ...
+```
+
+#### LineageOS ( >= 15.x)
+
+> This is ONLY for LineageOS 15.x and major releases. See https://review.lineageos.org/#/c/191274/ for more.
+
+In order to integrate this in your LineageOS based ROM, you need to add the [`lineage.updater.uri`](https://github.com/LineageOS/android_packages_apps_CMUpdater/blob/cm-14.1/src/com/cyanogenmod/updater/service/UpdateCheckService.java#L203) property in your `build.prop` file. See this example:
+
+```properties
+# ...
+lineage.updater.uri=http://my.ota.uri/api
+# ...
+```
+
+### android_packages_apps_CMUpdater
+
+In order to integrate this in your CyanogenMod or LineageOS based ROM, you can patch [this line](https://github.com/lineageos/android_packages_apps_CMUpdater/blob/cm-14.1/res/values/config.xml#L12) inside the package.
+
+> Although this works, I personally do not suggest to use this practice as it will always require to override this through the manifest, or maintain the commits from the official repo to your fork.
+>
+> Using the `build.prop` instead offers an easy and smooth integration, which could potentially be used even in local builds that make use fully of the official repos, but only updates through a local OTA REST Server. For example, by using the [docker-lineage-cicd](https://github.com/julianxhokaxhiu/docker-lineage-cicd) project.
 
 ## Changelog
+
+### v2.5.0
+
+- Add support for the new Lineage namespace within build.prop ( see https://review.lineageos.org/#/c/191274/ )
+
 ### v2.4.0
 - Add support for the new **id** field for LineageOS ( see #32 )
 - Mention the need of the PHP ZIP extension in the README in order to run correctly this software ( see #27 )
