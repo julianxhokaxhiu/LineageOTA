@@ -60,7 +60,8 @@
                     6 => [MODEL] (ex. i9100, i9300, etc.)
                 )
             */
-            preg_match_all( '/(cm|lineage)-([0-9\.]+)-(\d+)?-([\w+]+)?([-A-Za-z0-9]+)?-([\w+]+)/', $fileName, $tokens );
+            preg_match_all( '/(cm|lineage)-([0-9\.]+)-([\d_]+)?-([\w+]+)?([-A-Za-z0-9]+)?-([\w+]+)/', $fileName, $tokens );
+
             $tokens = $this->removeTrailingDashes( $tokens );
 
             $this->filePath = $physicalPath . '/' . $fileName;
