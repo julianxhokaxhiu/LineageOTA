@@ -56,11 +56,15 @@
                     2 => [VERSION] (ex. 10.1.x, 10.2, 11, etc.)
                     3 => [DATE OF BUILD] (ex. 20140130)
                     4 => [CHANNEL OF THE BUILD] (ex. RC, RC2, NIGHTLY, etc.)
-                    5 => [SNAPSHOT CODE] ( ex. ZNH0EAO2O0, etc. )
-                    6 => [MODEL] (ex. i9100, i9300, etc.)
+                    5 =>
+                      CM => [SNAPSHOT CODE] (ex. ZNH0EAO2O0, etc.)
+                      LINEAGE => [MODEL] (ex. i9100, i9300, etc.)
+                    6 =>
+                      CM => [MODEL] (ex. i9100, i9300, etc.)
+                      LINEAGE => [SIGNED] (ex. signed)
                 )
             */
-            preg_match_all( '/(cm|lineage)-([0-9\.]+)-([\d_]+)?-([\w+]+)?([-A-Za-z0-9]+)?-([\w+]+)/', $fileName, $tokens );
+            preg_match_all( '/(cm|lineage)-([0-9\.]+)-([\d_]+)?-([\w+]+)-([A-Za-z0-9]+)?-?([\w+]+)?/', $fileName, $tokens );
 
             $tokens = $this->removeTrailingDashes( $tokens );
 
