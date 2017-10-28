@@ -86,7 +86,7 @@ In order to integrate this in your CyanogenMod or LineageOS based ROM, you can p
 
 ### v2.6.0
 
-- Add support for the new filename that UNOFFICIAL builds of LineageOS may get from now ( eg. `lineage-14.1-20171024_123000-nightly-hammerhead-signed.zip`)
+- Add support for the new filename that UNOFFICIAL builds of LineageOS may get from now ( eg. `lineage-14.1-20171024_123000-nightly-hammerhead-signed.zip`) ( thanks to @brianjmurrell )
 
 ### v2.5.0
 
