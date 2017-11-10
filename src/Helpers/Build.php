@@ -77,7 +77,7 @@
             // - builds/CURRENT_ZIP_FILE.zip.prop ( which must exist )
             $this->buildProp = explode( "\n", @file_get_contents('zip://'.$this->filePath.'#system/build.prop') ?? @file_get_contents($filePath.'.prop') );
             // Try to fetch build.prop values. In some cases, we can provide a fallback, in other a null value will be given
-            $this->timestamp = $this->getBuildPropValue( 'ro.build.date.utc' ) ?? '';
+            $this->timestamp = intval( $this->getBuildPropValue( 'ro.build.date.utc' ) ?? filemtime($this->filePath) );
             $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' ) ?? '';
             $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' ) ?? '';
             $this->model = $this->getBuildPropValue( 'ro.lineage.device' ) ?? $this->getBuildPropValue( 'ro.cm.device' ) ?? ( $tokens[1] == 'cm' ? $tokens[6] : $tokens[5] );
