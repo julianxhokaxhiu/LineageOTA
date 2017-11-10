@@ -77,7 +77,7 @@ In order to integrate this REST Server within your ROM you have two possibilitie
 
 #### CyanogenMod / LineageOS ( <= 14.x )
 
-In order to integrate this in your CyanogenMod based ROM, you need to add the [`cm.updater.uri`](https://github.com/LineageOS/android_packages_apps_CMUpdater/blob/cm-14.1/src/com/cyanogenmod/updater/service/UpdateCheckService.java#L203) property in your `build.prop` file. See this example:
+In order to integrate this in your CyanogenMod based ROM, you need to add the `cm.updater.uri` property ( for [CyanogenMod](https://github.com/CyanogenMod/android_packages_apps_CMUpdater/blob/cm-14.1/src/com/cyanogenmod/updater/service/UpdateCheckService.java#L206) or [Lineage](https://github.com/LineageOS/android_packages_apps_Updater/blob/cm-14.1/src/org/lineageos/updater/misc/Constants.java#L39) ) in your `build.prop` file. See this example:
 
 ```properties
 # ...
@@ -87,21 +87,21 @@ cm.updater.uri=http://my.ota.uri/api
 
 #### LineageOS ( >= 15.x)
 
-> This is ONLY for LineageOS 15.x and major releases. See https://review.lineageos.org/#/c/191274/ for more.
-
-In order to integrate this in your LineageOS based ROM, you need to add the [`lineage.updater.uri`](https://github.com/LineageOS/android_packages_apps_CMUpdater/blob/cm-14.1/src/com/cyanogenmod/updater/service/UpdateCheckService.java#L203) property in your `build.prop` file. See this example:
+In order to integrate this in your LineageOS based ROM, you need to add the [`cm.updater.uri`](https://github.com/LineageOS/android_packages_apps_Updater/blob/lineage-15.0/src/org/lineageos/updater/misc/Constants.java#L38) property in your `build.prop` file. See this example:
 
 ```properties
 # ...
-lineage.updater.uri=http://my.ota.uri/api
+cm.updater.uri=http://my.ota.uri/api
 # ...
 ```
 
+> Once https://review.lineageos.org/#/c/191274/ will be merged, the property `cm.updater.uri` will be renamed to `lineage.updater.uri`. Make sure to update your entry as soon as it is merged. This documentation will be updated as soon as it will happen.
+
 ### android_packages_apps_CMUpdater
 
-In order to integrate this in your CyanogenMod or LineageOS based ROM, you can patch [this line](https://github.com/lineageos/android_packages_apps_CMUpdater/blob/cm-14.1/res/values/config.xml#L12) inside the package.
+In order to integrate this in your [CyanogenMod](https://github.com/lineageos/android_packages_apps_CMUpdater/blob/cm-14.1/res/values/config.xml#L12) or [LineageOS](https://github.com/LineageOS/android_packages_apps_Updater/blob/cm-14.1/res/values/strings.xml#L29) based ROM, you can patch the relative line inside the package.
 
-> Although this works, I personally do not suggest to use this practice as it will always require to override this through the manifest, or maintain the commits from the official repo to your fork.
+> Although this works ( and the position may change from release to release ), I personally do not suggest to use this practice as it will always require to override this through the manifest, or maintain the commits from the official repo to your fork.
 >
 > Using the `build.prop` instead offers an easy and smooth integration, which could potentially be used even in local builds that make use fully of the official repos, but only updates through a local OTA REST Server. For example, by using the [docker-lineage-cicd](https://github.com/julianxhokaxhiu/docker-lineage-cicd) project.
 
