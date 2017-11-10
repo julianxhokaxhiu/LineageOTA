@@ -39,6 +39,22 @@ then finally visit http://localhost/ to see the REST Server up and running.
 - Full builds should be uploaded into `builds/full` directory.
 - Delta builds should be uploaded into `builds/delta` directory.
 
+### ONLY for LineageOS 15.x and newer
+
+If you are willing to use this project on top of your LineageOS 15.x ( or newer ) ROM builds, you may have noticed that the file named `build.prop` have been removed inside your ZIP file, and has been instead integrated within your `system.new.dat` file, which is basically an ext4 image ( you can find out more here: https://source.android.com/devices/tech/ota/block ).
+
+In order to make use of this Server from now on, you **MUST** copy the `build.prop` file from your build directory ( where your ROM is being built ), inside the same directory of your ZIP and name it like your ZIP file name + the `.prop` extension.
+
+For example, feel free to check this structure:
+
+```shell
+$ cd builds/full
+$ tree
+.
+├── lineage-15.0-20171030-NIGHTLY-gts210vewifi.zip # the full ROM zip file
+└── lineage-15.0-20171030-NIGHTLY-gts210vewifi.zip.prop # the ROM build.prop file
+```
+
 ## REST Server Unit Testing
 Feel free to use this [simple script](https://github.com/julianxhokaxhiu/LineageOTAUnitTest) made with NodeJS. Instructions are included.
 
