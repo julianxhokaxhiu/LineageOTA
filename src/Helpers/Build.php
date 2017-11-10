@@ -71,11 +71,16 @@
             $this->filePath = $physicalPath . '/' . $fileName;
             $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1], $tokens[2] );
             $this->filename = $fileName;
-            $this->buildProp = explode( "\n", @file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
+
+            // Try to load the build.prop from two possible paths:
+            // - builds/CURRENT_ZIP_FILE.zip/system/build.prop
+            // - builds/CURRENT_ZIP_FILE.zip.prop ( which must exist )
+            $this->buildProp = explode( "\n", @file_get_contents('zip://'.$this->filePath.'#system/build.prop') ?? @file_get_contents($filePath.'.prop') );
+            // Try to fetch build.prop values. In some cases, we can provide a fallback, in other a null value will be given
             $this->timestamp = $this->getBuildPropValue( 'ro.build.date.utc' ) ?? '';
             $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' ) ?? '';
             $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' ) ?? '';
-            $this->model = $this->getBuildPropValue( 'ro.lineage.device' ) ?? $this->getBuildPropValue( 'ro.cm.device' );
+            $this->model = $this->getBuildPropValue( 'ro.lineage.device' ) ?? $this->getBuildPropValue( 'ro.cm.device' ) ?? ( $tokens[1] == 'cm' ? $tokens[6] : $tokens[5] );
             $this->version = $tokens[2];
             $this->uid = hash( 'sha256', $this->timestamp.$this->model.$this->apiLevel, false );
 
@@ -292,16 +297,19 @@
          * Get a property value based on the $key value.
          * It does it by searching inside the file build.prop of the current build.
          * @param string $key The key for the wanted value
+         * @param string $fallback The fallback value if not found in build.prop
          * @return string The value for the specified key
          */
-        private function getBuildPropValue($key){
-            $ret = null;
+        private function getBuildPropValue($key, $fallback){
+            $ret = $fallback ?: null;
 
-            foreach ($this->buildProp as $line) {
-                if ( strpos($line, $key) !== false ) {
-                    $tmp = explode('=', $line);
-                    $ret = $tmp[1];
-                    break;
+            if ($this->buildProp) {
+                foreach ($this->buildProp as $line) {
+                    if ( strpos($line, $key) !== false ) {
+                        $tmp = explode('=', $line);
+                        $ret = $tmp[1];
+                        break;
+                    }
                 }
             }
 
