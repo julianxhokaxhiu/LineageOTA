@@ -300,7 +300,7 @@
          * @param string $fallback The fallback value if not found in build.prop
          * @return string The value for the specified key
          */
-        private function getBuildPropValue($key, $fallback){
+        private function getBuildPropValue($key, $fallback = null){
             $ret = $fallback ?: null;
 
             if ($this->buildProp) {
