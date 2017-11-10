@@ -1,57 +1,57 @@
 {
-    "name": "julianxhokaxhiu/lineage-ota",
-    "description": "A simple OTA REST Server for LineageOS OTA Updater System Application",
-    "version": "2.6.0",
-    "type": "project",
-    "keywords": [
-    	"android",
-    	"cyanogenmod",
-      "lineageos",
-    	"ota",
-    	"rest",
-    	"php"
-    ],
-    "homepage": "https://github.com/julianxhokaxhiu/LineageOTA",
-    "license": "MIT",
-    "authors": [
-        {
-            "name":         "Julian Xhokaxhiu",
-            "email":        "info@julianxhokaxhiu.com",
-            "homepage":     "http://julianxhokaxhiu.com",
-            "role":         "Creator/Lead Developer"
-        }
-    ],
-    "repositories": [
-        {
-            "type":"package",
-            "package": {
-                "name": "julianxhokaxhiu/DotNotation",
-                "version": "master",
-                "source": {
-                    "url": "https://gist.github.com/a6098de64195f604f56a.git",
-                    "type": "git",
-                    "reference":"master"
-                },
-                "autoload": {
-                    "classmap": ["."]
-                }
-            }
-        }
-    ],
-    "require": {
-    	"mikecao/flight": "1.*",
-        "julianxhokaxhiu/DotNotation": "dev-master",
-        "ext-zip": "*"
-    },
-    "autoload": {
-    	"psr-4": {
-    		"JX\\CmOta\\": "src/"
-    	}
-    },
-    "replace": {
-        "julianxhokaxhiu/cyanogenmod-ota":"2.*"
-    },
-    "suggest": {
-        "ext-zip": "This extension is usually enabled, if not make sure it is. LineageOTA requires it to run."
+  "name": "julianxhokaxhiu/lineage-ota",
+  "description": "A simple OTA REST Server for LineageOS OTA Updater System Application",
+  "version": "2.6.0",
+  "type": "project",
+  "keywords": [
+    "android",
+    "cyanogenmod",
+    "lineageos",
+    "ota",
+    "rest",
+    "php"
+  ],
+  "homepage": "https://github.com/julianxhokaxhiu/LineageOTA",
+  "license": "MIT",
+  "authors": [
+    {
+      "name":         "Julian Xhokaxhiu",
+      "email":        "info@julianxhokaxhiu.com",
+      "homepage":     "http://julianxhokaxhiu.com",
+      "role":         "Creator/Lead Developer"
     }
+  ],
+  "repositories": [
+    {
+      "type":"package",
+      "package": {
+        "name": "julianxhokaxhiu/DotNotation",
+        "version": "master",
+        "source": {
+          "url": "https://gist.github.com/a6098de64195f604f56a.git",
+          "type": "git",
+          "reference":"master"
+        },
+        "autoload": {
+          "classmap": ["."]
+        }
+      }
+    }
+  ],
+  "require": {
+    "mikecao/flight": "1.*",
+    "julianxhokaxhiu/DotNotation": "dev-master",
+    "ext-zip": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "JX\\CmOta\\": "src/"
+    }
+  },
+  "replace": {
+    "julianxhokaxhiu/cyanogenmod-ota":"2.*"
+  },
+  "suggest": {
+    "ext-zip": "This extension is usually enabled, if not make sure it is. LineageOTA requires it to run."
+  }
 }
