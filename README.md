@@ -107,6 +107,11 @@ In order to integrate this in your [CyanogenMod](https://github.com/lineageos/an
 
 ## Changelog
 
+### v2.7.0
+
+- Add support for missing `build.prop` file in LineageOS 15.x builds ( see #36 )
+- Provide a proper fallback for values if `build.prop` is missing, making the JSON response acting similar [as if it was there](https://github.com/julianxhokaxhiu/LineageOTA/issues/36#issuecomment-343601224)
+
 ### v2.6.0
 
 - Add support for the new filename that UNOFFICIAL builds of LineageOS may get from now ( eg. `lineage-14.1-20171024_123000-nightly-hammerhead-signed.zip`) ( thanks to @brianjmurrell )
