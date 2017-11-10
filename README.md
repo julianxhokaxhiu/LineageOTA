@@ -43,7 +43,7 @@ then finally visit http://localhost/ to see the REST Server up and running.
 
 If you are willing to use this project on top of your LineageOS 15.x ( or newer ) ROM builds, you may have noticed that the file named `build.prop` have been removed inside your ZIP file, and has been instead integrated within your `system.new.dat` file, which is basically an ext4 image ( you can find out more here: https://source.android.com/devices/tech/ota/block ).
 
-In order to make use of this Server from now on, you **MUST** copy the `build.prop` file from your build directory ( where your ROM is being built ), inside the same directory of your ZIP and name it like your ZIP file name + the `.prop` extension.
+In order to make use of this Server from now on, you **MAY** copy the `build.prop` file from your build directory ( where your ROM is being built ), inside the same directory of your ZIP and name it like your ZIP file name + the `.prop` extension.
 
 For example, feel free to check this structure:
 
@@ -57,7 +57,7 @@ $ tree
 
 ### What happens if no build.prop file is found
 
-The Server is able to serve the ZIP file via the API, also when a `build.prop` file is not given. Although most of the ( probably ) required fields will be given inheriting those informations from the ZIP file name, will not be given or will be given _wrong_ ( basically an empty string or null value ).
+The Server is able to serve the ZIP file via the API, also when a `build.prop` file is not given, by fetching those missing informations elsewhere ( related always to that ZIP file ). Although, as it's a trial way, it may be incorrect so don't rely too much on it.
 
 I am not sure how much this may help anyway, but this must be used as an extreme fallback scenario where you are not able to provide a `build.prop` for any reason. Instead, please always consider to find a way to obtain the prop file, in order to deliver a proper API response.
 
