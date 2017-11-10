@@ -53,5 +53,8 @@
   },
   "suggest": {
     "ext-zip": "This extension is usually enabled, if not make sure it is. LineageOTA requires it to run."
+  },
+  "scripts": {
+    "serve": "php -S 0.0.0.0:8000"
   }
 }
