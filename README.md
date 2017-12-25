@@ -1,6 +1,10 @@
 # LineageOTA
 A simple OTA REST Server for LineageOS OTA Updater System Application
 
+## Support
+
+Got a question? Not sure where it should be made? See [CONTRIBUTING](CONTRIBUTING.md).
+
 ## Requirements
 
 - Apache mod_rewrite enabled
