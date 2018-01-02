@@ -91,15 +91,15 @@ cm.updater.uri=http://my.ota.uri/api
 
 #### LineageOS ( >= 15.x)
 
-In order to integrate this in your LineageOS based ROM, you need to add the [`cm.updater.uri`](https://github.com/LineageOS/android_packages_apps_Updater/blob/lineage-15.0/src/org/lineageos/updater/misc/Constants.java#L38) property in your `build.prop` file. See this example:
+In order to integrate this in your LineageOS based ROM, you need to add the [`lineage.updater.uri`](https://github.com/LineageOS/android_packages_apps_Updater/blob/lineage-15.0/src/org/lineageos/updater/misc/Constants.java#L39) property in your `build.prop` file. See this example:
 
 ```properties
 # ...
-cm.updater.uri=http://my.ota.uri/api
+lineage.updater.uri=http://my.ota.uri/api
 # ...
 ```
 
-> Once https://review.lineageos.org/#/c/191274/ will be merged, the property `cm.updater.uri` will be renamed to `lineage.updater.uri`. Make sure to update your entry as soon as it is merged. This documentation will be updated as soon as it will happen.
+> Since https://review.lineageos.org/#/c/191274/ is merged, the property `cm.updater.uri` was renamed to `lineage.updater.uri`. Make sure to update your entry.
 
 ### android_packages_apps_CMUpdater
 
