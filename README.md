@@ -99,7 +99,7 @@ lineage.updater.uri=http://my.ota.uri/api
 # ...
 ```
 
-> Since https://review.lineageos.org/#/c/191274/ is merged, the property `cm.updater.uri` was renamed to `lineage.updater.uri`. Make sure to update your entry.
+> Since https://review.lineageos.org/#/c/191274/ is merged, the property `cm.updater.uri` is renamed to `lineage.updater.uri`. Make sure to update your entry.
 
 ### android_packages_apps_CMUpdater
 
