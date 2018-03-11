@@ -146,7 +146,11 @@
 
             if ( empty($path) ) $path = $this->filePath;
             // Pretty much faster if it is available
-            if ( $this->commandExists( 'md5sum' ) ) {
+            if ( file_exists( $path . ".md5sum" ) ) {
+                $tmp = explode("  ", file_get_contents( $path . '.md5sum' ));
+                $ret = $tmp[0];
+            }
+            elseif ( $this->commandExists( 'md5sum' ) ) {
                 $tmp = explode("  ", exec( 'md5sum ' . $path));
                 $ret = $tmp[0];
             } else {
