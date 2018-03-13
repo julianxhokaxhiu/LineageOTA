@@ -326,7 +326,19 @@
          * @return boolean Return True if available, False if not
          */
         private function commandExists($cmd){
+            if (!$this->functionEnabled('shell_exec'))
+                return false;
+
             $returnVal = shell_exec("which $cmd");
             return (empty($returnVal) ? false : true);
+        }
+
+        /**
+         * Checks if a php function is available on the server
+         * @param string $func The function to check for
+         * @return boolean true if the function is enabled, false if not
+         */
+        private function functionEnabled($func) {
+            return is_callable($func) && false === stripos(ini_get('disable_functions'), $func);
         }
     }
