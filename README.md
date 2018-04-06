@@ -85,9 +85,15 @@ In order to integrate this in your CyanogenMod based ROM, you need to add the `c
 
 ```properties
 # ...
-cm.updater.uri=http://my.ota.uri/api
+cm.updater.uri=http://my.ota.uri/api/v1/{device}/{type}/{incr}
 # ...
 ```
+
+> As of [e930cf7](https://github.com/LineageOS/android_packages_apps_Updater/commit/e930cf7f67d10afcd933dec75879426126d8579a):  
+> Optional placeholders replaced at runtime:  
+>   {device} - Device name  
+>   {type} - Build type  
+>   {incr} - Incremental version
 
 #### LineageOS ( >= 15.x)
 
@@ -95,11 +101,18 @@ In order to integrate this in your LineageOS based ROM, you need to add the [`li
 
 ```properties
 # ...
-lineage.updater.uri=http://my.ota.uri/api
+lineage.updater.uri=http://my.ota.uri/api/v1/{device}/{type}/{incr}
 # ...
 ```
 
 > Since https://review.lineageos.org/#/c/191274/ is merged, the property `cm.updater.uri` is renamed to `lineage.updater.uri`. Make sure to update your entry.
+
+> As of [5252d60](https://github.com/LineageOS/android_packages_apps_Updater/commit/5252d606716c3f8d81617babc1293c122359a94d):  
+> Optional placeholders replaced at runtime:  
+>   {device} - Device name  
+>   {type} - Build type  
+>   {incr} - Incremental version
+
 
 ### android_packages_apps_CMUpdater
 
