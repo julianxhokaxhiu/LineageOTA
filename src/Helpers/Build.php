@@ -39,6 +39,7 @@
         private $filePath = '';
         private $buildProp = '';
         private $uid = null;
+        private $size = '';
 
         /**
          * Constructor of the Build class.
@@ -83,6 +84,7 @@
             $this->model = $this->getBuildPropValue( 'ro.lineage.device' ) ?? $this->getBuildPropValue( 'ro.cm.device' ) ?? ( $tokens[1] == 'cm' ? $tokens[6] : $tokens[5] );
             $this->version = $tokens[2];
             $this->uid = hash( 'sha256', $this->timestamp.$this->model.$this->apiLevel, false );
+            $this->size = filesize($this->filePath);
 
             $position = strrpos( $physicalPath, '/builds/full' );
             if ( $position === FALSE )
@@ -161,6 +163,14 @@
         }
 
         /* Getters */
+
+        /**
+         * Get filesize of the current build
+         * @return string filesize in bytes
+         */
+        public function getSize() {
+          return $this->size;
+        }
 
         /**
          * Get a unique id of the current build

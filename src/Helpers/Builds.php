@@ -72,6 +72,7 @@
                     'datetime' => $build->getTimestamp(),
                     'version' => $build->getVersion(),
                     'id' => $build->getUid(),
+                    'size' => $build->getSize(),
                 ));
             }
 
