@@ -124,6 +124,13 @@ In order to integrate this in your [CyanogenMod](https://github.com/lineageos/an
 
 ## Changelog
 
+### v2.8.0
+
+- Use md5sum files if available ( thanks to @jplitza )
+- Abort commandExists early if shell_exec is disabled ( thanks to @timschumi )
+- Update docs to match new uri formatting ( thanks to @twouters )
+- Add size field to JSON ( thanks to @syphyr )
+
 ### v2.7.0
 
 - Add support for missing `build.prop` file in LineageOS 15.x builds ( see #36 )
