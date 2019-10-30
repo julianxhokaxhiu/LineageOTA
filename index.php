@@ -26,6 +26,22 @@
 
     use \JX\CmOta\CmOta;
 
+    if ( isset($_SERVER['HTTP_FORWARDED']) ) {
+      $fwd_ar = explode(';', $_SERVER['HTTP_FORWARDED']);
+      for ( $i = 0; $i < count($fwd_ar); $i++ ) {
+        $kv = explode('=', $fwd_ar[$i]);
+        if ( count($kv) > 1 ) {
+          $forwarded[strtoupper($kv[0])] = $kv[1];
+        }
+      }
+      if ( array_key_exists('HOST', $forwarded) ) {
+        $_SERVER['HTTP_HOST'] = $forwarded['HOST'];
+      }
+      if ( array_key_exists('PROTO', $forwarded) && strtoupper($forwarded['PROTO']) === 'HTTPS') {
+        $_SERVER['HTTPS'] = 'on';
+      }
+    }
+
     if( isset($_SERVER['HTTPS'] ) )
         $protocol = 'https://';
     else
