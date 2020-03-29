@@ -40,9 +40,16 @@
       if ( array_key_exists('PROTO', $forwarded) && strtoupper($forwarded['PROTO']) === 'HTTPS') {
         $_SERVER['HTTPS'] = 'on';
       }
+    } else {
+      if ( isset($_SERVER['HTTP_X_FORWARDED_HOST']) ) {
+        $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
+      }
+      if ( isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtoupper($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'HTTPS' ) {
+        $_SERVER['HTTPS'] = 'on';
+      }
     }
 
-    if( isset($_SERVER['HTTPS'] ) )
+    if( isset($_SERVER['HTTPS']) )
         $protocol = 'https://';
     else
         $protocol = 'http://';
