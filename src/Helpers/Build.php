@@ -101,6 +101,8 @@
          * @return boolean True if valid, False if not.
          */
     	public function isValid($params){
+            if ($params === NULL ) return true;  // Assume valid if no parameters
+
             $ret = false;
 
             if ( $params['device'] == $this->model ) {
