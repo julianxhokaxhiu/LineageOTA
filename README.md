@@ -124,6 +124,12 @@ In order to integrate this in your [CyanogenMod](https://github.com/lineageos/an
 
 ## Changelog
 
+### v2.9.0
+- Add PHP 7.4 compatibility: Prevent null array access on `isValid()` ( thanks to @McNutnut )
+- Update RegEx pattern to match more roms than just CM/LineageOS ( thanks to @toolstack )
+- Use Forwarded HTTP Extension to determine protocol and host ( thanks to @TpmKranz )
+- Add detection of HTTP_X_FORWARDED_* headers ( thanks to @ionphractal )
+
 ### v2.8.0
 
 - Use md5sum files if available ( thanks to @jplitza )
