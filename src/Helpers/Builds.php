@@ -131,7 +131,7 @@
             array_push( $dirs, $path );
             foreach ( $dirs as $dir )  {
                 // Get the file list and parse it
-                $files = preg_grep( '/^([^.Thumbs])/', scandir( $dir ) );
+                $files = scandir( $dir );
                 if ( count( $files ) > 0  ) {
                     foreach ( $files as $file ) {
                         $extension = pathinfo($file, PATHINFO_EXTENSION);
