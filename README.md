@@ -21,7 +21,7 @@ $ cd /var/www/html # Default Apache WWW directory, feel free to choose your own
 $ composer create-project julianxhokaxhiu/lineage-ota LineageOTA
 ```
 
-then finally visit http://localhost/LineageOTA to see the REST Server up and running.
+then finally visit http://localhost/LineageOTA to see the REST Server up and running. Please note that this is only for a quick test, when you plan to use that type of setup for production (your users), make sure to also provide HTTPS support.
 
 > If you get anything else then a list of files, contained inside the `builds` directory, this means something is wrong in your environment. Double check it, before creating an issue report here.
 
@@ -101,9 +101,11 @@ In order to integrate this in your LineageOS based ROM, you need to add the [`li
 
 ```properties
 # ...
-lineage.updater.uri=http://my.ota.uri/api/v1/{device}/{type}/{incr}
+lineage.updater.uri=https://my.ota.uri/api/v1/{device}/{type}/{incr}
 # ...
 ```
+
+Make always sure to provide a HTTPS based uri, otherwise the updater will reject to connect with your server! This is caused by the security policies newer versions of Android (at least 10+) include, as any app wanting to use non-secured connections must explicitly enable this during the compilation. The LineageOS Updater does not support that.
 
 > Since https://review.lineageos.org/#/c/191274/ is merged, the property `cm.updater.uri` is renamed to `lineage.updater.uri`. Make sure to update your entry.
 
