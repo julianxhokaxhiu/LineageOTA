@@ -2,7 +2,7 @@
     /*
         The MIT License (MIT)
 
-        Copyright (c) 2020 Julian Xhokaxhiu
+        Copyright (c) 2020 Julian Xhokaxhiu, Matthias Leitl
 
         Permission is hereby granted, free of charge, to any person obtaining a copy of
         this software and associated documentation files (the "Software"), to deal in
@@ -25,7 +25,9 @@
     namespace JX\CmOta\Helpers;
 
     use \Flight;
-    use \JX\CmOta\Helpers\Build;
+    use \JX\CmOta\Helpers\BuildLocal;
+    use \JX\CmOta\Helpers\BuildGithub;
+    use \JX\CmOta\Helpers\CurlRequest;
 
     class Builds {
 
@@ -46,7 +48,8 @@
             $this->postData = Flight::request()->data;
 
             // Internal Initialization routines
-    		$this->getBuilds();
+    		$this->getBuildsLocal();
+    		$this->getBuildsGithub();
     	}
 
         /**
@@ -55,7 +58,7 @@
          */
     	public function get() {
     		$ret = array();
-
+    		
             foreach ( $this->builds as $build ) {
                 array_push( $ret, array(
                     // CyanogenMod
@@ -87,7 +90,8 @@
         public function setPostData( $customData ){
             $this->postData = $customData;
             $this->builds = array();
-            $this->getBuilds();
+            $this->getBuildsLocal();
+            $this->getBuildsGithub();
         }
 
         /**
@@ -123,7 +127,7 @@
 
         /* Utility / Internal */
 
-    	private function getBuilds() {
+    	private function getBuildsLocal() {
             // Get physical paths of where the files resides
             $path = Flight::cfg()->get('realBasePath') . '/builds/full';
             // Get subdirs
@@ -145,12 +149,12 @@
 
                                 // If not found there, we have to find it with the old fashion method...
                                 if ( $build === FALSE ) {
-                                    $build = new Build( $file, $dir );
+                                    $build = new BuildLocal( $file, $dir );
                                     // ...and then save it for 72h until it expires again
                                     apcu_store( $file, $build, 72*60*60 );
                                 }
                             } else
-                                $build = new Build( $file, $dir );
+                                $build = new BuildLocal( $file, $dir );
 
                             if ( $build->isValid( $this->postData['params'] ) ) {
                                 array_push( $this->builds , $build );
@@ -160,4 +164,22 @@
                 }
             }
     	}
+    	
+    	private function getBuildsGithub() {
+            // Get Repos with potential OTA releases
+            $repos = Flight::cfg()->get('githubRepos');
+            foreach ( $repos as $repo )  {
+                $request = new CurlRequest('https://api.github.com/repos/' . $repo['name'] . '/releases');
+                $request->addHeader('Accept: application/vnd.github.v3+json');
+                if ($request->executeRequest()) {
+                    $releases = json_decode($request->getResponse(),true);
+                    foreach ( $releases as $release )  {
+                        $build = new BuildGithub( $release );
+                        if ( $build->isValid( $this->postData['params'] ) ) {
+                            array_push( $this->builds , $build );
+                        }
+                    }
+                }
+            }
+    	}    	
     }

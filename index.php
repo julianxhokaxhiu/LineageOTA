@@ -62,4 +62,5 @@
     $app = new CmOta();
     $app
     ->setConfig( 'basePath', $base_path )
+    ->setConfigJSON( 'githubRepos', 'github.json' )
     ->run();
