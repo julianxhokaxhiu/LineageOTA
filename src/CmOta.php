@@ -2,7 +2,7 @@
     /*
         The MIT License (MIT)
 
-        Copyright (c) 2020 Julian Xhokaxhiu
+        Copyright (c) 2020 Julian Xhokaxhiu, Matthias Leitl
 
         Permission is hereby granted, free of charge, to any person obtaining a copy of
         this software and associated documentation files (the "Software"), to deal in
@@ -26,6 +26,8 @@
 
     use \DotNotation;
     use \Flight;
+    
+    use \JX\CmOta\Helpers\CurlRequest;
 
     class CmOta {
         private $builds = NULL;
@@ -62,12 +64,24 @@
         }
 
         /**
+         * Set a configuration option based on a JSON file
+         * @param type $key The key of your configuration
+         * @param type $value The file which contents you want to set
+         * @return class Return always itself, so it can be chained within calls
+         */
+        public function setConfigJSON( $key, $file ) {
+            Flight::cfg()->set( $key, json_decode( file_get_contents( Flight::cfg()->get('basePath') . '/' . $file ) , true ) );
+            
+            return $this;
+        }
+
+        /**
          * This initialize the REST API Server
          * @return class Return always itself, so it can be chained within calls
          */
         public function run() {
             Flight::start();
-
+            
             return $this;
         }
 
