@@ -70,7 +70,6 @@
             $tokens = $this->removeTrailingDashes( $tokens );
 
             $this->filePath = $physicalPath . '/' . $fileName;
-            $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1], $tokens[2] );
             $this->filename = $fileName;
 
             // Try to load the build.prop from two possible paths:
@@ -83,6 +82,7 @@
             $this->buildProp = explode( "\n", $propsFileContent );
 
             // Try to fetch build.prop values. In some cases, we can provide a fallback, in other a null value will be given
+            $this->channel = $this->_getChannel( $this->getBuildPropValue( 'ro.lineage.releasetype' ) ?? str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1], $tokens[2] );
             $this->timestamp = intval( $this->getBuildPropValue( 'ro.build.date.utc' ) ?? filemtime($this->filePath) );
             $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' ) ?? '';
             $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' ) ?? '';
