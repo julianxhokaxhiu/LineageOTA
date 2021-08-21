@@ -54,7 +54,12 @@
     else
         $protocol = 'http://';
 
+    if ( isset($_ENV['LINEAGEOTA_BASE_PATH']) )
+        $base_path = $_ENV['LINEAGEOTA_BASE_PATH'];
+    else
+        $base_path = $protocol.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']);
+
     $app = new CmOta();
     $app
-    ->setConfig( 'basePath', $protocol.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']) )
+    ->setConfig( 'basePath', $base_path )
     ->run();
