@@ -38,6 +38,8 @@ $ docker run \
 
 then finally visit http://localhost/ to see the REST Server up and running.
 
+The root URL (used to generate ROM URLs in the `/api` endpoint) can be set using the `LINEAGEOTA_BASE_PATH` variable.
+
 ## Where to move built ROM ZIPs
 
 - Full builds should be uploaded into `builds/full` directory.
