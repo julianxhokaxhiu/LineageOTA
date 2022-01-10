@@ -1,4 +1,4 @@
-FROM php:7.1-apache
+FROM php:7.2-apache
 MAINTAINER Julian Xhokaxhiu <info at julianxhokaxhiu dot com>
 
 # internal variables
