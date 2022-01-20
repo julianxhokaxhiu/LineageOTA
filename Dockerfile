@@ -1,4 +1,4 @@
-FROM php:7.2-apache
+FROM php:7.4-apache
 MAINTAINER Julian Xhokaxhiu <info at julianxhokaxhiu dot com>
 
 # internal variables
@@ -15,8 +15,9 @@ RUN a2enmod rewrite
 RUN apt-get update \
         && buildDeps=" \
                 zlib1g-dev \
+                libzip-dev \
         " \
-        && apt-get install -y git $buildDeps --no-install-recommends \
+        && apt-get install -y git libzip4 $buildDeps --no-install-recommends \
         && rm -r /var/lib/apt/lists/* \
         \
         && docker-php-ext-install zip \
