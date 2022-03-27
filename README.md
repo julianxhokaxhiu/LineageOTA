@@ -67,6 +67,17 @@ The Server is able to serve the ZIP file via the API, also when a `build.prop` f
 
 I am not sure how much this may help anyway, but this must be used as an extreme fallback scenario where you are not able to provide a `build.prop` for any reason. Instead, please always consider to find a way to obtain the prop file, in order to deliver a proper API response.
 
+## Github hosting
+
+If you want to host your roms on Github you can put your repository name inside the [`github.json`](github.json) file, like this example below:
+```json
+[
+  {
+    "name": "ADeadTrousers/android_device_Unihertz_Atom_XL"
+  }
+]
+```
+
 ## REST Server Unit Testing
 
 Feel free to use this [simple script](https://github.com/julianxhokaxhiu/LineageOTAUnitTest) made with NodeJS. Instructions are included.
