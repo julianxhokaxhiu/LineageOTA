@@ -42,6 +42,7 @@
         protected $uid = null;
         protected $size = '';
         protected $md5 = '';
+        protected $version = '';
 
         /**
          * Check if the current build is valid within the current request
