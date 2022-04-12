@@ -37,62 +37,68 @@
          * and make them available for the next time.
          * @param array $release The information provided by github API
          */
-    	public function __construct($release) {
+    	public function __construct($release, $data=False) {
     	    $archives = array();
     	    $properties = array();
     	    $md5sums = array();
     	    $changelogs = array();
-            // Split all Assets because they are not properly sorted
-            foreach ( $release['assets'] as $asset ) {
-                switch ( $asset['content_type'] ) {
-                    case 'application/zip':
-                        array_push($archives,$asset);
-                        break;
-                    default:
-                        $extension = pathinfo($asset['name'], PATHINFO_EXTENSION);
-                        switch ( $extension ) {
-                            case 'txt':
-                            case 'html':
-                                array_push($changelogs,$asset);
-                                break;
-                            case 'md5sum':
-                                array_push($md5sums,$asset);
-                                break;
-                            case 'prop':
-                                array_push($properties,$asset);
-                                break;
-                        }
-                }
-            }
-            foreach ( $archives as $archive ) {            
-                $tokens = $this->parseFilenameFull($archive['name']);         
-                $this->filePath = $archive['browser_download_url'];
-                $this->url = $archive['browser_download_url'];
-                $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1], $tokens[2] );
-                $this->filename = $archive['name'];
-                $this->timestamp = strtotime( $archive['updated_at'] );
-                $this->model = $tokens[1] == 'cm' ? $tokens[6] : $tokens[5];
-                $this->version = $tokens[2];
-                $this->size = $archive['size'];
-            }
-            foreach ( $properties as $property ) {            
-                $this->buildProp = explode( "\n", file_get_contents( $property['browser_download_url'] ) );
-                $this->timestamp = intval( $this->getBuildPropValue( 'ro.build.date.utc' ) ?? $this->timestamp );
-                $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' ) ?? '';
-                $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' ) ?? '';
-                $this->model = $this->getBuildPropValue( 'ro.lineage.device' ) ?? $this->getBuildPropValue( 'ro.cm.device' ) ?? $this->model;
-            }
-            foreach ( $md5sums as $md5sum ) { 
-                $md5 = $this->parseMD5($md5sum['browser_download_url']);
-                if (array_key_exists($this->filename,$md5)) {
-                    $this->md5 = $md5[$this->filename];
-                }     
-            }
-            foreach ( $changelogs as $changelog ) {
-                $this->changelogUrl = $changelog['browser_download_url'];
-            }
 
-            $this->uid = hash( 'sha256', $this->timestamp.$this->model.$this->apiLevel, false );
+            // If data is passed in, just import it instead of doing the work to construct the object from scratch
+            if( is_array( $data ) ) {
+                $this->importData( $data );
+            } else {
+                // Split all Assets because they are not properly sorted
+                foreach ( $release['assets'] as $asset ) {
+                    switch ( $asset['content_type'] ) {
+                        case 'application/zip':
+                            array_push($archives,$asset);
+                            break;
+                        default:
+                            $extension = pathinfo($asset['name'], PATHINFO_EXTENSION);
+                            switch ( $extension ) {
+                                case 'txt':
+                                case 'html':
+                                    array_push($changelogs,$asset);
+                                    break;
+                                case 'md5sum':
+                                    array_push($md5sums,$asset);
+                                    break;
+                                case 'prop':
+                                    array_push($properties,$asset);
+                                    break;
+                            }
+                    }
+                }
+                foreach ( $archives as $archive ) {
+                    $tokens = $this->parseFilenameFull($archive['name']);
+                    $this->filePath = $archive['browser_download_url'];
+                    $this->url = $archive['browser_download_url'];
+                    $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1], $tokens[2] );
+                    $this->filename = $archive['name'];
+                    $this->timestamp = strtotime( $archive['updated_at'] );
+                    $this->model = $tokens[1] == 'cm' ? $tokens[6] : $tokens[5];
+                    $this->version = $tokens[2];
+                    $this->size = $archive['size'];
+                }
+                foreach ( $properties as $property ) {
+                    $this->buildProp = explode( "\n", file_get_contents( $property['browser_download_url'] ) );
+                    $this->timestamp = intval( $this->getBuildPropValue( 'ro.build.date.utc' ) ?? $this->timestamp );
+                    $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' ) ?? '';
+                    $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' ) ?? '';
+                    $this->model = $this->getBuildPropValue( 'ro.lineage.device' ) ?? $this->getBuildPropValue( 'ro.cm.device' ) ?? $this->model;
+                }
+                foreach ( $md5sums as $md5sum ) {
+                    $md5 = $this->parseMD5($md5sum['browser_download_url']);
+                    if (array_key_exists($this->filename,$md5)) {
+                        $this->md5 = $md5[$this->filename];
+                    }
+                }
+                foreach ( $changelogs as $changelog ) {
+                    $this->changelogUrl = $changelog['browser_download_url'];
+                }
+
+                $this->uid = hash( 'sha256', $this->timestamp.$this->model.$this->apiLevel, false );
+            }
         }
 
         /**
