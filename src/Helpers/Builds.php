@@ -167,20 +167,44 @@
     	}
     	
     	private function getBuildsGithub() {
-            // Get Repos with potential OTA releases
-            $repos = Flight::cfg()->get('githubRepos');
-            foreach ( $repos as $repo )  {
-                $request = new CurlRequest('https://api.github.com/repos/' . $repo['name'] . '/releases');
-                $request->addHeader('Accept: application/vnd.github.v3+json');
-                if ($request->executeRequest()) {
-                    $releases = json_decode($request->getResponse(),true);
-                    foreach ( $releases as $release )  {
-                        $build = new BuildGithub( $release );
-                        if ( $build->isValid( $this->postData['params'] ) ) {
-                            array_push( $this->builds , $build );
+            // Check to see if we have a cached version of the Github builds that is less than a day old
+            $cacheFilename = Flight::cfg()->get('realBasePath') . '/github.cache.json';
+
+            if( file_exists($cacheFilename) && filesize( $cacheFilename ) > 0 && ( time() - filemtime($cacheFilename) < 86400 ) ) {
+                $data_set = json_decode( file_get_contents( $cacheFilename ) , true );
+
+                foreach( $data_set as $build_data ) {
+                    $build = new BuildGithub(array(), $build_data);
+
+                    array_push( $this->builds, $build );
+                }
+            } else {
+                // Get Repos with potential OTA releases
+                $repos = Flight::cfg()->get('githubRepos');
+
+                // Setup a cache array so we can store the Github releases separately from the other release types
+                $githubBuilds = array();
+
+                foreach ( $repos as $repo )  {
+                    $request = new CurlRequest('https://api.github.com/repos/' . $repo['name'] . '/releases');
+                    $request->addHeader('Accept: application/vnd.github.v3+json');
+
+                    if ($request->executeRequest()) {
+                        $releases = json_decode($request->getResponse(),true);
+
+                        foreach ( $releases as $release )  {
+                            $build = new BuildGithub( $release );
+
+                            if ( $build->isValid( $this->postData['params'] ) ) {
+                                array_push( $this->builds, $build );
+                                array_push( $githubBuilds, $build->exportData() );
+                            }
                         }
                     }
                 }
+
+                // Store the Github releases to the cache file
+                file_put_contents($cacheFilename, json_encode( $githubBuilds, JSON_PRETTY_PRINT ) );
             }
-    	}    	
+    	}
     }
