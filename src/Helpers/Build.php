@@ -155,6 +155,30 @@
             return $this->version;
         }
 
+        /**
+         * Export a JSON representation of the object values
+         * @return string the JSON data
+         */
+        public function exportData() {
+            return get_object_vars( $this );
+        }
+
+        /**
+         * Import a JSON representation of the object values
+         * @param string $data The data to import
+         * @return object return ourselves
+         */
+        public function importData( $data ) {
+            if( is_array( $data ) ) {
+                foreach( $data as $key => $value ) {
+                    if( property_exists( $this, $key ) ) {
+                        $this->$key = $value;
+                    }
+                }
+            }
+
+            return $this;
+        }
     	/* Utility / Internal */
     	
         /**
