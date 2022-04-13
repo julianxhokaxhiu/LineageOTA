@@ -71,8 +71,29 @@
          * @return class Return always itself, so it can be chained within calls
          */
         public function setConfigJSON( $key, $file ) {
-            Flight::cfg()->set( $key, json_decode( file_get_contents( Flight::cfg()->get('basePath') . '/' . $file ) , true ) );
-            
+            Flight::cfg()->set( $key, json_decode( file_get_contents( Flight::cfg()->get('realBasePath') . '/' . $file ) , true ) );
+
+            return $this;
+        }
+
+        /**
+         * Set a configuration option based on a JSON file
+         * @param type $key The key of your configuration
+         * @param type $value The file which contents you want to set
+         * @return class Return always itself, so it can be chained within calls
+         */
+        public function loadConfigJSON( $file ) {
+            $settingsFile = Flight::cfg()->get('realBasePath') . '/' . $file;
+
+            if( file_exists( $settingsFile ) ) {
+                $settings = json_decode( file_get_contents( $settingsFile ), true );
+
+                if( is_array( $settings ) ) {
+                    foreach( $settings[0] as $key => $value ) {
+                        Flight::cfg()->set( $key, $value );
+                    }
+                }
+            }
             return $this;
         }
 
