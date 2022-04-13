@@ -69,14 +69,33 @@ I am not sure how much this may help anyway, but this must be used as an extreme
 
 ## Github hosting
 
-If you want to host your roms on Github you can put your repository name inside the [`github.json`](github.json) file, like this example below:
+If you want to host your roms on Github you can put your repository names inside the [`github.json`](github.json) file, like this example below:
 ```json
 [
   {
-    "name": "ADeadTrousers/android_device_Unihertz_Atom_XL"
+    "name": "ADeadTrousers/android_device_Unihertz_Atom_XL_EEA",
+    "name": "ADeadTrousers/android_device_Unihertz_Atom_XL_TEE"
   }
 ]
 ```
+
+Each line should point to a repository for a single device and have Github releases with attached files.  At a minimum there should be the following files in each release:
+
+* build.prop
+* OTA release zip
+* .md5sum list
+
+The md5sum file contains a list of hash values for the the OTA zip as well as any other files you included in the release that need them.  Each line of the md5sum should be of the format:
+
+```
+HASHVALUE	FILENAME
+```
+
+The filename should not contain any directory information.
+
+You may also include a changelog file in html format.  Note, any html file included in the release file list will be included as a changelog.
+
+By default, Github release information is cached for 1 day, by storing it in a json file on your webserver.  This requires the webserver to have write access to the directory.  If you wish to force a refresh of the releases, simply delete the github.cache.json file.
 
 ## REST Server Unit Testing
 
@@ -102,10 +121,10 @@ cm.updater.uri=http://my.ota.uri/api/v1/{device}/{type}/{incr}
 # ...
 ```
 
-> As of [e930cf7](https://github.com/LineageOS/android_packages_apps_Updater/commit/e930cf7f67d10afcd933dec75879426126d8579a):  
-> Optional placeholders replaced at runtime:  
->   {device} - Device name  
->   {type} - Build type  
+> As of [e930cf7](https://github.com/LineageOS/android_packages_apps_Updater/commit/e930cf7f67d10afcd933dec75879426126d8579a):
+> Optional placeholders replaced at runtime:
+>   {device} - Device name
+>   {type} - Build type
 >   {incr} - Incremental version
 
 #### LineageOS ( >= 15.x)
@@ -122,10 +141,10 @@ Make always sure to provide a HTTPS based uri, otherwise the updater will reject
 
 > Since https://review.lineageos.org/#/c/191274/ is merged, the property `cm.updater.uri` is renamed to `lineage.updater.uri`. Make sure to update your entry.
 
-> As of [5252d60](https://github.com/LineageOS/android_packages_apps_Updater/commit/5252d606716c3f8d81617babc1293c122359a94d):  
-> Optional placeholders replaced at runtime:  
->   {device} - Device name  
->   {type} - Build type  
+> As of [5252d60](https://github.com/LineageOS/android_packages_apps_Updater/commit/5252d606716c3f8d81617babc1293c122359a94d):
+> Optional placeholders replaced at runtime:
+>   {device} - Device name
+>   {type} - Build type
 >   {incr} - Incremental version
 
 
@@ -138,6 +157,16 @@ In order to integrate this in your [CyanogenMod](https://github.com/lineageos/an
 > Using the `build.prop` instead offers an easy and smooth integration, which could potentially be used even in local builds that make use fully of the official repos, but only updates through a local OTA REST Server. For example, by using the [docker-lineage-cicd](https://github.com/julianxhokaxhiu/docker-lineage-cicd) project.
 
 ## Changelog
+
+### v?.?.?
+- Added Github caching support ( thanks to @toolstack )
+- Include github as a source repository ( thanks to @ADeadTrousers )
+- Accept LINEAGEOTA_BASE_PATH from environment to set the root URL ( thanks to @CyberShadow )
+- Read channel from build.prop ro.lineage.releasetype ( thanks to @tduboys )
+- fix loading prop file from alternate location ( thanks to @bananer )
+- Support device names with underscores in name extraction ( thanks to @bylaws )
+- Fix finding numbers on rom names (thanks to @erfanoabdi )
+- Fix loading prop file
 
 ### v2.9.0
 - Add PHP 7.4 compatibility: Prevent null array access on `isValid()` ( thanks to @McNutnut )
