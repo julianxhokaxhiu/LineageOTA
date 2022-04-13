@@ -62,5 +62,6 @@
     $app = new CmOta();
     $app
     ->setConfig( 'basePath', $base_path )
+    ->loadConfigJSON( 'lineageota.json' )
     ->setConfigJSON( 'githubRepos', 'github.json' )
     ->run();
