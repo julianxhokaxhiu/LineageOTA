@@ -1,0 +1,8 @@
+[
+	{
+		"EnableLocalCache": false,
+		"EnableGithubCache": true,
+		"LocalCacheTimeout": 86400,
+		"GithubCacheTimeout": 86400
+	}
+]
