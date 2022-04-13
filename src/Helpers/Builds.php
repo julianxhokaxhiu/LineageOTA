@@ -47,10 +47,6 @@
 
             // Get the current POST request data
             $this->postData = Flight::request()->data;
-
-            // Internal Initialization routines
-    		$this->getBuildsLocal();
-    		$this->getBuildsGithub();
     	}
 
         /**
@@ -58,8 +54,13 @@
          * @return array An array preformatted with builds
          */
     	public function get() {
+            // Time to get the builds.
+            $this->builds = array();
+            $this->getBuildsLocal();
+            $this->getBuildsGithub();
+
     		$ret = array();
-    		
+
             foreach ( $this->builds as $build ) {
                 array_push( $ret, array(
                     // CyanogenMod
@@ -90,9 +91,6 @@
          */
         public function setPostData( $customData ){
             $this->postData = $customData;
-            $this->builds = array();
-            $this->getBuildsLocal();
-            $this->getBuildsGithub();
         }
 
         /**
