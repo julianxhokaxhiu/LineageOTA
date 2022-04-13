@@ -37,39 +37,44 @@
          * @param type $fileName The current filename of the build
          * @param type $physicalPath The current path where the build lives
          */
-    	public function __construct($fileName, $physicalPath) {
-            $tokens = $this->parseFilenameFull( $fileName );
+    	public function __construct($fileName, $physicalPath, $data=False) {
+            // If data is passed in, just import it instead of doing the work to construct the object from scratch
+            if( is_array( $data ) ) {
+                $this->importData( $data );
+            } else {
+                $tokens = $this->parseFilenameFull( $fileName );
 
-            $this->filePath = $physicalPath . '/' . $fileName;
-            $this->filename = $fileName;
+                $this->filePath = $physicalPath . '/' . $fileName;
+                $this->filename = $fileName;
 
-            // Try to load the build.prop from two possible paths:
-            // - builds/CURRENT_ZIP_FILE.zip/system/build.prop
-            // - builds/CURRENT_ZIP_FILE.zip.prop ( which must exist )
-            $propsFileContent = @file_get_contents('zip://'.$this->filePath.'#system/build.prop');
-            if ($propsFileContent === false || empty($propsFileContent)) {
-                $propsFileContent = @file_get_contents($this->filePath.'.prop');
+                // Try to load the build.prop from two possible paths:
+                // - builds/CURRENT_ZIP_FILE.zip/system/build.prop
+                // - builds/CURRENT_ZIP_FILE.zip.prop ( which must exist )
+                $propsFileContent = @file_get_contents('zip://'.$this->filePath.'#system/build.prop');
+                if ($propsFileContent === false || empty($propsFileContent)) {
+                    $propsFileContent = @file_get_contents($this->filePath.'.prop');
+                }
+                $this->buildProp = explode( "\n", $propsFileContent );
+
+                // Try to fetch build.prop values. In some cases, we can provide a fallback, in other a null value will be given
+                $this->channel = $this->_getChannel( $this->getBuildPropValue( 'ro.lineage.releasetype' ) ?? str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1], $tokens[2] );
+                $this->timestamp = intval( $this->getBuildPropValue( 'ro.build.date.utc' ) ?? filemtime($this->filePath) );
+                $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' ) ?? '';
+                $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' ) ?? '';
+                $this->model = $this->getBuildPropValue( 'ro.lineage.device' ) ?? $this->getBuildPropValue( 'ro.cm.device' ) ?? ( $tokens[1] == 'cm' ? $tokens[6] : $tokens[5] );
+                $this->version = $tokens[2];
+                $this->uid = hash( 'sha256', $this->timestamp.$this->model.$this->apiLevel, false );
+                $this->size = filesize($this->filePath);
+
+                $position = strrpos( $physicalPath, '/builds/full' );
+                if ( $position === FALSE )
+                    $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
+                else
+                    $this->url = $this->_getUrl( '', Flight::cfg()->get('basePath') . substr( $physicalPath, $position ) );
+
+                $this->changelogUrl = $this->_getChangelogUrl();
+                $this->md5 = $this->_getMD5();
             }
-            $this->buildProp = explode( "\n", $propsFileContent );
-
-            // Try to fetch build.prop values. In some cases, we can provide a fallback, in other a null value will be given
-            $this->channel = $this->_getChannel( $this->getBuildPropValue( 'ro.lineage.releasetype' ) ?? str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1], $tokens[2] );
-            $this->timestamp = intval( $this->getBuildPropValue( 'ro.build.date.utc' ) ?? filemtime($this->filePath) );
-            $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' ) ?? '';
-            $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' ) ?? '';
-            $this->model = $this->getBuildPropValue( 'ro.lineage.device' ) ?? $this->getBuildPropValue( 'ro.cm.device' ) ?? ( $tokens[1] == 'cm' ? $tokens[6] : $tokens[5] );
-            $this->version = $tokens[2];
-            $this->uid = hash( 'sha256', $this->timestamp.$this->model.$this->apiLevel, false );
-            $this->size = filesize($this->filePath);
-
-            $position = strrpos( $physicalPath, '/builds/full' );
-            if ( $position === FALSE )
-                $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
-            else
-                $this->url = $this->_getUrl( '', Flight::cfg()->get('basePath') . substr( $physicalPath, $position ) );
-
-            $this->changelogUrl = $this->_getChangelogUrl();
-            $this->md5 = $this->_getMD5();
         }
 
         /**
