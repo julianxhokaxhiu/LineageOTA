@@ -95,7 +95,28 @@ The filename should not contain any directory information.
 
 You may also include a changelog file in html format.  Note, any html file included in the release file list will be included as a changelog.
 
-By default, Github release information is cached for 1 day, by storing it in a json file on your webserver.  This requires the webserver to have write access to the directory.  If you wish to force a refresh of the releases, simply delete the github.cache.json file.
+
+## Caching
+
+Both local builds and Github based builds can be cached to reduce disk and network traffic.  By default, local caching is disabled and Github caching is enabled.
+
+The default cache timeout is set to one day (86400 seconds).
+
+You can change this via a configuration file, in the root directory, called lineageota.json:
+
+```json
+[
+        {
+                "EnableLocalCache": false,
+                "EnableGithubCache": true,
+                "LocalCacheTimeout": 86400,
+                "GithubCacheTimeout": 86400
+        }
+]
+```
+
+This requires the webserver to have write access to the root directory.  If you wish to force a refresh of the releases, simply delete the appropriate cache.json file.
+
 
 ## REST Server Unit Testing
 
@@ -159,6 +180,9 @@ In order to integrate this in your [CyanogenMod](https://github.com/lineageos/an
 ## Changelog
 
 ### v?.?.?
+- Added config file for caching support ( thanks to @toolstack )
+- Added local caching support ( thanks to @toolstack )
+- Fixed duplicate build retrievals ( thanks to @toolstack )
 - Added Github caching support ( thanks to @toolstack )
 - Include github as a source repository ( thanks to @ADeadTrousers )
 - Accept LINEAGEOTA_BASE_PATH from environment to set the root URL ( thanks to @CyberShadow )
