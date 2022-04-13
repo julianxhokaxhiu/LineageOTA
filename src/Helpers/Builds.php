@@ -195,9 +195,11 @@
                         foreach ( $releases as $release )  {
                             $build = new BuildGithub( $release );
 
+                            // Store this build to the cache
+                            array_push( $githubBuilds, $build->exportData() );
+
                             if ( $build->isValid( $this->postData['params'] ) ) {
                                 array_push( $this->builds, $build );
-                                array_push( $githubBuilds, $build->exportData() );
                             }
                         }
                     }
