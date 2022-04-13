@@ -127,48 +127,86 @@
         /* Utility / Internal */
 
     	private function getBuildsLocal() {
-            // Get physical paths of where the files resides
-            $path = Flight::cfg()->get('realBasePath') . '/builds/full';
-            // Get subdirs
-            $dirs = glob( $path . '/*' , GLOB_ONLYDIR );
-            array_push( $dirs, $path );
-            foreach ( $dirs as $dir )  {
-                // Get the file list and parse it
-                $files = scandir( $dir );
-                if ( count( $files ) > 0  ) {
-                    foreach ( $files as $file ) {
-                        $extension = pathinfo($file, PATHINFO_EXTENSION);
+            // Check to see if we have a cached version of the local builds that is less than a day old
+            $cacheFilename = Flight::cfg()->get('realBasePath') . '/local.cache.json';
+            $cacheEnabled = Flight::cfg()->get('EnableLocalCache') == true ? true : false;
+            $cacheTimeout = Flight::cfg()->get('LocalCacheTimeout');
 
-                        if ( $extension == 'zip' ) {
-                            $build = null;
+            if( $cacheTimeout < 1 ) { $cacheTimout = 86400; }
 
-                            // If APC is enabled
-                            if( extension_loaded('apcu') && ini_get('apc.enabled') ) {
-                                $build = apcu_fetch( $file );
+            if( $cacheEnabled && file_exists($cacheFilename) && filesize( $cacheFilename ) > 0 && ( time() - filemtime($cacheFilename) < $cacheTimeout ) ) {
+                $data_set = json_decode( file_get_contents( $cacheFilename ) , true );
 
-                                // If not found there, we have to find it with the old fashion method...
-                                if ( $build === FALSE ) {
+                foreach( $data_set as $build_data ) {
+                    $build = new BuildLocal('', '', $build_data);
+
+                    if ( $build->isValid( $this->postData['params'] ) ) {
+                        array_push( $this->builds, $build );
+                    }
+                }
+            } else {
+                // Get physical paths of where the files resides
+                $path = Flight::cfg()->get('realBasePath') . '/builds/full';
+
+                // Get subdirs
+                $dirs = glob( $path . '/*' , GLOB_ONLYDIR );
+                array_push( $dirs, $path );
+
+                // Setup a cache array so we can store the local releases separately from the other release types
+                $localBuilds = array();
+
+                foreach ( $dirs as $dir )  {
+                    // Get the file list and parse it
+                    $files = scandir( $dir );
+                    if ( count( $files ) > 0  ) {
+                        foreach ( $files as $file ) {
+                            $extension = pathinfo($file, PATHINFO_EXTENSION);
+
+                            if ( $extension == 'zip' ) {
+                                $build = null;
+
+                                // If APC is enabled
+                                if( extension_loaded('apcu') && ini_get('apc.enabled') ) {
+                                    $build = apcu_fetch( $file );
+
+                                    // If not found there, we have to find it with the old fashion method...
+                                    if ( $build === FALSE ) {
+                                        $build = new BuildLocal( $file, $dir );
+                                        // ...and then save it for 72h until it expires again
+                                        apcu_store( $file, $build, 72*60*60 );
+                                    }
+                                } else
                                     $build = new BuildLocal( $file, $dir );
-                                    // ...and then save it for 72h until it expires again
-                                    apcu_store( $file, $build, 72*60*60 );
-                                }
-                            } else
-                                $build = new BuildLocal( $file, $dir );
 
-                            if ( $build->isValid( $this->postData['params'] ) ) {
-                                array_push( $this->builds , $build );
+                                // Store this build to the cache
+                                if( $cacheEnabled ) {
+                                   array_push( $localBuilds, $build->exportData() );
+                                }
+
+                                if ( $build->isValid( $this->postData['params'] ) ) {
+                                    array_push( $this->builds , $build );
+                                }
                             }
                         }
                     }
                 }
+
+                // Store the local releases to the cache file
+                if( $cacheEnabled ) {
+                    file_put_contents($cacheFilename, json_encode( $localBuilds, JSON_PRETTY_PRINT ) );
+                }
             }
     	}
-    	
-    	private function getBuildsGithub() {
-            // Check to see if we have a cached version of the Github builds that is less than a day old
-            $cacheFilename = Flight::cfg()->get('realBasePath') . '/github.cache.json';
 
-            if( file_exists($cacheFilename) && filesize( $cacheFilename ) > 0 && ( time() - filemtime($cacheFilename) < 86400 ) ) {
+    	private function getBuildsGithub() {
+            $cacheFilename = Flight::cfg()->get('realBasePath') . '/github.cache.json';
+            $cacheEnabled = Flight::cfg()->get('EnableGithubCache') == false ? false : true;
+            $cacheTimeout = Flight::cfg()->get('GithubCacheTimeout');
+
+            if( $cacheTimeout < 1 ) { $cacheTimout = 86400; }
+
+            // Check to see if caching is enabled and we have a cached version of the Github builds that is less than a day old
+            if( $cacheEnabled && file_exists($cacheFilename) && filesize( $cacheFilename ) > 0 && ( time() - filemtime($cacheFilename) < $cacheTimeout ) ) {
                 $data_set = json_decode( file_get_contents( $cacheFilename ) , true );
 
                 foreach( $data_set as $build_data ) {
@@ -196,7 +234,9 @@
                             $build = new BuildGithub( $release );
 
                             // Store this build to the cache
-                            array_push( $githubBuilds, $build->exportData() );
+                            if( $cacheEnabled ) {
+                                array_push( $githubBuilds, $build->exportData() );
+                            }
 
                             if ( $build->isValid( $this->postData['params'] ) ) {
                                 array_push( $this->builds, $build );
@@ -206,7 +246,9 @@
                 }
 
                 // Store the Github releases to the cache file
-                file_put_contents($cacheFilename, json_encode( $githubBuilds, JSON_PRETTY_PRINT ) );
+                if( $cacheEnabled ) {
+                    file_put_contents($cacheFilename, json_encode( $githubBuilds, JSON_PRETTY_PRINT ) );
+                }
             }
     	}
     }
