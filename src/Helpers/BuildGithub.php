@@ -102,27 +102,6 @@
         }
 
         /**
-         * Check if the current build is valid within the current request
-         * @param type $params The params dictionary inside the current POST request
-         * @return boolean True if valid, False if not.
-         */
-    	public function isValid($params){
-            if ( $params === NULL ) return true;  // Assume valid if no parameters
-
-            $ret = false;
-
-            if ( $params['device'] == $this->model ) {
-                if ( count($params['channels']) > 0 ) {
-                    foreach ( $params['channels'] as $channel ) {
-                        if ( strtolower($channel) == $this->channel ) $ret = true;
-                    }
-                }
-            }
-
-            return $ret;
-        }
-
-        /**
          * Create a delta build based from the current build to the target build.
          * @param type $targetToken The target build from where to build the Delta
          * @return array/boolean Return an array performatted with the correct data inside, otherwise false if not possible to be created
