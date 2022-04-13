@@ -176,7 +176,9 @@
                 foreach( $data_set as $build_data ) {
                     $build = new BuildGithub(array(), $build_data);
 
-                    array_push( $this->builds, $build );
+                    if ( $build->isValid( $this->postData['params'] ) ) {
+                        array_push( $this->builds, $build );
+                    }
                 }
             } else {
                 // Get Repos with potential OTA releases
