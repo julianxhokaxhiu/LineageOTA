@@ -2,6 +2,8 @@
 	{
 		"DisableLocalBuilds": false,
 		"DisableGithubBuilds": false,
+		"MaxGithubReleasesPerRepo": 0,
+		"OldestGithubRelease": "",
 		"EnableLocalCache": false,
 		"EnableGithubCache": true,
 		"LocalCacheTimeout": 86400,

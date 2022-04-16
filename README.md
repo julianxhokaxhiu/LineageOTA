@@ -111,6 +111,23 @@ Both local and Github hosting features can be disable if they are not being used
 
 Setting either of these to true will disable the related hosting option.
 
+## Limiting Github releases
+
+With Github you may end up having many more releases than the updater really needs to know about, as such there are two options in the config file to let you control the number of releases that are returned:
+
+```json
+[
+    {
+        "MaxGithubReleasesPerRepo": 0,
+        "OldestGithubRelease": "",
+    }
+]
+```
+
+MaxGithubReleaesPerRepo will limit the number of releases used on a per repo basis.  Setting this to 0 or leaving it out of the config file will use all available releases in each repo.
+
+OldestGithubRelease will exclude any released older than a given date from being available in the updater.  This string value can be blank for all releases, or any [```strtotime()```](https://www.php.net/manual/en/datetime.formats.php) compatible string, like "2021-01-01" or "60 days ago".
+
 ## Caching
 
 Both local builds and Github based builds can be cached to reduce disk and network traffic.  By default, local caching is disabled and Github caching is enabled.
@@ -195,6 +212,9 @@ In order to integrate this in your [CyanogenMod](https://github.com/lineageos/an
 ## Changelog
 
 ### v?.?.?
+- Added config option to limit the number/age of github releases ( thanks to @toolstack )
+- Fixed Github returning only the first 100 releases ( thanks to @toolstack )
+- Fixed handling of Github releases that contain multiple zip files ( thanks to @toolstack )
 - Added config option to disable build types ( thanks to @toolstack )
 - Added config file for caching support ( thanks to @toolstack )
 - Added local caching support ( thanks to @toolstack )
