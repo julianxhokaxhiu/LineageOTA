@@ -28,7 +28,7 @@
     use \JX\CmOta\Helpers\Build;
 
     class BuildGithub extends Build {
-    
+
         private $deltas = array();
 
         /**
@@ -69,16 +69,23 @@
                             }
                     }
                 }
+
+                // If there are multiple zip's in the release, grab the largest one.
+                $largestSize = -1;
+
                 foreach ( $archives as $archive ) {
-                    $tokens = $this->parseFilenameFull($archive['name']);
-                    $this->filePath = $archive['browser_download_url'];
-                    $this->url = $archive['browser_download_url'];
-                    $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1], $tokens[2] );
-                    $this->filename = $archive['name'];
-                    $this->timestamp = strtotime( $archive['updated_at'] );
-                    $this->model = $tokens[1] == 'cm' ? $tokens[6] : $tokens[5];
-                    $this->version = $tokens[2];
-                    $this->size = $archive['size'];
+                    if( $archive['size'] > $largestSize ) {
+                        $tokens = $this->parseFilenameFull($archive['name']);
+                        $this->filePath = $archive['browser_download_url'];
+                        $this->url = $archive['browser_download_url'];
+                        $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1], $tokens[2] );
+                        $this->filename = $archive['name'];
+                        $this->timestamp = strtotime( $archive['updated_at'] );
+                        $this->model = $tokens[1] == 'cm' ? $tokens[6] : $tokens[5];
+                        $this->version = $tokens[2];
+                        $this->size = $archive['size'];
+                        $largestSize = $this->size;
+                    }
                 }
                 foreach ( $properties as $property ) {
                     $this->buildProp = explode( "\n", file_get_contents( $property['browser_download_url'] ) );
@@ -108,12 +115,12 @@
          */
         public function getDelta($targetToken){
             $ret = false;
-            
+
             // TO-DO: Figuring out a way to provide a delta build over github
 
             return $ret;
         }
-        
+
     	/* Utility / Internal */
 
         /**
@@ -123,7 +130,7 @@
          */
         private function parseMD5($file){
             $ret = array( );
-            
+
             $md5sums = explode( "\n", file_get_contents( $file ));
             foreach ( $md5sums as $md5sum ) {
                 $md5 = explode( "  ", $md5sum );
@@ -134,6 +141,6 @@
 
             return $ret;
         }
-        
+
 
     }
