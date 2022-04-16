@@ -233,23 +233,53 @@
                 // Setup a cache array so we can store the Github releases separately from the other release types
                 $githubBuilds = array();
 
+                // Get the max releases per repo from the config
+                $maxReleases = Flight::cfg()->get('MaxGithubReleasesPerRepo');
+
+                // If maxReleases wasn't set, or set to 0, use a really big number for our maximum releases
+                if( $maxReleases < 1 ) { $maxReleases = PHP_INT_MAX; }
+
+                // Get the max age for releases from the config
+                $maxAge = strtotime( Flight::cfg()->get('OldestGithubRelease') );
+
                 foreach ( $repos as $repo )  {
-                    $request = new CurlRequest('https://api.github.com/repos/' . $repo['name'] . '/releases');
-                    $request->addHeader('Accept: application/vnd.github.v3+json');
+                    // The Github API limits results to 100 at a time, so we may have to go through multiple pages to get
+                    // all of the releases, so setup a page counter before we begin.
+                    $pageCount = 1;
+                    $releaseCount = 0;
 
-                    if ($request->executeRequest()) {
-                        $releases = json_decode($request->getResponse(),true);
+                    while( $pageCount != false ) {
+                        $request = new CurlRequest('https://api.github.com/repos/' . $repo['name'] . '/releases?per_page=100&page=' . $pageCount);
+                        $request->addHeader('Accept: application/vnd.github.v3+json');
 
-                        foreach ( $releases as $release )  {
-                            $build = new BuildGithub( $release );
+                        if ($request->executeRequest()) {
+                            $releases = json_decode($request->getResponse(),true);
 
-                            // Store this build to the cache
-                            if( $cacheEnabled ) {
-                                array_push( $githubBuilds, $build->exportData() );
-                            }
+                            // If we received less than 100 results, there are no more pages so we can exit the loop,
+                            // otherwise increase out page count and get some more releases.
+                            if( count( $releases ) < 100 ) { $pageCount = false; } else { $pageCount++; }
 
-                            if ( $build->isValid( $this->postData['params'] ) ) {
-                                array_push( $this->builds, $build );
+                            foreach ( $releases as $release )  {
+                                // Bump our release counter for this repo
+                                $releaseCount++;
+
+                                // Check to see if we're reached out maximum release count yet, or this our max release age,
+                                // if so we can exit the loop and not get any more results
+                                if( $releaseCount > $maxReleases || strtotime( $release['published_at'] ) < $maxAge ) {
+                                    $pageCount = false;
+                                    break 1;
+                                }
+
+                                $build = new BuildGithub( $release );
+
+                                // Store this build to the cache
+                                if( $cacheEnabled ) {
+                                    array_push( $githubBuilds, $build->exportData() );
+                                }
+
+                                if ( $build->isValid( $this->postData['params'] ) ) {
+                                    array_push( $this->builds, $build );
+                                }
                             }
                         }
                     }
