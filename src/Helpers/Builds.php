@@ -127,6 +127,11 @@
         /* Utility / Internal */
 
     	private function getBuildsLocal() {
+            // Check to see if local builds are disabled in the config file.
+            if( Flight::cfg()->get('DisableLocalBuilds') == true ) {
+                return;
+            }
+
             // Check to see if we have a cached version of the local builds that is less than a day old
             $cacheFilename = Flight::cfg()->get('realBasePath') . '/local.cache.json';
             $cacheEnabled = Flight::cfg()->get('EnableLocalCache') == true ? true : false;
@@ -199,6 +204,11 @@
     	}
 
     	private function getBuildsGithub() {
+            // Check to see if Github builds are disabled in the config file.
+            if( Flight::cfg()->get('DisableGithubBuilds') == true ) {
+                return;
+            }
+
             $cacheFilename = Flight::cfg()->get('realBasePath') . '/github.cache.json';
             $cacheEnabled = Flight::cfg()->get('EnableGithubCache') == false ? false : true;
             $cacheTimeout = Flight::cfg()->get('GithubCacheTimeout');
