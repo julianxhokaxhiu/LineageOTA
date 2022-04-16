@@ -1,5 +1,7 @@
 [
 	{
+		"DisableLocalBuilds": false,
+		"DisableGithubBuilds": false,
 		"EnableLocalCache": false,
 		"EnableGithubCache": true,
 		"LocalCacheTimeout": 86400,

@@ -95,6 +95,21 @@ The filename should not contain any directory information.
 
 You may also include a changelog file in html format.  Note, any html file included in the release file list will be included as a changelog.
 
+## Disabling local/Github hosting
+
+Both local and Github hosting features can be disable if they are not being used via the configuration file, in the root directory, called lineageota.json:
+
+```json
+[
+        {
+                "DisableLocalBuilds": false,
+                "DisableGithubBuilds": false,
+        }
+]
+
+```
+
+Setting either of these to true will disable the related hosting option.
 
 ## Caching
 
@@ -102,7 +117,7 @@ Both local builds and Github based builds can be cached to reduce disk and netwo
 
 The default cache timeout is set to one day (86400 seconds).
 
-You can change this via a configuration file, in the root directory, called lineageota.json:
+You can change this via the configuration file, in the root directory, called lineageota.json:
 
 ```json
 [
@@ -180,6 +195,7 @@ In order to integrate this in your [CyanogenMod](https://github.com/lineageos/an
 ## Changelog
 
 ### v?.?.?
+- Added config option to disable build types ( thanks to @toolstack )
 - Added config file for caching support ( thanks to @toolstack )
 - Added local caching support ( thanks to @toolstack )
 - Fixed duplicate build retrievals ( thanks to @toolstack )
