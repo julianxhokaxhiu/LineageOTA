@@ -170,6 +170,14 @@
 
                     $formatedFileSizes[$build['filename']] = $this->formatFileSize( $build['size'], 0 );
 
+                    // Check to see if the formated size is less than 5 characters, aka 3 for the postfix and
+                    // one for the actual size, if so, let's add some decimal places to it.  We want to avoid files
+                    // are close to a single digit size reporting too little info, a 1400 MB file would round down
+                    // to 1 GB, so instead display 1.4 GB.
+                    if( strlen( $formatedFileSizes[$build['filename']] ) < 5 ) {
+                        $formatedFileSizes[$build['filename']] = $this->formatFileSize( $build['size'], 1 );
+                    }
+
                     // Add the build to a list based on model names
                     $buildsToSort[$filenameParts['model']][] = $build;
                 }
