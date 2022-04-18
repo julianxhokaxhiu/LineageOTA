@@ -39,7 +39,7 @@
     }
   ],
   "require": {
-    "mikecao/flight": "1.*",
+    "mikecao/flight": "2.*",
     "julianxhokaxhiu/dotnotation": "dev-master",
     "ext-zip": "*"
   },

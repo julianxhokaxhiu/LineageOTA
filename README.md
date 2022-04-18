@@ -21,7 +21,7 @@ Got a question? Not sure where it should be made? See [CONTRIBUTING](CONTRIBUTIN
 ## Requirements
 
 - Apache mod_rewrite enabled
-- PHP >= 5.3.0
+- PHP >= 7.4
 - PHP ZIP Extension
 - Composer ( if installing via CLI )
 
