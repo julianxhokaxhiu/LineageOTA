@@ -78,11 +78,11 @@
                         $tokens = $this->parseFilenameFull($archive['name']);
                         $this->filePath = $archive['browser_download_url'];
                         $this->url = $archive['browser_download_url'];
-                        $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1], $tokens[2] );
+                        $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens['channel'] ), $tokens['type'], $tokens['version'] );
                         $this->filename = $archive['name'];
                         $this->timestamp = strtotime( $archive['updated_at'] );
-                        $this->model = $tokens[1] == 'cm' ? $tokens[6] : $tokens[5];
-                        $this->version = $tokens[2];
+                        $this->model = $tokens['model'];
+                        $this->version = $tokens['version'];
                         $this->size = $archive['size'];
                         $largestSize = $this->size;
                     }
