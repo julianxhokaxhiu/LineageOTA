@@ -32,12 +32,12 @@ tr:nth-child(even) {
 }
 
 td {
-	padding: 5px;
+	padding: 20px;
 	border: 0px;
 }
 
 table th:nth-child(1) {
-	text-align: left;
+	text-align: center;
 }
 
 table th:nth-child(2) {
@@ -45,7 +45,7 @@ table th:nth-child(2) {
 }
 
 table th:nth-child(3) {
-	text-align: center;
+	text-align: left;
 }
 
 table th:nth-child(4) {
@@ -56,11 +56,11 @@ table th:nth-child(5) {
 	text-align: center;
 }
 
-table td:nth-child(2) {
+table td:nth-child(1) {
 	text-align: center;
 }
 
-table td:nth-child(3) {
+table td:nth-child(2) {
 	text-align: center;
 }
 
