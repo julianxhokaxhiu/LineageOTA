@@ -49,7 +49,7 @@
          * @param type $params The params dictionary inside the current POST request
          * @return boolean True if valid, False if not.
          */
-    	public function isValid($params){
+    	public function isValid( $params ){
             if ( $params === NULL ) return true;  // Assume valid if no parameters
 
             $ret = false;
@@ -179,14 +179,12 @@
 
             return $this;
         }
-    	/* Utility / Internal */
-    	
         /**
          * Parse a string for the tokens of lineage/cm release archive
          * @param type $fileName The filename to be parsed
-         * @return array The tokens of the filename
+         * @return array The tokens of the filename, both as numeric and named entries
          */
-    	protected function parseFilenameFull($fileName) {
+    	public function parseFilenameFull( $fileName ) {
             /*
 		tokens Schema:
 		array(
@@ -202,9 +200,33 @@
                       LINEAGE => [SIGNED] (ex. signed)
                 )
             */
-            preg_match_all('/([A-Za-z0-9]+)?-([0-9\.]+)-([\d_]+)?-([\w+]+)-([A-Za-z0-9_]+)?-?([\w+]+)?/', $fileName,$tokens);
-            return $this->removeTrailingDashes($tokens);
+            $tokens = array( 'type' => '', 'version' => '', 'date' => '', 'channel' => '', 'code' => '', 'model' => '', 'signed' => '' );
+
+            preg_match_all( '/([A-Za-z0-9]+)?-([0-9\.]+)-([\d_]+)?-([\w+]+)-([A-Za-z0-9_]+)?-?([\w+]+)?/', $fileName, $tokens );
+
+            $result = $this->removeTrailingDashes( $tokens );
+
+            if( count( $result ) == 7 ) {
+                $result['type'] = $result[1];
+                $result['version'] = $result[2];
+                $result['date'] = $result[3];
+                $result['channel'] = $result[4];
+
+                if( $result[1] == 'cm' ) {
+                    $result['code'] = $result[5];
+                    $result['model'] = $result[6];
+                    $result['signed'] = false;
+                } else {
+                    $result['code'] = false;
+                    $result['model'] = $result[5];
+                    $result['signed'] = $result[6];
+                }
+            }
+
+            return $result;
         }
+
+        /* Utility / Internal */
 
         /**
          * Parse a string for the tokens of lineage/cm delta archive
