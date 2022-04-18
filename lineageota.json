@@ -7,6 +7,18 @@
 		"EnableLocalCache": false,
 		"EnableGithubCache": true,
 		"LocalCacheTimeout": 86400,
-		"GithubCacheTimeout": 86400
+		"GithubCacheTimeout": 86400,
+		"OTAListTemplate": "ota-list-table",
+		"BrandName": "",
+		"LocalHomeURL": "",
+		"GithubHomeURL": "",
+		"DeviceNames": {
+			"kebab": "8T",
+			"lemonade": "9"
+		},
+		"DeviceVendors": {
+			"kebab": "Oneplus",
+			"lemonade": "Oneplus"
+		}
 	}
 ]
