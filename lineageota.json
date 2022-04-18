@@ -8,7 +8,7 @@
 		"EnableGithubCache": true,
 		"LocalCacheTimeout": 86400,
 		"GithubCacheTimeout": 86400,
-		"OTAListTemplate": "ota-list-table",
+		"OTAListTemplate": "ota-list-tables",
 		"BrandName": "",
 		"LocalHomeURL": "",
 		"GithubHomeURL": "",

@@ -41,7 +41,8 @@
   "require": {
     "mikecao/flight": "2.*",
     "julianxhokaxhiu/dotnotation": "dev-master",
-    "ext-zip": "*"
+    "ext-zip": "*",
+    "twig/twig": "3.*"
   },
   "autoload": {
     "psr-4": {
