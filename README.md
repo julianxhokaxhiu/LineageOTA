@@ -5,6 +5,19 @@ A simple OTA REST Server for LineageOS OTA Updater System Application
 
 Got a question? Not sure where it should be made? See [CONTRIBUTING](CONTRIBUTING.md).
 
+## Contents
+* [Requirements](#requirements)
+* [How to use](#how-to-use)
+* [Local Hosting](#local-hosting)
+* [Github Hosting](#github-hosting)
+* [Disabling Local/Github Hosting](#disabling-localgithub-hosting)
+* [Limiting Github Releases](#limiting-github-releases)
+* [Caching](#caching)
+* [Web Root Templates](#web-root-templates)
+* [REST Server Unit Testing](#rest-server-unit-testing)
+* [ROM Integration](#rom-integration)
+* [Changelog](#changelog)
+
 ## Requirements
 
 - Apache mod_rewrite enabled
@@ -40,7 +53,7 @@ then finally visit http://localhost/ to see the REST Server up and running.
 
 The root URL (used to generate ROM URLs in the `/api` endpoint) can be set using the `LINEAGEOTA_BASE_PATH` variable.
 
-## Where to move built ROM ZIPs
+## Local Hosting
 
 - Full builds should be uploaded into `builds/full` directory.
 - Delta builds should be uploaded into `builds/delta` directory.
@@ -67,7 +80,7 @@ The Server is able to serve the ZIP file via the API, also when a `build.prop` f
 
 I am not sure how much this may help anyway, but this must be used as an extreme fallback scenario where you are not able to provide a `build.prop` for any reason. Instead, please always consider to find a way to obtain the prop file, in order to deliver a proper API response.
 
-## Github hosting
+## Github Hosting
 
 If you want to host your roms on Github you can put your repository names inside the [`github.json`](github.json) file, like this example below:
 ```json
@@ -95,7 +108,7 @@ The filename should not contain any directory information.
 
 You may also include a changelog file in html format.  Note, any html file included in the release file list will be included as a changelog.
 
-## Disabling local/Github hosting
+## Disabling Local/Github Hosting
 
 Both local and Github hosting features can be disable if they are not being used via the configuration file, in the root directory, called lineageota.json:
 
@@ -111,7 +124,7 @@ Both local and Github hosting features can be disable if they are not being used
 
 Setting either of these to true will disable the related hosting option.
 
-## Limiting Github releases
+## Limiting Github Releases
 
 With Github you may end up having many more releases than the updater really needs to know about, as such there are two options in the config file to let you control the number of releases that are returned:
 
@@ -149,12 +162,47 @@ You can change this via the configuration file, in the root directory, called li
 
 This requires the webserver to have write access to the root directory.  If you wish to force a refresh of the releases, simply delete the appropriate cache.json file.
 
+## Web Root Templates
+
+In version 2.9 and prior, if a use visited the web root of the OTA server, they would be redirected to the builds folder.  With the introduction of Github hosting, this is no longer a particularly useful destination as they may see no builds hosted locally, or incorrect ones if local hosting has been disabled and the local builds folder has not been cleaned up.
+
+Releases after 2.9 now use a simple templating system to present a list of builds.
+
+Two templates are included by default (ota-list-simple and ota-list-tables) but you can create your own in the "views" folder to match your branding as required.
+
+There are several configuration settings for temples as follows:
+```json
+        "OTAListTemplate": "ota-list-table",
+        "BrandName": "",
+        "LocalHomeURL": "",
+        "GithubHomeURL": "",
+        "DeviceNames": {
+            "kebab": "8T",
+            "lemonade": "9"
+        },
+        "DeviceVendors": {
+            "kebab": "Oneplus",
+            "lemonade": "Oneplus"
+        }
+```
+
+* OTAListTemplate: the name of the template to use, do not include the file extension.
+* BrandName: the name of your ROM, if left empty brand name will be used from the OTA filename.
+* LocalHomeURL: Homepage URL for local builds, used in the template file.  If left empty https://otaserver/builds URL will be used.
+* GithubHomeURL: Homepage URL for Github builds, used in the template file.  If left empty the organization URL from any Github repos that are defined will be used.
+* DeviceNames: A mapping array between device code names and their proper titles.  Values: array( codename => title, ... )
+* DeviceVendors: A mapping array between device code names and their vendor names.  Values: array( codename => vendor, ... )
+
+Included Templates:
+
+* ota-list-simple: a simple header and list of files names, no additional details or links provided.
+* ota-list-table: a page containing a seires of tables, one per device, that list in date order all builds for that device.  Includes jump lists to find devices, links to local/github pages, dates, versions, md4sums, etc.
 
 ## REST Server Unit Testing
 
 Feel free to use this [simple script](https://github.com/julianxhokaxhiu/LineageOTAUnitTest) made with NodeJS. Instructions are included.
 
-## How to integrate within your ROM
+## ROM Integration
 
 In order to integrate this REST Server within your ROM you have two possibilities: you can make use of the `build.prop` ( highly suggested ), or you can patch directly the `android_packages_apps_CMUpdater` package ( not suggested ).
 
@@ -212,6 +260,7 @@ In order to integrate this in your [CyanogenMod](https://github.com/lineageos/an
 ## Changelog
 
 ### v?.?.?
+- Added template system for web root ( thanks to @toolstack )
 - Added config option to limit the number/age of github releases ( thanks to @toolstack )
 - Fixed Github returning only the first 100 releases ( thanks to @toolstack )
 - Fixed handling of Github releases that contain multiple zip files ( thanks to @toolstack )
