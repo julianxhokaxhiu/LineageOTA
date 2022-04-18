@@ -196,7 +196,9 @@ There are several configuration settings for temples as follows:
 Included Templates:
 
 * ota-list-simple: a simple header and list of files names, no additional details or links provided.
-* ota-list-table: a page containing a seires of tables, one per device, that list in date order all builds for that device.  Includes jump lists to find devices, links to local/github pages, dates, versions, md4sums, etc.
+* ota-list-table: a page containing a seires of tables, one per device, that list in date order all builds for that device.  Includes jump lists to find devices, links to local/github pages, dates, versions, md5sums, etc.
+
+Twig is used as the templating language, see their [documentation](https://twig.symfony.com/doc/3.x/) for more details.
 
 ## REST Server Unit Testing
 

@@ -102,6 +102,14 @@
          * @return class Return always itself, so it can be chained within calls
          */
         public function run() {
+            $loader = new \Twig\Loader\FilesystemLoader( Flight::cfg()->get('realBasePath') . '/views' );
+
+            $twigConfig = array();
+
+            Flight::register( 'twig', '\Twig\Environment', array( $loader, array() ), function ($twig) {
+                // Nothing to do here
+            });
+
             Flight::start();
 
             return $this;
@@ -110,19 +118,27 @@
         /* Utility / Internal */
 
         // Used to compare timestamps in the build ksort call inside of initRouting for the "/" route
-        function compareByTimeStamp( $a, $b ) {
+        private function compareByTimeStamp( $a, $b ) {
           return $a['timestamp'] - $b['timestamp'];
+        }
+
+        // Format a file size string nicely
+        private function formatFileSize( $bytes, $dec = 2 ) {
+            $size   = array( ' B', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB' );
+            $factor = floor( ( strlen( $bytes ) - 1 ) / 3 );
+
+            return sprintf( "%.{$dec}f", $bytes / pow( 1024, $factor ) ) . @$size[$factor];
         }
 
         // Setup Flight's routing information
         private function initRouting() {
             // Just list the builds folder for now
             Flight::route('/', function() {
-                // Get the template name we're going to use and tack on .php
-                $templateName = Flight::cfg()->get('OTAListTemplate') . '.php';
+                // Get the template name we're going to use and tack on .twig
+                $templateName = Flight::cfg()->get('OTAListTemplate') . '.twig';
 
                 // Make sure the template exists, otherwise fall back to our default
-                if( ! file_exists( 'views/' . $templateName ) ) { $templateName = 'ota-list-tables.php'; }
+                if( ! file_exists( 'views/' . $templateName ) ) { $templateName = 'ota-list-tables.twig'; }
 
                 // Time to setup some variables for use later.
                 $builds = Flight::builds()->get();
@@ -132,6 +148,7 @@
                 $deviceNames = Flight::cfg()->get('DeviceNames');
                 $vendorNames = Flight::cfg()->get('DeviceVendors');
                 $parsedFilenames = array();
+                $formatedFileSizes = array();
                 $githubURL = '';
 
                 if( ! is_array( $deviceNames ) ) { $deviceNames = array(); }
@@ -150,6 +167,8 @@
                         $pathParts = explode( '/', $path );
                         $githubURL = 'https://github.com/' . $pathParts[1];
                     }
+
+                    $formatedFileSizes[$build['filename']] = $this->formatFileSize( $build['size'], 0 );
 
                     // Add the build to a list based on model names
                     $buildsToSort[$filenameParts['model']][] = $build;
@@ -174,14 +193,15 @@
                 if( $branding['GithubURL'] == '' ) { $branding['GithubURL'] = $githubURL; }
                 if( $branding['LocalURL'] == '' ) { $branding['LocalURL'] = Flight::cfg()->get( 'basePath' ) . '/builds'; }
 
-                // Render the template
-                Flight::render( $templateName,
+                // Render the template with Twig
+                Flight::twig()->display( $templateName,
                                 array(  'builds'            => $builds,
                                         'sortedBuilds'      => $buildsToSort,
                                         'parsedFilenames'   => $parsedFilenames,
                                         'deviceNames'       => $deviceNames,
                                         'vendorNames'       => $vendorNames,
                                         'branding'          => $branding,
+                                        'formatedFileSizes' => $formatedFileSizes,
                                      )
                               );
             });

@@ -1,0 +1,11 @@
+<html>
+<head>
+<title>LineageOTA Builds for {{ branding['name'] }}</title>
+</head>
+<body>
+<h1>Currently available builds for {{ branding['name'] }}</h1>
+{% for build in builds %}
+	<a href="{{ build['url'] }}">{{ build['filename'] }}</a><br>
+{% endfor %}
+</body>
+</html>
