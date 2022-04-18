@@ -57,12 +57,12 @@
                 $this->buildProp = explode( "\n", $propsFileContent );
 
                 // Try to fetch build.prop values. In some cases, we can provide a fallback, in other a null value will be given
-                $this->channel = $this->_getChannel( $this->getBuildPropValue( 'ro.lineage.releasetype' ) ?? str_replace( range( 0 , 9 ), '', $tokens[4] ), $tokens[1], $tokens[2] );
+                $this->channel = $this->_getChannel( $this->getBuildPropValue( 'ro.lineage.releasetype' ) ?? str_replace( range( 0 , 9 ), '', $tokens['channel'] ), $tokens['type'], $tokens['version'] );
                 $this->timestamp = intval( $this->getBuildPropValue( 'ro.build.date.utc' ) ?? filemtime($this->filePath) );
                 $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' ) ?? '';
                 $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' ) ?? '';
-                $this->model = $this->getBuildPropValue( 'ro.lineage.device' ) ?? $this->getBuildPropValue( 'ro.cm.device' ) ?? ( $tokens[1] == 'cm' ? $tokens[6] : $tokens[5] );
-                $this->version = $tokens[2];
+                $this->model = $this->getBuildPropValue( 'ro.lineage.device' ) ?? $this->getBuildPropValue( 'ro.cm.device' ) ?? $tokens['model'];
+                $this->version = $tokens['version'];
                 $this->uid = hash( 'sha256', $this->timestamp.$this->model.$this->apiLevel, false );
                 $this->size = filesize($this->filePath);
 
