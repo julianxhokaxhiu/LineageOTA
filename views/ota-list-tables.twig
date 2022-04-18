@@ -20,7 +20,7 @@
     {% for model,builds in sortedBuilds %}
 <h2 id="{{ model }}">{{ model }}</h2>
         {% if deviceNames[model] is defined %}
-<h3>( {{ vendorNames[model] }} {{ deviceNames[model] }})</h3>
+<h3>({{ vendorNames[model] }} {{ deviceNames[model] }})</h3>
         {% endif %}
 <table>
   	<thead>
