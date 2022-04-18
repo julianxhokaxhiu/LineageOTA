@@ -27,7 +27,7 @@
 
     use \DotNotation;
     use \Flight;
-    
+
     use \JX\CmOta\Helpers\CurlRequest;
 
     class CmOta {
@@ -103,16 +103,87 @@
          */
         public function run() {
             Flight::start();
-            
+
             return $this;
         }
 
         /* Utility / Internal */
 
+        // Used to compare timestamps in the build ksort call inside of initRouting for the "/" route
+        function compareByTimeStamp( $a, $b ) {
+          return $a['timestamp'] - $b['timestamp'];
+        }
+
+        // Setup Flight's routing information
         private function initRouting() {
             // Just list the builds folder for now
             Flight::route('/', function() {
-                Flight::redirect( '/builds');
+                // Get the template name we're going to use and tack on .php
+                $templateName = Flight::cfg()->get('OTAListTemplate') . '.php';
+
+                // Make sure the template exists, otherwise fall back to our default
+                if( ! file_exists( 'views/' . $templateName ) ) { $templateName = 'ota-list-tables.php'; }
+
+                // Time to setup some variables for use later.
+                $builds = Flight::builds()->get();
+                $buildsToSort = array();
+                $output = '';
+                $model = 'Unknown';
+                $deviceNames = Flight::cfg()->get('DeviceNames');
+                $vendorNames = Flight::cfg()->get('DeviceVendors');
+                $parsedFilenames = array();
+                $githubURL = '';
+
+                if( ! is_array( $deviceNames ) ) { $deviceNames = array(); }
+
+                // Loop through the builds to do some setup work
+                foreach( $builds as $build ) {
+                    // Split the filename using the parser in the build class to get some details
+                    $filenameParts = Flight::build()->parseFilenameFull( $build['filename'] );
+
+                    // Same the parsed filesnames for later use in the template
+                    $parsedFilenames[$build['filename']] = $filenameParts;
+
+                    // In case no Github URL was configured, see if we can get it from an existing Github repo
+                    if( $githubURL == '' && strstr( $build['url'], 'github.com' ) ) {
+                        $path = parse_url( $build['url'], PHP_URL_PATH );
+                        $pathParts = explode( '/', $path );
+                        $githubURL = 'https://github.com/' . $pathParts[1];
+                    }
+
+                    // Add the build to a list based on model names
+                    $buildsToSort[$filenameParts['model']][] = $build;
+                }
+
+                // Sort the array based on model name
+                ksort( $buildsToSort );
+
+                // Sort the entries in each model based on time/date
+                foreach( $buildsToSort as $model => $sort ) {
+                    usort( $sort, array( $this, 'compareByTimeStamp' ) );
+                }
+
+                // Setup branding information for the template
+                $branding = array(  'name'      => Flight::cfg()->get('BrandName'),
+                                    'GithubURL' => Flight::cfg()->get('GithubHomeURL'),
+                                    'LocalURL'  => Flight::cfg()->get('LocalHomeURL')
+                                 );
+
+                // Sanity check the branding, use some reasonable deductions if anything is missing
+                if( $branding['name'] == '' && is_array( $parsedFilenames ) ) { $branding['name'] = reset( $parsedFilenames )['type']; }
+                if( $branding['GithubURL'] == '' ) { $branding['GithubURL'] = $githubURL; }
+                if( $branding['LocalURL'] == '' ) { $branding['LocalURL'] = Flight::cfg()->get( 'basePath' ) . '/builds'; }
+
+                // Render the template
+                Flight::render( $templateName,
+                                array(  'builds'            => $builds,
+                                        'sortedBuilds'      => $buildsToSort,
+                                        'parsedFilenames'   => $parsedFilenames,
+                                        'deviceNames'       => $deviceNames,
+                                        'vendorNames'       => $vendorNames,
+                                        'branding'          => $branding,
+                                     )
+                              );
             });
 
             // Main call
@@ -181,6 +252,10 @@
          */
         private function initBuilds() {
             Flight::register( 'builds', '\JX\CmOta\Helpers\Builds', array(), function( $builds ) {
+                // Do nothing for now
+            });
+
+            Flight::register( 'build', '\JX\CmOta\Helpers\Build', array(), function( $build ) {
                 // Do nothing for now
             });
         }
