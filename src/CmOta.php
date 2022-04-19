@@ -147,6 +147,7 @@
                 $model = 'Unknown';
                 $deviceNames = Flight::cfg()->get('DeviceNames');
                 $vendorNames = Flight::cfg()->get('DeviceVendors');
+                $devicesByVendor = array();
                 $parsedFilenames = array();
                 $formatedFileSizes = array();
                 $githubURL = '';
@@ -190,6 +191,19 @@
                     usort( $sort, array( $this, 'compareByTimeStamp' ) );
                 }
 
+                // Create a list of vendors and the devices that belong to them
+                foreach( $vendorNames as $model => $vendor ) {
+                    $devicesByVendor[$vendor][] = $model;
+                }
+
+                // Sort the vendor names
+                ksort( $devicesByVendor );
+
+                // Sort the devices for each vendor
+                foreach( $devicesByVendor as $vendor => $devices ) {
+                    sort( $devices );
+                }
+
                 // Setup branding information for the template
                 $branding = array(  'name'      => Flight::cfg()->get('BrandName'),
                                     'GithubURL' => Flight::cfg()->get('GithubHomeURL'),
@@ -208,6 +222,7 @@
                                         'parsedFilenames'   => $parsedFilenames,
                                         'deviceNames'       => $deviceNames,
                                         'vendorNames'       => $vendorNames,
+                                        'devicesByVendor'   => $devicesByVendor,
                                         'branding'          => $branding,
                                         'formatedFileSizes' => $formatedFileSizes,
                                      )

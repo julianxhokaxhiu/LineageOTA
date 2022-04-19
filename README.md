@@ -168,11 +168,11 @@ In version 2.9 and prior, if a use visited the web root of the OTA server, they 
 
 Releases after 2.9 now use a simple templating system to present a list of builds.
 
-Two templates are included by default (ota-list-simple and ota-list-tables) but you can create your own in the "views" folder to match your branding as required.
+Three templates are included by default (ota-list-simple, ota-list-tables, ota-list-columns) but you can create your own in the "views" folder to match your branding as required.
 
 There are several configuration settings for temples as follows:
 ```json
-        "OTAListTemplate": "ota-list-table",
+        "OTAListTemplate": "ota-list-tables",
         "BrandName": "",
         "LocalHomeURL": "",
         "GithubHomeURL": "",
@@ -199,6 +199,17 @@ Included Templates:
 * ota-list-table: a page containing a seires of tables, one per device, that list in date order all builds for that device.  Includes jump lists to find devices, links to local/github pages, dates, versions, md5sums, etc.
 
 Twig is used as the templating language, see their [documentation](https://twig.symfony.com/doc/3.x/) for more details.
+
+The following variables are available for templates:
+
+* builds: An array of builds available, each entry is an array that contains; incremental, api_level, url, timestamp, md5sum, changes, cahnnel, filename, romtype, datetime, version, id, size
+* sortedBuilds: The builds array sorted by device name (array key is the device name, each value is as in the builds array)
+* parsedFilenames: An array of filenames that have been parsed in to the following tokens; type, version, date, channel, code, model, signed
+* deviceNames: An array of device names, each key is the code name, the value is the device name (ie ```array( "kebab" => "8T")```)
+* vendorNames: An array of device names, each key is the code name, the value is the vendor name (ie ```array( "kebab" => "Oneplus")```)
+* devicesByVendor: A two dimensional array of devices by vendor (ie ```array( "Oneplus" => array( "kebab", "lemonade"))```)
+* branding: An array of branding info for the updates, contains; name, GithubURL, LocalURL
+* formatedFileSizes: An array of human friendly file sizes for each release file, keyed on filenames (from the builds array), values as strings like "1.1 GB"
 
 ## REST Server Unit Testing
 
