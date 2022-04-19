@@ -10,22 +10,22 @@
 <div id="container">
     <div id="devicelist">
         <ul>
-        {% for vendor,models in devicesByVendor %}
+{% for vendor,models in devicesByVendor %}
             <li>{{ vendor }}</li>
-            {% for model in models %}
+{% for model in models %}
             <ul>
                 <li><a href="#{{ model }}">{{ model }}</a> ({{ deviceNames[model] }})</li>
             </ul>
-            {% endfor %}
-        {% endfor %}
+{% endfor %}
+{% endfor %}
         </ul>
     </div>
     <div id="buildlist">
-            {% for model,builds in sortedBuilds %}
+{% for model,builds in sortedBuilds %}
         <h2 id="{{ model }}">{{ model }}</h2>
-                {% if deviceNames[model] is defined %}
+{% if deviceNames[model] is defined %}
         <h3>({{ vendorNames[model] }} {{ deviceNames[model] }})</h3>
-                {% endif %}
+{% endif %}
         <table>
           	<thead>
         		<tr>
@@ -39,26 +39,26 @@
         	</thead>
 
         	<tbody>
-                {% for build in builds %}
+{% for build in builds %}
                 <tr>
                     <td>{{ build['channel'] }}</td>
                     <td>{{ build['version'] }}</td>
                     <td><a href="{{ build['url'] }}">{{ build['filename'] }}</a><br>[md5sum: {{ build['md5sum'] }}]</td>
                     <td>{% set filename = build['filename'] %}{{ formatedFileSizes[filename] }}</td>
 
-                    {% if build['url'] matches '/github\.com/' %}
+{% if build['url'] matches '/github\.com/' %}
                     <td><a href="' . {{ branding['LocalURL'] }}">local</a></td>
-                    {% else %}
+{% else %}
                     <td><a href="' . {{ branding['GithubURL'] }}">Github</a></td>
-                    {% endif %}
+{% endif %}
 
                     <td>{{ build['timestamp'] | date('Y/m/d') }}</td>
                 </tr>
-                {% endfor %}
+{% endfor %}
           	</tbody>
         </table>
 
-        {% endfor %}
+{% endfor %}
 
     </div>
 </div>
