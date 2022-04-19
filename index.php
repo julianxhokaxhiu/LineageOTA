@@ -26,38 +26,43 @@
 
     use \JX\CmOta\CmOta;
 
-    if ( isset($_SERVER['HTTP_FORWARDED']) ) {
-      $fwd_ar = explode(';', $_SERVER['HTTP_FORWARDED']);
-      for ( $i = 0; $i < count($fwd_ar); $i++ ) {
-        $kv = explode('=', $fwd_ar[$i]);
-        if ( count($kv) > 1 ) {
-          $forwarded[strtoupper($kv[0])] = $kv[1];
+    if( isset( $_SERVER['HTTP_FORWARDED'] ) ) {
+        $fwd_ar = explode( ';', $_SERVER['HTTP_FORWARDED'] );
+
+        for( $i = 0; $i < count( $fwd_ar ); $i++ ) {
+            $kv = explode( '=', $fwd_ar[$i] );
+
+            if ( count( $kv ) > 1 ) {
+                $forwarded[strtoupper( $kv[0] )] = $kv[1];
+            }
         }
-      }
-      if ( array_key_exists('HOST', $forwarded) ) {
-        $_SERVER['HTTP_HOST'] = $forwarded['HOST'];
-      }
-      if ( array_key_exists('PROTO', $forwarded) && strtoupper($forwarded['PROTO']) === 'HTTPS') {
-        $_SERVER['HTTPS'] = 'on';
-      }
+
+        if( array_key_exists( 'HOST', $forwarded ) ) {
+            $_SERVER['HTTP_HOST'] = $forwarded['HOST'];
+        }
+
+        if( array_key_exists( 'PROTO', $forwarded ) && strtoupper( $forwarded['PROTO'] ) === 'HTTPS' ) {
+            $_SERVER['HTTPS'] = 'on';
+        }
     } else {
-      if ( isset($_SERVER['HTTP_X_FORWARDED_HOST']) ) {
-        $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
-      }
-      if ( isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtoupper($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'HTTPS' ) {
-        $_SERVER['HTTPS'] = 'on';
-      }
+        if( isset( $_SERVER['HTTP_X_FORWARDED_HOST'] ) ) {
+            $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
+        }
+
+        if( isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) && strtoupper( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) === 'HTTPS' ) {
+            $_SERVER['HTTPS'] = 'on';
+        }
     }
 
-    if( isset($_SERVER['HTTPS']) )
+    if( isset( $_SERVER['HTTPS'] ) )
         $protocol = 'https://';
     else
         $protocol = 'http://';
 
-    if ( isset($_ENV['LINEAGEOTA_BASE_PATH']) )
+    if( isset( $_ENV['LINEAGEOTA_BASE_PATH'] ) )
         $base_path = $_ENV['LINEAGEOTA_BASE_PATH'];
     else
-        $base_path = $protocol.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']);
+        $base_path = $protocol.$_SERVER['HTTP_HOST'].dirname( $_SERVER['SCRIPT_NAME'] );
 
     $app = new CmOta();
     $app

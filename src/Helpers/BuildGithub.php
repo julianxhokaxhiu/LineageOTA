@@ -37,7 +37,7 @@
          * and make them available for the next time.
          * @param array $release The information provided by github API
          */
-    	public function __construct($release, $data=False) {
+    	public function __construct( $release, $data=false ) {
     	    $archives = array();
     	    $properties = array();
     	    $md5sums = array();
@@ -48,23 +48,28 @@
                 $this->importData( $data );
             } else {
                 // Split all Assets because they are not properly sorted
-                foreach ( $release['assets'] as $asset ) {
-                    switch ( $asset['content_type'] ) {
+                foreach( $release['assets'] as $asset ) {
+                    switch( $asset['content_type'] ) {
                         case 'application/zip':
-                            array_push($archives,$asset);
+                            array_push( $archives, $asset );
+
                             break;
                         default:
-                            $extension = pathinfo($asset['name'], PATHINFO_EXTENSION);
-                            switch ( $extension ) {
+                            $extension = pathinfo( $asset['name'], PATHINFO_EXTENSION );
+
+                            switch( $extension ) {
                                 case 'txt':
                                 case 'html':
-                                    array_push($changelogs,$asset);
+                                    array_push( $changelogs, $asset );
+
                                     break;
                                 case 'md5sum':
-                                    array_push($md5sums,$asset);
+                                    array_push( $md5sums, $asset );
+
                                     break;
                                 case 'prop':
-                                    array_push($properties,$asset);
+                                    array_push( $properties, $asset );
+
                                     break;
                             }
                     }
@@ -73,38 +78,43 @@
                 // If there are multiple zip's in the release, grab the largest one.
                 $largestSize = -1;
 
-                foreach ( $archives as $archive ) {
+                foreach( $archives as $archive ) {
                     if( $archive['size'] > $largestSize ) {
                         $tokens = $this->parseFilenameFull($archive['name']);
-                        $this->filePath = $archive['browser_download_url'];
-                        $this->url = $archive['browser_download_url'];
-                        $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens['channel'] ), $tokens['type'], $tokens['version'] );
-                        $this->filename = $archive['name'];
-                        $this->timestamp = strtotime( $archive['updated_at'] );
-                        $this->model = $tokens['model'];
-                        $this->version = $tokens['version'];
-                        $this->size = $archive['size'];
+
+                        $this->filePath     = $archive['browser_download_url'];
+                        $this->url          = $archive['browser_download_url'];
+                        $this->channel      = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens['channel'] ), $tokens['type'], $tokens['version'] );
+                        $this->filename     = $archive['name'];
+                        $this->timestamp    = strtotime( $archive['updated_at'] );
+                        $this->model        = $tokens['model'];
+                        $this->version      = $tokens['version'];
+                        $this->size         = $archive['size'];
+
                         $largestSize = $this->size;
                     }
                 }
-                foreach ( $properties as $property ) {
-                    $this->buildProp = explode( "\n", file_get_contents( $property['browser_download_url'] ) );
-                    $this->timestamp = intval( $this->getBuildPropValue( 'ro.build.date.utc' ) ?? $this->timestamp );
-                    $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' ) ?? '';
-                    $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' ) ?? '';
-                    $this->model = $this->getBuildPropValue( 'ro.lineage.device' ) ?? $this->getBuildPropValue( 'ro.cm.device' ) ?? $this->model;
+
+                foreach( $properties as $property ) {
+                    $this->buildProp    = explode( "\n", file_get_contents( $property['browser_download_url'] ) );
+                    $this->timestamp    = intval( $this->getBuildPropValue( 'ro.build.date.utc' ) ?? $this->timestamp );
+                    $this->incremental  = $this->getBuildPropValue( 'ro.build.version.incremental' ) ?? '';
+                    $this->apiLevel     = $this->getBuildPropValue( 'ro.build.version.sdk' ) ?? '';
+                    $this->model        = $this->getBuildPropValue( 'ro.lineage.device' ) ?? $this->getBuildPropValue( 'ro.cm.device' ) ?? $this->model;
                 }
+
                 foreach ( $md5sums as $md5sum ) {
-                    $md5 = $this->parseMD5($md5sum['browser_download_url']);
-                    if (array_key_exists($this->filename,$md5)) {
+                    $md5 = $this->parseMD5( $md5sum['browser_download_url'] );
+
+                    if( array_key_exists( $this->filename, $md5 ) ) {
                         $this->md5 = $md5[$this->filename];
                     }
                 }
-                foreach ( $changelogs as $changelog ) {
+                foreach( $changelogs as $changelog ) {
                     $this->changelogUrl = $changelog['browser_download_url'];
                 }
 
-                $this->uid = hash( 'sha256', $this->timestamp.$this->model.$this->apiLevel, false );
+                $this->uid = hash( 'sha256', $this->timestamp . $this->model . $this->apiLevel, false );
             }
         }
 
@@ -113,7 +123,7 @@
          * @param type $targetToken The target build from where to build the Delta
          * @return array/boolean Return an array performatted with the correct data inside, otherwise false if not possible to be created
          */
-        public function getDelta($targetToken){
+        public function getDelta( $targetToken ){
             $ret = false;
 
             // TO-DO: Figuring out a way to provide a delta build over github
@@ -128,19 +138,20 @@
          * @param string $file The path of the file containing the hashes
          * @return array The MD5 hashes
          */
-        private function parseMD5($file){
+        private function parseMD5( $file ){
             $ret = array( );
 
-            $md5sums = explode( "\n", file_get_contents( $file ));
-            foreach ( $md5sums as $md5sum ) {
+            $md5sums = explode( "\n", file_get_contents( $file ) );
+
+            foreach( $md5sums as $md5sum ) {
                 $md5 = explode( "  ", $md5sum );
-                if (count($md5) == 2) {
+
+                if( count( $md5 ) == 2 ) {
                     $ret[$md5[1]] = $md5[0];
                 }
             }
 
             return $ret;
         }
-
 
     }

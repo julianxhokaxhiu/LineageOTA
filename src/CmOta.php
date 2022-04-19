@@ -71,7 +71,7 @@
          * @return class Return always itself, so it can be chained within calls
          */
         public function setConfigJSON( $key, $file ) {
-            Flight::cfg()->set( $key, json_decode( file_get_contents( Flight::cfg()->get('realBasePath') . '/' . $file ) , true ) );
+            Flight::cfg()->set( $key, json_decode( file_get_contents( Flight::cfg()->get( 'realBasePath' ) . '/' . $file ) , true ) );
 
             return $this;
         }
@@ -83,7 +83,7 @@
          * @return class Return always itself, so it can be chained within calls
          */
         public function loadConfigJSON( $file ) {
-            $settingsFile = Flight::cfg()->get('realBasePath') . '/' . $file;
+            $settingsFile = Flight::cfg()->get( 'realBasePath' ) . '/' . $file;
 
             if( file_exists( $settingsFile ) ) {
                 $settings = json_decode( file_get_contents( $settingsFile ), true );
@@ -102,7 +102,7 @@
          * @return class Return always itself, so it can be chained within calls
          */
         public function run() {
-            $loader = new \Twig\Loader\FilesystemLoader( Flight::cfg()->get('realBasePath') . '/views' );
+            $loader = new \Twig\Loader\FilesystemLoader( Flight::cfg()->get( 'realBasePath' ) . '/views' );
 
             $twigConfig = array();
 
@@ -135,7 +135,7 @@
             // Just list the builds folder for now
             Flight::route('/', function() {
                 // Get the template name we're going to use and tack on .twig
-                $templateName = Flight::cfg()->get('OTAListTemplate') . '.twig';
+                $templateName = Flight::cfg()->get( 'OTAListTemplate' ) . '.twig';
 
                 // Make sure the template exists, otherwise fall back to our default
                 if( ! file_exists( 'views/' . $templateName ) ) { $templateName = 'ota-list-tables.twig'; }
@@ -145,8 +145,8 @@
                 $buildsToSort = array();
                 $output = '';
                 $model = 'Unknown';
-                $deviceNames = Flight::cfg()->get('DeviceNames');
-                $vendorNames = Flight::cfg()->get('DeviceVendors');
+                $deviceNames = Flight::cfg()->get( 'DeviceNames' );
+                $vendorNames = Flight::cfg()->get( 'DeviceVendors' );
                 $devicesByVendor = array();
                 $parsedFilenames = array();
                 $formatedFileSizes = array();
@@ -205,9 +205,9 @@
                 }
 
                 // Setup branding information for the template
-                $branding = array(  'name'      => Flight::cfg()->get('BrandName'),
-                                    'GithubURL' => Flight::cfg()->get('GithubHomeURL'),
-                                    'LocalURL'  => Flight::cfg()->get('LocalHomeURL')
+                $branding = array(  'name'      => Flight::cfg()->get( 'BrandName' ),
+                                    'GithubURL' => Flight::cfg()->get( 'GithubHomeURL' ),
+                                    'LocalURL'  => Flight::cfg()->get( 'LocalHomeURL' )
                                  );
 
                 // Sanity check the branding, use some reasonable deductions if anything is missing
@@ -230,53 +230,54 @@
             });
 
             // Main call
-            Flight::route('/api', function(){
+            Flight::route( '/api', function() {
                 $ret = array(
                     'id' => null,
                     'result' => Flight::builds()->get(),
                     'error' => null
                 );
 
-                Flight::json($ret);
+                Flight::json( $ret );
             });
 
             // Delta updates call
-            Flight::route('/api/v1/build/get_delta', function(){
+            Flight::route( '/api/v1/build/get_delta', function() {
                 $ret = array();
 
                 $delta = Flight::builds()->getDelta();
+
                 if ( $delta === false ) {
                     $ret['errors'] = array(
                         'message' => 'Unable to find delta'
                     );
                 } else {
-                    $ret = array_merge($ret, $delta);
+                    $ret = array_merge( $ret, $delta );
                 }
 
                 Flight::json($ret);
             });
 
             // LineageOS new API
-            Flight::route('/api/v1/@deviceType(/@romType(/@incrementalVersion))', function ( $deviceType, $romType, $incrementalVersion ){
-              Flight::builds()->setPostData(
-                array(
-                  'params' => array(
-                    'device' => $deviceType,
-                    'channels' => array(
-                      $romType,
-                    ),
-                    'source_incremental' => $incrementalVersion,
-                  ),
-                )
-              );
+            Flight::route( '/api/v1/@deviceType(/@romType(/@incrementalVersion))', function ( $deviceType, $romType, $incrementalVersion ) {
+                Flight::builds()->setPostData(
+                    array(
+                        'params' => array(
+                            'device' => $deviceType,
+                            'channels' => array(
+                                $romType,
+                            ),
+                            'source_incremental' => $incrementalVersion,
+                        ),
+                    )
+                );
 
-              $ret = array(
-                  'id' => null,
-                  'response' => Flight::builds()->get(),
-                  'error' => null
-              );
+                $ret = array(
+                    'id' => null,
+                    'response' => Flight::builds()->get(),
+                    'error' => null
+                );
 
-              Flight::json($ret);
+                Flight::json( $ret );
             });
         }
 

@@ -50,14 +50,14 @@
          * @return boolean True if valid, False if not.
          */
     	public function isValid( $params ){
-            if ( $params === NULL ) return true;  // Assume valid if no parameters
+            if( $params === NULL ) return true;  // Assume valid if no parameters
 
             $ret = false;
 
-            if ( $params['device'] == $this->model ) {
-                if ( count($params['channels']) > 0 ) {
-                    foreach ( $params['channels'] as $channel ) {
-                        if ( strtolower($channel) == $this->channel ) $ret = true;
+            if( $params['device'] == $this->model ) {
+                if( count($params['channels']) > 0 ) {
+                    foreach( $params['channels'] as $channel ) {
+                        if( strtolower($channel) == $this->channel ) $ret = true;
                     }
                 }
             }
@@ -80,7 +80,7 @@
          * @return string filesize in bytes
          */
         public function getSize() {
-          return $this->size;
+            return $this->size;
         }
 
         /**
@@ -88,7 +88,7 @@
          * @return string A unique id
          */
         public function getUid() {
-          return $this->uid;
+            return $this->uid;
         }
 
         /**
@@ -186,19 +186,19 @@
          */
     	public function parseFilenameFull( $fileName ) {
             /*
-		tokens Schema:
-		array(
-                    1 => [TYPE] (ex. cm, lineage, etc.)
-                    2 => [VERSION] (ex. 10.1.x, 10.2, 11, etc.)
-                    3 => [DATE OF BUILD] (ex. 20140130)
-                    4 => [CHANNEL OF THE BUILD] (ex. RC, RC2, NIGHTLY, etc.)
-                    5 =>
-                      CM => [SNAPSHOT CODE] (ex. ZNH0EAO2O0, etc.)
-                      LINEAGE => [MODEL] (ex. i9100, i9300, etc.)
-                    6 =>
-                      CM => [MODEL] (ex. i9100, i9300, etc.)
-                      LINEAGE => [SIGNED] (ex. signed)
-                )
+                tokens Schema:
+    		        array(
+                        1 => [TYPE] (ex. cm, lineage, etc.)
+                        2 => [VERSION] (ex. 10.1.x, 10.2, 11, etc.)
+                        3 => [DATE OF BUILD] (ex. 20140130)
+                        4 => [CHANNEL OF THE BUILD] (ex. RC, RC2, NIGHTLY, etc.)
+                        5 =>
+                          CM        => [SNAPSHOT CODE] (ex. ZNH0EAO2O0, etc.)
+                          LINEAGE   => [MODEL] (ex. i9100, i9300, etc.)
+                        6 =>
+                          CM        => [MODEL] (ex. i9100, i9300, etc.)
+                          LINEAGE   => [SIGNED] (ex. signed)
+                    )
             */
             $tokens = array( 'type' => '', 'version' => '', 'date' => '', 'channel' => '', 'code' => '', 'model' => '', 'signed' => '' );
 
@@ -233,7 +233,7 @@
          * @param type $fileName The filename to be parsed
          * @return array The tokens of the filename
          */
-    	protected function parseFilenameDeltal($fileName) {
+    	protected function parseFilenameDeltal( $fileName ) {
             /*
 		tokens Schema:
 		array(
@@ -241,8 +241,8 @@
                     2 => [TARGET VERSION] (eng.matthi.20200305.185431)
                 )
             */
-            preg_match_all('/([\w+]+)-([\w+]+)/', $fileName,$tokens);
-            return $this->removeTrailingDashes(tokens);
+            preg_match_all( '/([\w+]+)-([\w+]+)/', $fileName, $tokens );
+            return $this->removeTrailingDashes( tokens );
         }
 
         /**
@@ -250,10 +250,11 @@
          * @param string $token The string where to do the operation
          * @return string The string without trailing dashes
          */
-        protected function removeTrailingDashes($token){
-            foreach ( $token as $key => $value ) {
+        protected function removeTrailingDashes( $token ) {
+            foreach( $token as $key => $value ) {
                 $token[$key] = trim( $value[0], '-' );
             }
+
             return $token;
         }
 
@@ -264,14 +265,16 @@
          * @param string $version The ROM version from filename
          * @return string The correct channel to be returned
          */
-        protected function _getChannel($token, $type, $version){
+        protected function _getChannel( $token, $type, $version ) {
             $ret = 'stable';
 
             $token = strtolower( $token );
-            if ( $token > '' ) {
+
+            if( $token > '' ) {
                 $ret = $token;
-                if ( $token == 'experimental' && ( $type == 'cm' || version_compare ( $version, '14.1', '<' ) ) ) $ret = 'snapshot';
-                if ( $token == 'unofficial' && ( $type == 'cm' || version_compare ( $version, '14.1', '<' ) ) ) $ret = 'nightly';
+
+                if( $token == 'experimental' && ( $type == 'cm' || version_compare ( $version, '14.1', '<' ) ) ) $ret = 'snapshot';
+                if( $token == 'unofficial' && ( $type == 'cm' || version_compare ( $version, '14.1', '<' ) ) ) $ret = 'nightly';
             }
 
             return $ret;
@@ -282,12 +285,14 @@
          * @param string $fileName The name of the file
          * @return string The absolute URL for the file to be downloaded
          */
-        protected function _getUrl($fileName = '', $basePath){
+        protected function _getUrl( $fileName = '', $basePath ) {
             $prop = $this->getBuildPropValue( 'ro.build.ota.url' );
-            if ( !empty($prop) )
+
+            if( !empty( $prop ) )
                 return $prop;
 
-            if ( empty($fileName) ) $fileName = $this->filename;
+            if( empty( $fileName ) ) $fileName = $this->filename;
+
             return $basePath . '/' . $fileName;
         }
 
@@ -298,14 +303,15 @@
          * @param string $fallback The fallback value if not found in build.prop
          * @return string The value for the specified key
          */
-        protected function getBuildPropValue($key, $fallback = null){
+        protected function getBuildPropValue( $key, $fallback = null ) {
             $ret = $fallback ?: null;
 
-            if ($this->buildProp) {
-                foreach ($this->buildProp as $line) {
-                    if ( strpos($line, $key) !== false ) {
-                        $tmp = explode('=', $line);
+            if( $this->buildProp ) {
+                foreach( $this->buildProp as $line ) {
+                    if( strpos( $line, $key ) !== false ) {
+                        $tmp = explode( '=', $line );
                         $ret = $tmp[1];
+
                         break;
                     }
                 }

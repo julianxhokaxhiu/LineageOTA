@@ -35,33 +35,36 @@
         /**
          * Constructor of the CurlRequest class.
          */
-        public function __construct($url) {
+        public function __construct( $url ) {
             $this->url = $url;
-            $this->addHeader('user-agent: curl/7.68.0'); // Make sure a user-agent is being sent
+            $this->addHeader( 'user-agent: curl/7.68.0' ); // Make sure a user-agent is being sent
     	}
-    	
+
         /**
          * Return the status code of the request
          * @param string $header The additional header to be sent
          */
-    	public function addHeader($header) {
-            array_push($this->header,$header);
+    	public function addHeader( $header ) {
+            array_push( $this->header, $header );
     	}
-    	
+
         /**
          * Executes the request and returns it's success
          * @return bool The success of the request
          */
         public function executeRequest() {
-            $request = curl_init($this->url);
-            curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($request, CURLOPT_HTTPHEADER, $this->header);
-            $this->response = curl_exec($request);
-            $this->status = curl_getinfo($request,CURLINFO_RESPONSE_CODE);
-            curl_close($request);
-            
-            if ($this->status == 200) return true;
-            else return false;
+            $request = curl_init( $this->url );
+
+            curl_setopt( $request, CURLOPT_RETURNTRANSFER, true );
+            curl_setopt( $request, CURLOPT_HTTPHEADER, $this->header );
+
+            $this->response = curl_exec( $request );
+            $this->status = curl_getinfo( $request, CURLINFO_RESPONSE_CODE );
+            curl_close( $request );
+
+            if( $this->status == 200 ) return true;
+
+            return false;
     	}
 
         /* Getters */
