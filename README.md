@@ -168,7 +168,7 @@ In version 2.9 and prior, if a use visited the web root of the OTA server, they 
 
 Releases after 2.9 now use a simple templating system to present a list of builds.
 
-Three templates are included by default (ota-list-simple, ota-list-tables, ota-list-columns) but you can create your own in the "views" folder to match your branding as required.
+Four templates are included by default (ota-list-simple, ota-list-tables, ota-list-columns, ota-list-javascript) but you can create your own in the "views" folder to match your branding as required.
 
 There are several configuration settings for temples as follows:
 ```json

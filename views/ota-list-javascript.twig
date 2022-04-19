@@ -1,0 +1,81 @@
+<html>
+<head>
+<title>LineageOTA Builds for {{ branding['name'] }}</title>
+<link rel="stylesheet" href="views/ota-list-javascript.css">
+<script>
+    function showdevice( device ) {
+        elements = document.getElementsByClassName('buildspans');
+
+        for( var i = elements.length - 1; i >= 0; i-- ) {
+            elements[i].style.display = "none";
+        }
+
+        document.getElementById(device + '-span').style.display = "inline";
+    }
+
+</script>
+</head>
+<body>
+<div id="topbar">
+    <h1>Currently available builds for {{ branding['name'] }}</h1>
+</div>
+<div id="container">
+    <div id="devicelist">
+        <ul>
+{% for vendor,models in devicesByVendor %}
+            <li>{{ vendor }}</li>
+{% for model in models %}
+            <ul>
+                <li onclick="showdevice('{{ model }}')">{{ model }} ({{ deviceNames[model] }})</li>
+            </ul>
+{% endfor %}
+{% endfor %}
+        </ul>
+    </div>
+    <div id="buildlist">
+        <span id="selectdevice" class="buildspans">
+            <p>Please select a device to see the builds that are available.</p>
+        </span>
+{% for model,builds in sortedBuilds %}
+        <span id="{{ model }}-span" class="buildspans" style="display: none;">
+            <h2 id="{{ model }}">{{ model }}</h2>
+{% if deviceNames[model] is defined %}
+            <h3>({{ vendorNames[model] }} {{ deviceNames[model] }})</h3>
+{% endif %}
+            <table>
+              	<thead>
+            		<tr>
+            			<th>Channel</th>
+            			<th>Version</th>
+            			<th>Filename</th>
+            			<th>Size</th>
+            			<th>Source</th>
+            			<th>Date<br>(Y//M/D)</th>
+            		</tr>
+            	</thead>
+
+            	<tbody>
+{% for build in builds %}
+                    <tr>
+                        <td>{{ build['channel'] }}</td>
+                        <td>{{ build['version'] }}</td>
+                        <td><a href="{{ build['url'] }}">{{ build['filename'] }}</a><br>[md5sum: {{ build['md5sum'] }}]</td>
+                        <td>{% set filename = build['filename'] %}{{ formatedFileSizes[filename] }}</td>
+{% if build['url'] matches '/github\.com/' %}
+                        <td><a href="' . {{ branding['LocalURL'] }}">local</a></td>
+{% else %}
+                        <td><a href="' . {{ branding['GithubURL'] }}">Github</a></td>
+{% endif %}
+                        <td>{{ build['timestamp'] | date('Y/m/d') }}</td>
+                    </tr>
+{% endfor %}
+              	</tbody>
+            </table>
+        </span>
+{% endfor %}
+
+    </div>
+</div>
+
+</body>
+</html>
