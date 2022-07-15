@@ -58,9 +58,19 @@
 
                 $this->buildProp = explode( "\n", $propsFileContent );
 
+                if ( $tokens['date'] == '' ) {
+                    $timestamp = filemtime( $this->filePath );
+                } else {
+                    $timezone = date_default_timezone_get();
+                    date_default_timezone_set('Pacific/Kiritimati'); // the earliest time zone on Earth UTC+14:00
+                    $d = date_parse_from_format('Ymd', $tokens['date']);
+                    $timestamp = mktime(0, 0, 0, $d['month'], $d['day'], $d['year']);
+                    date_default_timezone_set($timezone);
+                }
+
                 // Try to fetch build.prop values. In some cases, we can provide a fallback, in other a null value will be given
                 $this->channel      = $this->_getChannel( $this->getBuildPropValue( 'ro.lineage.releasetype' ) ?? str_replace( range( 0 , 9 ), '', $tokens['channel'] ), $tokens['type'], $tokens['version'] );
-                $this->timestamp    = intval( $this->getBuildPropValue( 'ro.build.date.utc' ) ?? filemtime( $this->filePath ) );
+                $this->timestamp    = intval( $this->getBuildPropValue( 'ro.build.date.utc' ) ?? $timestamp );
                 $this->incremental  = $this->getBuildPropValue( 'ro.build.version.incremental' ) ?? '';
                 $this->apiLevel     = $this->getBuildPropValue( 'ro.build.version.sdk' ) ?? '';
                 $this->model        = $this->getBuildPropValue( 'ro.lineage.device' ) ?? $this->getBuildPropValue( 'ro.cm.device' ) ?? $tokens['model'];
