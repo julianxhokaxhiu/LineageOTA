@@ -273,8 +273,8 @@
             if( $token > '' ) {
                 $ret = $token;
 
-                if( $token == 'experimental' && ( $type == 'cm' || version_compare ( $version, '14.1', '<' ) ) ) $ret = 'snapshot';
-                if( $token == 'unofficial' && ( $type == 'cm' || version_compare ( $version, '14.1', '<' ) ) ) $ret = 'nightly';
+                if( $token == 'experimental' && ( $type == 'cm' || ( $type == 'lineage' && version_compare ( $version, '14.1', '<' ) ) ) ) $ret = 'snapshot';
+                if( $token == 'unofficial' && ( $type == 'cm' || ( $type == 'lineage' && version_compare ( $version, '14.1', '<' ) ) ) ) $ret = 'nightly';
             }
 
             return $ret;
