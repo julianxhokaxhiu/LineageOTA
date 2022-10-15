@@ -267,23 +267,26 @@
                                 // Bump our release counter for this repo
                                 $releaseCount++;
 
-                                // Check to see if we're reached out maximum release count yet, or this our max release age,
-                                // if so we can exit the loop and not get any more results
-                                if( $releaseCount > $maxReleases || strtotime( $release['published_at'] ) < $maxAge ) {
+                                // Check to see if we're reached out maximum release count yet, if so we can exit the
+                                // loop and not get any more results.
+                                if( $releaseCount > $maxReleases ) {
                                     $pageCount = false;
 
                                     break 1;
                                 }
 
-                                $build = new BuildGithub( $release );
+                                // Check to see if this release is older than our max release age, if so we can skip it.
+                                if( strtotime( $release['published_at'] ) >= $maxAge ) {
+                                    $build = new BuildGithub( $release );
 
-                                // Store this build to the cache
-                                if( $cacheEnabled ) {
-                                    array_push( $githubBuilds, $build->exportData() );
-                                }
+                                    // Store this build to the cache
+                                    if( $cacheEnabled ) {
+                                        array_push( $githubBuilds, $build->exportData() );
+                                    }
 
-                                if ( $build->isValid( $this->postData['params'] ) ) {
-                                    array_push( $this->builds, $build );
+                                    if ( $build->isValid( $this->postData['params'] ) ) {
+                                        array_push( $this->builds, $build );
+                                    }
                                 }
                             }
                         }
