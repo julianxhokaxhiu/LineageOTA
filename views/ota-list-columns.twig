@@ -47,9 +47,9 @@
                     <td>{% set filename = build['filename'] %}{{ formatedFileSizes[filename] }}</td>
 
 {% if build['url'] matches '/github\.com/' %}
-                    <td><a href="' . {{ branding['GithubURL'] }}">Github</a></td>
+                    <td><a href="{{ branding['GithubURL'] }}">Github</a></td>
 {% else %}
-                    <td><a href="' . {{ branding['LocalURL'] }}">local</a></td>
+                    <td><a href="{{ branding['LocalURL'] }}">local</a></td>
 {% endif %}
 
                     <td>{{ build['timestamp'] | date('Y/m/d') }}</td>

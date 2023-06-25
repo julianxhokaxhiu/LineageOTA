@@ -285,7 +285,7 @@
          * @param string $fileName The name of the file
          * @return string The absolute URL for the file to be downloaded
          */
-        protected function _getUrl( $fileName = '', $basePath ) {
+        protected function _getUrl( $fileName, $basePath ) {
             $prop = $this->getBuildPropValue( 'ro.build.ota.url' );
 
             if( !empty( $prop ) )
