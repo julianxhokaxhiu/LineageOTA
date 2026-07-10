@@ -272,7 +272,7 @@ cm.updater.uri=http://my.ota.uri/api/v1/{device}/{type}/{incr}
 >   {type} - Build type
 >   {incr} - Incremental version
 
-#### LineageOS ( >= 15.x)
+#### LineageOS ( >= 15.x )
 
 In order to integrate this in your LineageOS based ROM, you need to add the [`lineage.updater.uri`](https://github.com/LineageOS/android_packages_apps_Updater/blob/lineage-15.0/src/org/lineageos/updater/misc/Constants.java#L39) property in your `build.prop` file. See this example:
 
@@ -292,6 +292,17 @@ Make always sure to provide a HTTPS based uri, otherwise the updater will reject
 >   {type} - Build type
 >   {incr} - Incremental version
 
+#### LineageOS ( >= 23.2 )
+
+In order to integrate this in your LineageOS based ROM, you need to add the [`lineage.updater.uri`](https://github.com/LineageOS/android_packages_apps_Updater/blob/lineage-23.2/app/src/main/java/org/lineageos/updater/deviceinfo/DeviceInfoUtils.kt#L23) property in your `build.prop` file. See this example:
+
+```properties
+# ...
+lineage.updater.uri=https://my.ota.uri/api/v2/devices/{device}/builds
+# ...
+```
+
+Make always sure to provide a HTTPS based uri, otherwise the updater will reject to connect with your server! This is caused by the security policies newer versions of Android (at least 10+) include, as any app wanting to use non-secured connections must explicitly enable this during the compilation. The LineageOS Updater does not support that.
 
 ### android_packages_apps_CMUpdater
 
