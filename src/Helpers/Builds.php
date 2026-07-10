@@ -54,10 +54,7 @@
          * @return array An array preformatted with builds
          */
     	public function get() {
-            // Time to get the builds.
-            $this->builds = array();
-            $this->getBuildsLocal();
-            $this->getBuildsGithub();
+            $this->collectBuilds();
 
     		$ret = array();
 
@@ -85,6 +82,39 @@
 
             return $ret;
     	}
+
+        /**
+         * Return a LineageOS updater v2 compatible response list.
+         * @return array An array preformatted with builds
+         */
+	    public function getV2() {
+            $this->collectBuilds();
+
+            $ret = array();
+
+            foreach( $this->builds as $build ) {
+                array_push( $ret,
+                            array(
+                                'datetime' => $build->getTimestamp(),
+                                'files' => array(
+                                    array(
+                                        'filename' => $build->getFilename(),
+                                        'os_patch_level' => $build->getOsPatchLevel(),
+                                        'os_sdk_level' => intval( $build->getApiLevel() ),
+                                        'ota_property_files' => $build->getOtaPropertyFiles(),
+                                        'sha256' => $build->getSha256(),
+                                        'size' => $build->getSize(),
+                                        'url' => $build->getUrl(),
+                                    ),
+                                ),
+                                'type' => $build->getChannel(),
+                                'version' => $build->getVersion(),
+                            )
+                        );
+            }
+
+            return $ret;
+	    }
 
         /**
          * Set a custom set of POST data. Useful to hack the flow in case the data doesn't come within the body of the HTTP request
@@ -128,6 +158,13 @@
     	}
 
         /* Utility / Internal */
+
+	    private function collectBuilds() {
+            // Time to get the builds.
+            $this->builds = array();
+            $this->getBuildsLocal();
+            $this->getBuildsGithub();
+	    }
 
     	private function getBuildsLocal() {
             // Check to see if local builds are disabled in the config file.

@@ -41,7 +41,9 @@
     	    $archives = array();
     	    $properties = array();
     	    $md5sums = array();
+    	    $sha256sums = array();
     	    $changelogs = array();
+    	    $metadataFiles = array();
 
             // If data is passed in, just import it instead of doing the work to construct the object from scratch
             if( is_array( $data ) ) {
@@ -67,8 +69,16 @@
                                     array_push( $md5sums, $asset );
 
                                     break;
+                                case 'sha256sum':
+                                    array_push( $sha256sums, $asset );
+
+                                    break;
                                 case 'prop':
                                     array_push( $properties, $asset );
+
+                                    break;
+                                case 'metadata':
+                                    array_push( $metadataFiles, $asset );
 
                                     break;
                             }
@@ -101,6 +111,13 @@
                     $this->incremental  = $this->getBuildPropValue( 'ro.build.version.incremental' ) ?? '';
                     $this->apiLevel     = $this->getBuildPropValue( 'ro.build.version.sdk' ) ?? '';
                     $this->model        = $this->getBuildPropValue( 'ro.lineage.device' ) ?? $this->getBuildPropValue( 'ro.cm.device' ) ?? $this->model;
+                    $this->osPatchLevel = $this->getBuildPropValue( 'ro.build.version.security_patch' ) ?? '';
+                }
+
+                foreach( $metadataFiles as $metadataFile ) {
+                    if( $metadataFile['name'] == $this->filename . '.metadata' || $metadataFile['name'] == 'metadata' ) {
+                        $this->loadOtaMetadataFromContents( file_get_contents( $metadataFile['browser_download_url'] ) );
+                    }
                 }
 
                 foreach ( $md5sums as $md5sum ) {
@@ -110,6 +127,15 @@
                         $this->md5 = $md5[$this->filename];
                     }
                 }
+
+                foreach( $sha256sums as $sha256sum ) {
+                    $sha256 = $this->parseChecksumList( file_get_contents( $sha256sum['browser_download_url'] ) );
+
+                    if( array_key_exists( $this->filename, $sha256 ) ) {
+                        $this->sha256 = $sha256[$this->filename];
+                    }
+                }
+
                 foreach( $changelogs as $changelog ) {
                     $this->changelogUrl = $changelog['browser_download_url'];
                 }
@@ -139,19 +165,7 @@
          * @return array The MD5 hashes
          */
         private function parseMD5( $file ){
-            $ret = array( );
-
-            $md5sums = explode( "\n", file_get_contents( $file ) );
-
-            foreach( $md5sums as $md5sum ) {
-                $md5 = explode( "  ", $md5sum );
-
-                if( count( $md5 ) == 2 ) {
-                    $ret[$md5[1]] = $md5[0];
-                }
-            }
-
-            return $ret;
+            return $this->parseChecksumList( file_get_contents( $file ) );
         }
 
     }

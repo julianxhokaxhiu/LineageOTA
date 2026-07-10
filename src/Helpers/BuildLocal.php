@@ -57,6 +57,11 @@
                 }
 
                 $this->buildProp = explode( "\n", $propsFileContent );
+                $this->loadOtaMetadataFromContents( @file_get_contents( 'zip://' . $this->filePath . '#META-INF/com/android/metadata' ) );
+
+                if( count( $this->otaMetadata ) === 0 ) {
+                    $this->loadOtaMetadataFromContents( @file_get_contents( $this->filePath . '.metadata' ) );
+                }
 
                 if ( $tokens['date'] == '' ) {
                     $timestamp = filemtime( $this->filePath );
@@ -70,13 +75,14 @@
 
                 // Try to fetch build.prop values. In some cases, we can provide a fallback, in other a null value will be given
                 $this->channel      = $this->_getChannel( $this->getBuildPropValue( 'ro.lineage.releasetype' ) ?? str_replace( range( 0 , 9 ), '', $tokens['channel'] ), $tokens['type'], $tokens['version'] );
-                $this->timestamp    = intval( $this->getBuildPropValue( 'ro.build.date.utc' ) ?? $timestamp );
-                $this->incremental  = $this->getBuildPropValue( 'ro.build.version.incremental' ) ?? '';
-                $this->apiLevel     = $this->getBuildPropValue( 'ro.build.version.sdk' ) ?? '';
-                $this->model        = $this->getBuildPropValue( 'ro.lineage.device' ) ?? $this->getBuildPropValue( 'ro.cm.device' ) ?? $tokens['model'];
+                $this->timestamp    = intval( $this->getBuildPropValue( 'ro.build.date.utc', $this->getOtaMetadataValue( 'post-timestamp', $timestamp ) ) );
+                $this->incremental  = $this->getBuildPropValue( 'ro.build.version.incremental', $this->getOtaMetadataValue( 'post-build-incremental', '' ) ) ?? '';
+                $this->apiLevel     = $this->getBuildPropValue( 'ro.build.version.sdk', $this->getOtaMetadataValue( 'post-sdk-level', '' ) ) ?? '';
+                $this->model        = $this->getBuildPropValue( 'ro.lineage.device', $this->getBuildPropValue( 'ro.cm.device', $this->getPrimaryDeviceFromMetadata( $tokens['model'] ) ) );
                 $this->version      = $tokens['version'];
                 $this->uid          = hash( 'sha256', $this->timestamp . $this->model . $this->apiLevel, false );
                 $this->size         = filesize( $this->filePath );
+                $this->osPatchLevel = $this->getBuildPropValue( 'ro.build.version.security_patch', $this->getOtaMetadataValue( 'post-security-patch-level', '' ) ) ?? '';
 
                 $position = strrpos( $physicalPath, '/builds/full' );
 
@@ -87,6 +93,7 @@
 
                 $this->changelogUrl = $this->_getChangelogUrl();
                 $this->md5          = $this->_getMD5();
+                $this->sha256       = $this->_getSHA256();
             }
         }
 
@@ -136,6 +143,39 @@
                 $ret = $tmp[0];
             } else {
                 $ret = md5_file( $path );
+            }
+
+            return $ret;
+        }
+
+        /**
+         * Return the SHA-256 value of the current build
+         * @param string $path The path of the file
+         * @return string The SHA-256 hash
+         */
+        private function _getSHA256( $path = '' ) {
+            $ret = '';
+
+            if( empty( $path ) ) $path = $this->filePath;
+
+            if( file_exists( $path . '.sha256sum' ) ) {
+                $checksums = $this->parseChecksumList( file_get_contents( $path . '.sha256sum' ) );
+
+                if( array_key_exists( basename( $path ), $checksums ) ) {
+                    $ret = $checksums[basename( $path )];
+                }
+            }
+
+            if( empty( $ret ) && $this->commandExists( 'sha256sum' ) ) {
+                $tmp = preg_split( '/\s+/', trim( exec( 'sha256sum ' . escapeshellarg( $path ) ) ), 2 );
+
+                if( count( $tmp ) > 0 ) {
+                    $ret = $tmp[0];
+                }
+            }
+
+            if( empty( $ret ) ) {
+                $ret = hash_file( 'sha256', $path );
             }
 
             return $ret;

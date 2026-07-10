@@ -279,6 +279,19 @@
 
                 Flight::json( $ret );
             });
+
+            Flight::route( '/api/v2/devices/@deviceType/builds', function ( $deviceType ) {
+                Flight::builds()->setPostData(
+                    array(
+                        'params' => array(
+                            'device' => $deviceType,
+                            'channels' => array(),
+                        ),
+                    )
+                );
+
+                Flight::json( Flight::builds()->getV2() );
+            });
         }
 
         /**

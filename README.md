@@ -211,6 +211,37 @@ The following variables are available for templates:
 * branding: An array of branding info for the updates, contains; name, GithubURL, LocalURL
 * formatedFileSizes: An array of human friendly file sizes for each release file, keyed on filenames (from the builds array), values as strings like "1.1 GB"
 
+## API v2
+
+LineageOTA also exposes a `/api/v2` endpoint for clients that expect the newer LineageOS updater payload shape:
+
+```json
+[
+    {
+        "datetime": 1781858358,
+        "files": [
+            {
+                "filename": "ota-package.zip",
+                "os_patch_level": "2026-06-01",
+                "os_sdk_level": 36,
+                "ota_property_files": "payload_metadata.bin:4662:187245,payload.bin:4662:1926274191,payload_properties.txt:1926278911:156,apex_info.pb:2220:1279,care_map.pb:3546:1069,metadata:69:683,metadata.pb:820:1352",
+                "sha256": "11468fc263696b8bc0afd35861c35d62a562ba29722447a3972c39f0023deb7f",
+                "size": 1926282058,
+                "url": "https://example.com/full/ota-package.zip"
+            }
+        ],
+        "type": "nightly",
+        "version": "23.2"
+    }
+]
+```
+
+For local builds, `os_patch_level` and `ota_property_files` are read directly from `META-INF/com/android/metadata` inside the OTA zip, with an optional `.metadata` sidecar fallback next to the zip. `sha256` is read from an optional `.sha256sum` sidecar when present, otherwise it is computed from the archive.
+
+For Github-hosted builds, the same fields are filled from optional companion assets when available: `.prop` for Android properties, `.metadata` for OTA package metadata, and `.sha256sum` for checksums.
+
+To fetch only the builds for a specific device, use `/api/v2/devices/{device}/builds`. This applies the same device filtering model as the existing v1 API, but returns the v2 payload shape.
+
 ## REST Server Unit Testing
 
 Feel free to use this [simple script](https://github.com/julianxhokaxhiu/LineageOTAUnitTest) made with NodeJS. Instructions are included.
@@ -271,6 +302,9 @@ In order to integrate this in your [CyanogenMod](https://github.com/lineageos/an
 > Using the `build.prop` instead offers an easy and smooth integration, which could potentially be used even in local builds that make use fully of the official repos, but only updates through a local OTA REST Server. For example, by using the [docker-lineage-cicd](https://github.com/julianxhokaxhiu/docker-lineage-cicd) project.
 
 ## Changelog
+
+### Next
+- Add support for `/api/v2/devices` endpoint ( supports the new LineageOS updater app, see https://github.com/julianxhokaxhiu/LineageOTA/issues/111 )
 
 ### v2.10.0
 - Added template system for web root ( thanks to @toolstack )

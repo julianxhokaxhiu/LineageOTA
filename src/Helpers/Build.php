@@ -43,6 +43,10 @@
         protected $size = '';
         protected $md5 = '';
         protected $version = '';
+        protected $osPatchLevel = '';
+        protected $otaPropertyFiles = '';
+        protected $sha256 = '';
+        protected $otaMetadata = array();
 
         /**
          * Check if the current build is valid within the current request
@@ -55,7 +59,9 @@
             $ret = false;
 
             if( $params['device'] == $this->model ) {
-                if( count($params['channels']) > 0 ) {
+                if( !array_key_exists( 'channels', $params ) || count($params['channels']) === 0 ) {
+                    $ret = true;
+                } else {
                     foreach( $params['channels'] as $channel ) {
                         if( strtolower($channel) == $this->channel ) $ret = true;
                     }
@@ -153,6 +159,30 @@
          */
         public function getVersion() {
             return $this->version;
+        }
+
+        /**
+         * Get the OS patch level for the current build.
+         * @return string The Android security patch level
+         */
+        public function getOsPatchLevel() {
+            return $this->osPatchLevel;
+        }
+
+        /**
+         * Get the OTA property-files string for the current build.
+         * @return string The OTA property-files value
+         */
+        public function getOtaPropertyFiles() {
+            return $this->otaPropertyFiles;
+        }
+
+        /**
+         * Return the SHA-256 value of the current build.
+         * @return string The SHA-256 hash
+         */
+        public function getSha256() {
+            return $this->sha256;
         }
 
         /**
@@ -314,6 +344,128 @@
 
                         break;
                     }
+                }
+            }
+
+            return $ret;
+        }
+
+        /**
+         * Get a property value based on OTA metadata entries.
+         * @param string $key The key for the wanted value
+         * @param string $fallback The fallback value if not found
+         * @return string The value for the specified key
+         */
+        protected function getOtaMetadataValue( $key, $fallback = null ) {
+            if( array_key_exists( $key, $this->otaMetadata ) ) {
+                return trim( $this->otaMetadata[$key] );
+            }
+
+            return $fallback;
+        }
+
+        /**
+         * Parse OTA metadata contents and cache the key fields used by /api/v2.
+         * @param string $contents Raw contents of META-INF/com/android/metadata
+         * @return void
+         */
+        protected function loadOtaMetadataFromContents( $contents ) {
+            if( $contents === false || $contents === null || trim( $contents ) === '' ) {
+                return;
+            }
+
+            $metadata = array();
+            $lines = preg_split( '/\r\n|\r|\n/', $contents );
+
+            foreach( $lines as $line ) {
+                $line = trim( $line );
+
+                if( $line === '' || strpos( $line, '=' ) === false ) {
+                    continue;
+                }
+
+                list( $key, $value ) = explode( '=', $line, 2 );
+                $metadata[trim( $key )] = trim( $value );
+            }
+
+            if( count( $metadata ) === 0 ) {
+                return;
+            }
+
+            $this->otaMetadata = array_merge( $this->otaMetadata, $metadata );
+
+            if( empty( $this->otaPropertyFiles ) ) {
+                $this->otaPropertyFiles = $this->getOtaMetadataValue( 'ota-property-files', '' );
+            }
+
+            if( empty( $this->osPatchLevel ) ) {
+                $this->osPatchLevel = $this->getOtaMetadataValue( 'post-security-patch-level', '' );
+            }
+
+            $metadataApiLevel = $this->getOtaMetadataValue( 'post-sdk-level' );
+            if( $metadataApiLevel !== null && $metadataApiLevel !== '' ) {
+                $this->apiLevel = $metadataApiLevel;
+            }
+
+            if( empty( $this->incremental ) ) {
+                $this->incremental = $this->getOtaMetadataValue( 'post-build-incremental', $this->incremental );
+            }
+
+            if( empty( $this->timestamp ) ) {
+                $metadataTimestamp = $this->getOtaMetadataValue( 'post-timestamp' );
+
+                if( $metadataTimestamp !== null && $metadataTimestamp !== '' ) {
+                    $this->timestamp = intval( $metadataTimestamp );
+                }
+            }
+
+            if( empty( $this->model ) ) {
+                $this->model = $this->getPrimaryDeviceFromMetadata( '' );
+            }
+        }
+
+        /**
+         * Return the primary device codename from OTA metadata.
+         * @param string $fallback The fallback value if not found
+         * @return string The primary device codename
+         */
+        protected function getPrimaryDeviceFromMetadata( $fallback = '' ) {
+            $devices = $this->getOtaMetadataValue( 'pre-device', '' );
+
+            if( $devices === '' ) {
+                return $fallback;
+            }
+
+            $deviceList = explode( ',', $devices );
+
+            return trim( $deviceList[0] );
+        }
+
+        /**
+         * Parse a checksum list where each line is "HASH  FILENAME".
+         * @param string $contents The raw checksum file contents
+         * @return array The parsed checksums keyed by filename
+         */
+        protected function parseChecksumList( $contents ) {
+            $ret = array();
+
+            if( $contents === false || $contents === null || trim( $contents ) === '' ) {
+                return $ret;
+            }
+
+            $lines = preg_split( '/\r\n|\r|\n/', $contents );
+
+            foreach( $lines as $line ) {
+                $line = trim( $line );
+
+                if( $line === '' ) {
+                    continue;
+                }
+
+                $tokens = preg_split( '/\s+/', $line, 2 );
+
+                if( count( $tokens ) === 2 ) {
+                    $ret[trim( $tokens[1] )] = trim( $tokens[0] );
                 }
             }
 
