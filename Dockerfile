@@ -1,5 +1,5 @@
-FROM php:8.2-apache
-MAINTAINER Julian Xhokaxhiu <info at julianxhokaxhiu dot com>
+FROM php:8.5-apache
+LABEL org.opencontainers.image.authors="Julian Xhokaxhiu <https://julianxhokaxhiu.com>"
 
 # internal variables
 ENV HTML_DIR /var/www/html
@@ -17,7 +17,7 @@ RUN apt-get update \
                 zlib1g-dev \
                 libzip-dev \
         " \
-        && apt-get install -y git libzip4 $buildDeps --no-install-recommends \
+        && apt-get install -y git libzip5 $buildDeps --no-install-recommends \
         && rm -r /var/lib/apt/lists/* \
         \
         && docker-php-ext-install zip \
