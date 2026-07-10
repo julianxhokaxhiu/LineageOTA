@@ -89,7 +89,7 @@
                 if( $position === FALSE )
                     $this->url      = $this->_getUrl( '', Flight::cfg()->get( 'buildsPath' ) );
                 else
-                    $this->url      = $this->_getUrl( '', Flight::cfg()->get( 'basePath' ) . substr( $physicalPath, $position ) );
+                    $this->url      = $this->_getUrl( '', rtrim( Flight::cfg()->get( 'basePath' ), '/' ) . substr( $physicalPath, $position ) );
 
                 $this->changelogUrl = $this->_getChangelogUrl();
                 $this->md5          = $this->_getMD5();
