@@ -13,7 +13,7 @@ on:
 env:
   _RELEASE_NAME: julianxhokaxhiu/lineageota
   _RELEASE_VERSION: v0
-  _BUILD_VERSION: "2.9.0.${{ github.run_number }}"
+  _BUILD_VERSION: "2.10.0.${{ github.run_number }}"
   _BUILD_BRANCH: "${{ github.ref }}"
 
 jobs:

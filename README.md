@@ -272,7 +272,7 @@ In order to integrate this in your [CyanogenMod](https://github.com/lineageos/an
 
 ## Changelog
 
-### v?.?.?
+### v2.10.0
 - Added template system for web root ( thanks to @toolstack )
 - Added config option to limit the number/age of github releases ( thanks to @toolstack )
 - Fixed Github returning only the first 100 releases ( thanks to @toolstack )
