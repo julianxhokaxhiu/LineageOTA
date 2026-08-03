@@ -316,6 +316,7 @@ In order to integrate this in your [CyanogenMod](https://github.com/lineageos/an
 
 ### Next
 - Add support for `/api/v2/devices` endpoint ( supports the new LineageOS updater app, see https://github.com/julianxhokaxhiu/LineageOTA/issues/111 )
+- Migrate to PHP Alpine images for Docker
 
 ### v2.10.0
 - Added template system for web root ( thanks to @toolstack )
