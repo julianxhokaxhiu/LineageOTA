@@ -78,7 +78,7 @@
                 $this->timestamp    = intval( $this->getBuildPropValue( 'ro.build.date.utc', $this->getOtaMetadataValue( 'post-timestamp', $timestamp ) ) );
                 $this->incremental  = $this->getBuildPropValue( 'ro.build.version.incremental', $this->getOtaMetadataValue( 'post-build-incremental', '' ) ) ?? '';
                 $this->apiLevel     = $this->getBuildPropValue( 'ro.build.version.sdk', $this->getOtaMetadataValue( 'post-sdk-level', '' ) ) ?? '';
-                $this->model        = $this->getBuildPropValue( 'ro.lineage.device', $this->getBuildPropValue( 'ro.cm.device', $this->getPrimaryDeviceFromMetadata( $tokens['model'] ) ) );
+                $this->model        = $this->getBuildPropValue( 'ro.lineage.device', $this->getBuildPropValue( 'ro.cm.device', $tokens['model'] ) );
                 $this->version      = $tokens['version'];
                 $this->uid          = hash( 'sha256', $this->timestamp . $this->model . $this->apiLevel, false );
                 $this->size         = filesize( $this->filePath );
