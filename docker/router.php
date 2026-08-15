@@ -10,6 +10,12 @@ if ($path === '/' || $file === false || is_dir($file) || !str_starts_with($file,
 }
 
 $size = filesize($file);
+ignore_user_abort(true);
+set_time_limit(0);
+while (ob_get_level() > 0) {
+    ob_end_clean();
+}
+
 header('Accept-Ranges: bytes');
 header('Content-Type: application/zip');
 
@@ -18,6 +24,7 @@ if (!isset($_SERVER['HTTP_RANGE'])) {
     $fp = fopen($file, 'rb');
     while (!feof($fp)) {
         echo fread($fp, 8192);
+        flush();
     }
     fclose($fp);
     return;
@@ -52,6 +59,7 @@ while ($remaining > 0) {
     $chunk = fread($fp, min(8192, $remaining));
     if ($chunk === false) break;
     echo $chunk;
+    flush();
     $remaining -= strlen($chunk);
 }
 fclose($fp);
