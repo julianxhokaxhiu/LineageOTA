@@ -18,6 +18,7 @@ while (ob_get_level() > 0) {
 
 header('Accept-Ranges: bytes');
 header('Content-Type: application/zip');
+header('X-Accel-Buffering: no');
 
 if (!isset($_SERVER['HTTP_RANGE'])) {
     header('Content-Length: ' . $size);
