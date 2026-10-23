@@ -1,6 +1,7 @@
 name: LineageOTA
 
 on:
+  workflow_dispatch:
   push:
     branches:
     - '2.0'
